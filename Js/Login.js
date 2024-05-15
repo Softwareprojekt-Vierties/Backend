@@ -9,16 +9,15 @@ module.exports = async(req, res) => {
         const user  = await Database.getUserByEmail(email,pass);
         if(user!=null)
         {
-            console.log(user);
-            return res.status(200).send(user);
+            const token = jwt.sign(user,secret,{expiresIn: '3h'});
+            res.cookie("token",token,{httpOnly:true});
+            return res.status(200).send("Logged in");
         }
         else
         {
             console.log("Wrong Password");
             return res.status(400).send("Wrong Password");
-            //const token = jwt.sign(user.id,secret,{expiresIn: '3h'});
-            //res.cookie("token",token,{httpOnly:true});
-            //return res.redirect('/home');
+            
         }
     }
     catch(err)
