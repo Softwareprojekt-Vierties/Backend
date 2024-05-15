@@ -1,9 +1,12 @@
 const express = require("express"); // import express for REST API
+const cookieParser = require("cookie-parser"); // import cookie parser for cookies
 const app = express(); // create app used for the Server 
 const port = 5000; // connection port
 const login = require('./Login'); // import login.js file
 
+//middleware
 app.use(express.json()); // requiert to parse JSON form requests 
+app.use(cookieParser()); // requiert to parse cookies
 
 app.get('/test/:id', (req,res)=>{    // test get function
    const {id} = req.params;
@@ -23,17 +26,7 @@ app.post('/testpost/:id', (req,res)=>{
     res.status(200).send("ur id is: "+id+" and ur body is: "+servus);
 });
 
-app.post('/login', (req,res)=>{
-    const {user,pass} = req.body;
-    if(login.Auth(user,pass))
-    {
-        res.status(200).send("Login successfull");
-    }
-    else
-    {
-        req.redirect('/login');
-    }
-});
+app.post('/login', login);
 
 
 app.listen(port, (error) => {           // starts the server on the port
