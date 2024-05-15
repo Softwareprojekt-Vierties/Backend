@@ -1,6 +1,7 @@
 const express = require("express"); // import express for REST API
 const app = express(); // create app used for the Server 
 const port = 5000; // connection port
+const login = require('./Login'); // import login.js file
 
 app.use(express.json()); // requiert to parse JSON form requests 
 
@@ -22,23 +23,16 @@ app.post('/testpost/:id', (req,res)=>{
     res.status(200).send("ur id is: "+id+" and ur body is: "+servus);
 });
 
-app.post('/search', (req,res)=>{
-    if(!req.body)
-        {
-            res.status(404).send("no body found");
-        }
+app.post('/login', (req,res)=>{
+    const {user,pass} = req.body;
+    if(login.Auth(user,pass))
+    {
+        res.status(200).send("Login successfull");
+    }
     else
     {
-        if(req.body.filter == "hallo")
-        {
-            res.status(200).send("you searched for hallo")
-        }
-        else
-        {
-            res.status(400).send("no filter could be found");
-        }
+        req.redirect('/login');
     }
-    
 });
 
 
