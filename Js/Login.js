@@ -1,6 +1,7 @@
+require('dotenv').config();
 const jwt = require('jsonwebtoken');
 const Database = require('./Database.js');
-const secret = "BruhnsmanIsTheBest"
+
 
 module.exports = async(req, res) => {
     const {email, pass} = req.body;
@@ -9,7 +10,7 @@ module.exports = async(req, res) => {
         const user  = await Database.getUserByEmail(email,pass);
         if(user!=null)
         {
-            const token = jwt.sign(user,secret,{expiresIn: '3h'});
+            const token = jwt.sign(user,process.env.SECRET,{expiresIn: '3h'});
             res.cookie("token",token,{httpOnly:true});
             return res.status(200).send("Logged in");
         }

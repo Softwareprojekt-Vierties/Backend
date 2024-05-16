@@ -1,5 +1,6 @@
 const {Pool} = require('pg');
 
+
 const pool = new Pool({
     host: 'dpg-cp2a9l6n7f5s73fe0sv0-a.frankfurt-postgres.render.com',
     user: 'eventuredb_user',
