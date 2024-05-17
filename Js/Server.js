@@ -32,12 +32,12 @@ app.post('/testpost/:id', (req,res)=>{
 
 app.post('/login', login);
 
-app.get("/profiel",cookieJwtAuth.Auth, (req,res)=>{     // test function
+app.get("/MyPage",cookieJwtAuth.Auth, (req,res)=>{     // test function
     const user = cookieJwtAuth.getUser(req);
     res.status(200).send("Welcome "+user.uuid);
 })
 
-app.post('/registration', registration);
+app.post('/register', registration);
 
 
 app.listen(port, (error) => {           // starts the server on the port
