@@ -40,6 +40,19 @@ async function getUserByEmail(email,pass){
     
 }
 
-module.exports = {getUserById, getUserByEmail};
+function createUser(email,pass,name){
+    pool.query("INSERT INTO app_user (email,password,name) VALUES ('"+email+"','"+pass+"','"+name+"')", (err,res) =>{
+        if(err)
+        {
+            console.log(err);
+        }
+        else
+        {
+            console.log("User created");
+        }
+    });
+}
+
+module.exports = {getUserById, getUserByEmail,createUser};
 
 

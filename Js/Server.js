@@ -5,6 +5,7 @@ const app = express(); // create app used for the Server
 const port = 5000; // connection port
 const login = require('./Login'); // import login.js file
 const cookieJwtAuth = require('./CookieJwtAuth'); // import CookieJwtAuth.js file
+const registration = require('./Registration'); // import Registration.js file
 
 //middleware
 app.use(express.json()); // requiert to parse JSON form requests 
@@ -35,6 +36,8 @@ app.get("/profiel",cookieJwtAuth.Auth, (req,res)=>{     // test function
     const user = cookieJwtAuth.getUser(req);
     res.status(200).send("Welcome "+user.uuid);
 })
+
+app.post('/registration', registration);
 
 
 app.listen(port, (error) => {           // starts the server on the port
