@@ -1,6 +1,8 @@
 const express = require("express"); // import express for REST API
 const app = express(); // create app used for the Server 
 const port = 5000; // connection port
+const event = require("./Event.js")
+
 
 app.use(express.json()); // requiert to parse JSON form requests 
 
@@ -41,6 +43,7 @@ app.post('/search', (req,res)=>{
     
 });
 
+app.post('/event',event.searchEvent)
 
 app.listen(port, (error) => {           // starts the server on the port
     if (error) {
