@@ -11,7 +11,7 @@ module.exports = async(req, res) => {
         if(user!=null)
         {
             const token = jwt.sign(user,process.env.SECRET,{expiresIn: '3h'});
-            res.cookie("token",token);
+            res.cookie("token",token,{httpOnly:true});
             return res.status(200).send("Logged in");
         }
         else

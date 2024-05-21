@@ -7,9 +7,11 @@ const login = require('./Login'); // import login.js file
 const cookieJwtAuth = require('./CookieJwtAuth'); // import CookieJwtAuth.js file
 const registration = require('./Registration'); // import Registration.js file
 const cors = require('cors')
-
+const corsOption= {
+    Credential: true
+}
 //middleware
-app.use(cors())
+app.use(cors(corsOption))
 app.use(express.json()); // requiert to parse JSON form requests 
 app.use(cookieParser()); // requiert to parse cookies
 
