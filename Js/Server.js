@@ -15,8 +15,8 @@ app.use(cors(corsOption))
 app.use(express.json()); // requiert to parse JSON form requests 
 app.use(cookieParser()); // requiert to parse cookies
 app.use((req, res, next) => {
-    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.set('X-Content-Type-Options', 'nosniff');
     next();
   });
 
