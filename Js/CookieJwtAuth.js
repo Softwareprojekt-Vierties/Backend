@@ -14,7 +14,7 @@ function Auth (req, res, next){     //checks if there is a JWT cookie
 }
 
 function getUser(req){  // returns the user information form the JWT cookie
-    const token = req.cookies.token;
+    const token =  req.headers["auth"];
     const user = jwt.verify(token, process.env.SECRET);
         return user;
 }
