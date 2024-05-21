@@ -31,14 +31,8 @@ async function searchEvent(req,res){
     }
 
     console.log(searchString)
-    res.send(searchString)
-    
-   
-}
-
-async function createEvent(req,res)
-{
-    	
+    const result = await database.executeScript(searchString)
+    res.send(result)   
 }
 
 module.exports={searchEvent};
