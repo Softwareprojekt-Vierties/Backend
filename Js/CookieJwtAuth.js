@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 
 function Auth (req, res, next){     //checks if there is a JWT cookie 
     const token = req.headers.Auth
+    console.log(token)
     try {
         const user = jwt.verify(token, process.env.SECRET);
         next();
