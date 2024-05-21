@@ -11,12 +11,14 @@ const corsOption= {
     Credential: true
 }
 //middleware
-app.use(cors({
-    origin: 'https://eventureplattform.netlify.app/', // Domain, die die Anfragen stellt
-    credentials: true // Erlaubt das Senden von Cookies
-}));
-app.use(express.json()); // Erforderlich zum Parsen von JSON-Anfragen
-app.use(cookieParser()); // Erforderlich zum Parsen von Cookies
+app.use(cors(corsOption))
+app.use(express.json()); // requiert to parse JSON form requests 
+app.use(cookieParser()); // requiert to parse cookies
+app.use((req, res, next) => {
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.set('X-Content-Type-Options', 'nosniff');
+    next();
+  });
 
 
 app.get('/test/:id', (req,res)=>{    // test get function
