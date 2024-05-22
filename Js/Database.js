@@ -66,10 +66,10 @@ function createCaterer(benutzername, profilname, email, password, profilbild, ku
 }
 
 // public
-function createLocation(addresse, name, beschreibung, ownerID, privat){
+function createLocation(addresse, name, beschreibung, ownerID, privat, kurzbeschreibung, preis, kapazitaet, openair, flaeche){
     pool.query(
-        "INSERT INTO location (addresse, name, beschreibung, ownerid, privat) " + 
-        "VALUES ('" + addresse + "','" + name + "','" + beschreibung + "','" + ownerID + "','" + privat + "')", (err,res) =>{
+        "INSERT INTO location (addresse, name, beschreibung, ownerid, privat, kurzbeschreibung, preis, kapazitaet, openair, flaeche) " + 
+        "VALUES ('" + addresse + "','" + name + "','" + beschreibung + "','" + ownerID + "','" + privat + "','" + kurzbeschreibung + "','" + preis + "','" + kapazitaet + "','" + openair + "','" + flaeche + "')", (err,res) =>{
             if(err) console.log(err);
             else console.log("location created");
     });
@@ -78,8 +78,8 @@ function createLocation(addresse, name, beschreibung, ownerID, privat){
 // public
 function createReviewEvent(inhalt, sterne, ownerid, eventid){
     pool.query(
-        "INSERT INTO review (inhalt, sterne, ownerid, eventid, userid) " + 
-        "VALUES ('" + inhalt + "','" + sterne + "','" + ownerid + "','" + eventid + "','" + null + "')", (err,res) =>{
+        "INSERT INTO review (inhalt, sterne, ownerid, eventid, userid, locationid) " + 
+        "VALUES ('" + inhalt + "','" + sterne + "','" + ownerid + "','" + eventid + "','" + null + "','"  + null + "')", (err,res) =>{
             if(err) console.log(err);
             else console.log("review for event created");
     });
@@ -88,10 +88,20 @@ function createReviewEvent(inhalt, sterne, ownerid, eventid){
 // public
 function createReviewUser(inhalt, sterne, ownerid, userid){
     pool.query(
-        "INSERT INTO review (inhalt, sterne, ownerid, eventid, userid) " + 
-        "VALUES ('" + inhalt + "','" + sterne + "','" + ownerid + "','" + null + "','" + userid + "')", (err,res) =>{
+        "INSERT INTO review (inhalt, sterne, ownerid, eventid, userid, locationid) " + 
+        "VALUES ('" + inhalt + "','" + sterne + "','" + ownerid + "','" + null + "','" + userid + "','" + null + "')", (err,res) =>{
             if(err) console.log(err);
             else console.log("review for user created");
+    });
+}
+
+// public
+function createReviewLocation(inhalt, sterne, ownerid, locationid){
+    pool.query(
+        "INSERT INTO review (inhalt, sterne, ownerid, eventid, userid, locationid) " + 
+        "VALUES ('" + inhalt + "','" + sterne + "','" + ownerid + "','" + null + "','" + null + "','" + locationid + "')", (err,res) =>{
+            if(err) console.log(err);
+            else console.log("review for location created");
     });
 }
 
@@ -234,7 +244,7 @@ async function searchEvent(req,res){
 }
 
 module.exports = {
-    createEndUser, createArtist, createCaterer, createEvent, createLocation, createReviewEvent, createReviewUser, createServiceArtist, createLied, createGericht, createPlaylist, createPlaylistInhalt, createTicket, createServiceArtist,
+    createEndUser, createArtist, createCaterer, createEvent, createLocation, createReviewEvent, createReviewUser, createReviewLocation, createServiceArtist, createLied, createGericht, createPlaylist, createPlaylistInhalt, createTicket, createServiceArtist,
     getUserById, getUserByEmail, searchEvent
 };
 
