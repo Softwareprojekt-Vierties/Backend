@@ -337,7 +337,7 @@ async function getUserByEmail(email,pass){
 }
 
 async function searchEvent(req,res){
-    let searchString = "SELECT e.*, l.name AS locationname FROM event e, location l WHERE l.id = e.locationid";
+    let searchString = "SELECT e.*, l.name AS locationname FROM event e, location l WHERE l.id = e.locationid AND";
     let fileterOptions="";
     let isOpenair =0;
     for(let name in req.body)
