@@ -6,6 +6,7 @@ const port = 5000; // connection port
 const login = require('./Login'); // import login.js file
 const cookieJwtAuth = require('./CookieJwtAuth'); // import CookieJwtAuth.js file
 const registration = require('./Registration'); // import Registration.js file
+const database = require("./Database")
 const cors = require('cors')
 const corsOption= {
     Credential: true
@@ -48,6 +49,11 @@ app.get("/MyPage",cookieJwtAuth.Auth, (req,res)=>{     // test function
 
 app.post('/register', registration);    // register a user
 
+app.post('/event',(req,res)=>{
+    const {eventname,datum,uhrzeit,eventgroesse,preis,altersfreigabe,privat,kurzbeschreibung,beschreibung,bild,ownerid,locationid} = req.body
+    database.createEvent(eventname,datum,uhrzeit,eventgroesse,preis,altersfreigabe,privat,kurzbeschreibung,beschreibung,bild,ownerid,locationid)
+    res.status(200).send("event")
+})    // searchs events with filter param
 
 app.listen(port, (error) => {           // starts the server on the port
     if (error) {
