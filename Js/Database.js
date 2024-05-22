@@ -359,7 +359,7 @@ async function searchEvent(req,res){
                     if(req.body[name][0]=="")
                         {
                             req.body[name][0]=0
-                            if(req.body.name[1]=="")
+                            if(req.body[name][1]=="")
                             {
                                 continue;
                             }
