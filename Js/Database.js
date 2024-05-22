@@ -337,7 +337,7 @@ async function getUserByEmail(email,pass){
 }
 
 async function searchEvent(req,res){
-    let searchString = "SELECT e.*, l.name AS locationname FROM event e, location l WHERE l.id = e.locationid AND";
+    let searchString = "SELECT e.*, l.name AS locationname FROM event e, location l";
     let fileterOptions="";
     let isOpenair =0;
     for(let name in req.body)
@@ -388,6 +388,8 @@ async function searchEvent(req,res){
     {
         searchString+= fileterOptions;
     }
+
+    searchString+= " AND WHERE l.id = e.locationid"
 
     console.log(searchString)
     const result = await pool.query(searchString)
