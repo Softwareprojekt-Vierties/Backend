@@ -49,11 +49,13 @@ app.get("/MyPage",cookieJwtAuth.Auth, (req,res)=>{     // test function
 
 app.post('/register', registration);    // register a user
 
-app.post('/event',(req,res)=>{
+app.post('/searchEvent',database.searchEvent);  // searchs events with filter param
+
+app.post('/createEvent',(req,res)=>{
     const {eventname,datum,uhrzeit,eventgroesse,preis,altersfreigabe,privat,kurzbeschreibung,beschreibung,bild,ownerid,locationid} = req.body
     database.createEvent(eventname,datum,uhrzeit,eventgroesse,preis,altersfreigabe,privat,kurzbeschreibung,beschreibung,bild,ownerid,locationid)
     res.status(200).send("event")
-})    // searchs events with filter param
+})    // creates a new events
 
 app.listen(port, (error) => {           // starts the server on the port
     if (error) {
