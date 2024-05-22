@@ -389,7 +389,7 @@ async function searchEvent(req,res){
         searchString+= fileterOptions;
     }
 
-    searchString+= " AND WHERE l.id = e.locationid"
+    searchString+= " WHERE l.id = e.locationid"
 
     console.log(searchString)
     const result = await pool.query(searchString)
