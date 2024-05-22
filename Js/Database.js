@@ -337,7 +337,7 @@ async function getUserByEmail(email,pass){
 }
 
 async function searchEvent(req,res){
-    let searchString = "SELECT e.*, l.name AS locationname FROM event e, location l";
+    let searchString = "SELECT e.* FROM event e";
     let fileterOptions="";
     let isOpenair =0;
     for(let name in req.body)
@@ -350,7 +350,7 @@ async function searchEvent(req,res){
             else if(name.localeCompare("openair")==0)
             {
                 isOpenair = 1
-                fileterOptions+= " JOIN l ON e.locationid = l.id WHERE l.openair = "+req.body[name] ;
+                fileterOptions+= " JOIN location l ON e.locationid = l.id WHERE l.openair = "+req.body[name] ;
             }            
             else
             {
@@ -388,8 +388,6 @@ async function searchEvent(req,res){
     {
         searchString+= fileterOptions;
     }
-
-    searchString+= " WHERE l.id = e.locationid"
 
     console.log(searchString)
     const result = await pool.query(searchString)
