@@ -7,7 +7,7 @@ module.exports = async (req, res) => {
     const user = await Database.getUserByEmail(email,pass);
     if(user==null)
     {
-        Database.createUser(email,pass,name);
+        Database.createEndUser(name,"test",email,pass,null,null,null,null,18,null,null,null,null)
         return res.status(200).send("User created");
     }
     else
