@@ -177,8 +177,96 @@ async function searchEvent(req,res){
     res.send(result)   
 }
 
+function createLied(id,ownerid,name,laenge,erscheinung){
+    const serchString = "INSERT INTO lied (id,ownerid,name,laenge,erscheinung) VALUES ('"+id+"','"+ownerid+"','"+name+"','"+laenge+"','"+erscheinung+"')"
+    pool.query(serchString, (err,res=>{
+        if(err)
+        {
+            console.log(err)
+        }
+        else
+        {
+            console.log("User created"); 
+        }
+    }))
+}
+
+function createGericht(id,ownerid=null,name,beschreibung,bild=null)
+{
+    const serchString = "INSERT INTO gericht (id,ownerid,name,beschreibung,bild) VALUES ('"+id+"','"+ownerid+"','"+name+"','"+beschreibung+"','"+bild+"')"
+    pool.query(serchString, (err,res=>{
+        if(err)
+        {
+            console.log(err)
+        }
+        else
+        {
+            console.log("User created"); 
+        }
+    }))
+}
+
+function createPlaylist(id,name,artistid)
+{
+    const serchString = "INSERT INTO playlist (id,name,artistid) VALUES ('"+id+"','"+name+"','"+artistid+"')"
+    pool.query(serchString, (err,res=>{
+        if(err)
+        {
+            console.log(err)
+        }
+        else
+        {
+            console.log("User created"); 
+        }
+    }))
+}
+function createPlaylistInhalt(playlistid,liedid,id)
+{
+    const serchString = "INSERT INTO playlistinhalt (id,playlistid,liedid) VALUES ('"+id+"','"+playlistid+"','"+liedid+"')"
+    pool.query(serchString, (err,res=>{
+        if(err)
+        {
+            console.log(err)
+        }
+        else
+        {
+            console.log("User created"); 
+        }
+    }))
+}
+
+function createTicket(userid,eventid,id)
+{
+    const serchString = "INSERT INTO tickets (id,userid,eventid) VALUES ('"+id+"','"+userid+"','"+eventid+"')"
+    pool.query(serchString, (err,res=>{
+        if(err)
+        {
+            console.log(err)
+        }
+        else
+        {
+            console.log("User created"); 
+        }
+    }))
+}
+
+function createServiceArtist(id,eventid,artistid)
+{
+    const serchString = "INSERT INTO serviceartist (id,eventid,artistid) VALUES ('"+id+"','"+eventid+"','"+artistid+"')"
+    pool.query(serchString, (err,res=>{
+        if(err)
+        {
+            console.log(err)
+        }
+        else
+        {
+            console.log("User created"); 
+        }
+    }))
+}
+
 module.exports = {
-    createEndUser, createArtist, createCaterer, createEvent, createLocation, createReviewEvent, createReviewUser, createServiceArtist,
+    createEndUser, createArtist, createCaterer, createEvent, createLocation, createReviewEvent, createReviewUser, createServiceArtist,createLied,createGericht,createPlaylist,createPlaylistInhalt,createTicket,createServiceArtist,
     getUserById, getUserByEmail, searchEvent
 };
 
