@@ -143,33 +143,44 @@ function createServiceArtist(eventid, artistid){
 }
 
 async function searchEvent(req,res){
-    let searchString = "SELECT * FROM EVENT";
+    let searchString = "SELECT e.* FROM event e";
     let fileterOptions="";
+    let isOpenair =0;
     for(let name in req.body)
     {
-        if(name =="search")
+    
+        if(name.localeCompare("search")==0)
         {
-            fileterOptions+= " name LIKE '" + req.body[name] + "'";
+            fileterOptions+= " e.UPPER(name) LIKE UPPER('%" + req.body[name] + "%')";
+        }
+        if(name.localeCompare("openair")==0)
+        {
+            isOpenair = 1
+            fileterOptions+= " JOIN location l ON e.locationid = l.id WHERE l.openair = "+req.body[name] ;
         }
         
         else
         {
             if(Array.isArray(req.body[name]))
             {
-                fileterOptions+= name + " BETWEEN "+ req.body[name][0] + " AND " + req.body[name][1];
+                fileterOptions+= " e."+name + " BETWEEN '"+ req.body[name][0] + "' AND '" + req.body[name][1]+"'";
             }
             else
             {
-                fileterOptions+= " "+name + " == '" + req.body[name] + "'";
+                fileterOptions+= " e."+name + " = '" + req.body[name] + "'";
             }
             
         }
         fileterOptions += " AND"
     }
     fileterOptions = fileterOptions.substring(0,fileterOptions.length-3)
-    if(fileterOptions!="")
+    if(fileterOptions!=""&&isOpenair==0)
     {
         searchString+= " WHERE" + fileterOptions;
+    }
+    else if(isOpenair==1)
+    {
+        searchString+= fileterOptions;
     }
 
     console.log(searchString)

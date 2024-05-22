@@ -6,6 +6,7 @@ const port = 5000; // connection port
 const login = require('./Login'); // import login.js file
 const cookieJwtAuth = require('./CookieJwtAuth'); // import CookieJwtAuth.js file
 const registration = require('./Registration'); // import Registration.js file
+const database = require("./Database")
 
 //middleware
 app.use(express.json()); // requiert to parse JSON form requests 
@@ -39,7 +40,7 @@ app.get("/MyPage",cookieJwtAuth.Auth, (req,res)=>{     // test function
 
 app.post('/register', registration);    // register a user
 
-app.post('/event',event.searchEvent)    // searchs events with filter param
+app.post('/event',database.searchEvent)    // searchs events with filter param
 
 app.listen(port, (error) => {           // starts the server on the port
     if (error) {
