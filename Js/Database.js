@@ -17,42 +17,56 @@ const pool = new Pool({
 // ------------------------- CREATE - QUERIES ------------------------- //
 
 // private
-function createAppUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region){
-    pool.query(
-        "INSERT INTO app_user (benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region) " + 
-        "VALUES ('" + benutzername + "','" + profilname + "','" + email + "','" + password + "','" + profilbild + "','" + kurzbeschreibung + "','" + beschreibung + "','" + region + "')", (err,res) =>{
-            if(err)
-            {
-                console.log(err);
-                return false;
-            } 
-            else 
-            {
-                console.log("app_user created");
-                return true;
-            }
-    });
-}
-
-// public
-function createEndUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, alter, arten, lied, gericht, geschlecht){
-    // create app_user first
-    createAppUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region);
-    // create endnutzer afterwards
-    pool.query(
-        "INSERT INTO endnutzer (emailfk, alter, arten, lied, gericht, geschlecht) " + 
-        "VALUES ('" + email + "','" + alter + "','" + arten + "','" + lied + "','" + gericht + "','" + geschlecht + "')", (err,res) =>{
-            if(err)
+async function createAppUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region){
+    try
+    {
+        await pool.query(
+            "INSERT INTO app_user (benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region) " + 
+            "VALUES ('" + benutzername + "','" + profilname + "','" + email + "','" + password + "','" + profilbild + "','" + kurzbeschreibung + "','" + beschreibung + "','" + region + "')", (err,res) =>{
+                if(err)
                 {
                     console.log(err);
                     return false;
                 } 
                 else 
                 {
-                    console.log("Enduser created");
+                    console.log("app_user created");
                     return true;
                 }
-    });
+        });
+    }
+    catch(err)
+    {
+        return false
+    }
+}
+
+// public
+async function createEndUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, alter, arten, lied, gericht, geschlecht){
+    // create app_user first
+    try
+    {
+        await createAppUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region);
+    // create endnutzer afterwards
+       await pool.query(
+            "INSERT INTO endnutzer (emailfk, alter, arten, lied, gericht, geschlecht) " + 
+            "VALUES ('" + email + "','" + alter + "','" + arten + "','" + lied + "','" + gericht + "','" + geschlecht + "')", (err,res) =>{
+                if(err)
+                    {
+                        console.log(err);
+                        return false;
+                    } 
+                    else 
+                    {
+                        console.log("Enduser created");
+                        return true;
+                    }
+        });
+    }
+    catch(err)
+    {
+        return false
+    }
 }
 
 // public
