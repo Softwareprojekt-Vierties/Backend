@@ -345,7 +345,7 @@ async function searchEvent(req,res){
         if(!req.body[name]==""){
             if(name.localeCompare("search")==0)
             {
-                fileterOptions+= " e.UPPER(name) LIKE UPPER('%" + req.body[name] + "%')";
+                fileterOptions+= " UPPER(e.name) LIKE UPPER('%" + req.body[name] + "%')";
             }
             else if(name.localeCompare("openair")==0)
             {
