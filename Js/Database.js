@@ -249,12 +249,11 @@ async function searchEvent(req,res){
             {
                 fileterOptions+= " e.UPPER(name) LIKE UPPER('%" + req.body[name] + "%')";
             }
-            if(name.localeCompare("openair")==0)
+            else if(name.localeCompare("openair")==0)
             {
                 isOpenair = 1
                 fileterOptions+= " JOIN location l ON e.locationid = l.id WHERE l.openair = "+req.body[name] ;
-            }
-            
+            }            
             else
             {
                 if(Array.isArray(req.body[name]))
