@@ -40,16 +40,105 @@ async function getUserByEmail(email,pass){
     
 }
 
-function createUser(email,pass,name){
-    pool.query("INSERT INTO app_user (email,password,name) VALUES ('"+email+"','"+pass+"','"+name+"')", (err,res) =>{
-        if(err)
-        {
-            console.log(err);
-        }
-        else
-        {
-            console.log("User created");
-        }
+// ------------------------- CREATE - QUERIES ------------------------- //
+
+// private
+function createAppUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region){
+    pool.query(
+        "INSERT INTO app_user (benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region) " + 
+        "VALUES ('" + benutzername + "','" + profilname == null ? benutzername : profilname + "','" + email + "','" + password + "','" + profilbild + "','" + kurzbeschreibung + "','" + beschreibung + "','" + region + "')", (err,res) =>{
+            if(err) console.log(err);
+            else console.log("app_user created");
+    });
+}
+
+// public
+function createEndUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, alter, arten, lied, gericht, geschlecht){
+    // create app_user first
+    createAppUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region);
+    // create endnutzer afterwards
+    pool.query(
+        "INSERT INTO endnutzer (emailfk, alter, arten, lied, gericht, geschlecht) " + 
+        "VALUES ('" + email + "','" + alter + "','" + arten + "','" + lied + "','" + gericht + "','" + geschlecht + "')", (err,res) =>{
+        if(err) console.log(err);
+        else console.log("endnutzer created");
+    });
+}
+
+// public
+function createArtist(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, preis, kategorie, erfahrung){
+    // create app_user first
+    createAppUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region);
+    // create artist afterwards
+    pool.query(
+        "INSERT INTO artist (emailfk, preis, kategorie, erfahrung) " + 
+        "VALUES ('" + email + "','" + preis + "','" + kategorie + "','" + erfahrung + "')", (err,res) =>{
+            if(err) console.log(err);
+            else console.log("artist created");
+    });
+}
+
+// public
+function createCaterer(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, preis, kategorie, erfahrung){
+    // create app_user first
+    createAppUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region);
+    // create caterer afterwards
+    pool.query(
+        "INSERT INTO caterer (emailfk, preis, kategorie, erfahrung) " + 
+        "VALUES ('" + email + "','" + preis + "','" + kategorie + "','" + erfahrung + "')", (err,res) =>{
+            if(err) console.log(err);
+            else console.log("caterer created");
+    });
+}
+
+// public
+function createLocation(addresse, name, beschreibung, ownerID, privat){
+    pool.query(
+        "INSERT INTO location (addresse, name, beschreibung, ownerid, privat) " + 
+        "VALUES ('" + addresse + "','" + name + "','" + beschreibung + "','" + ownerID + "','" + privat + "')", (err,res) =>{
+            if(err) console.log(err);
+            else console.log("location created");
+    });
+}
+
+// public
+function createReviewEvent(inhalt, sterne, ownerid, eventid){
+    pool.query(
+        "INSERT INTO review (inhalt, sterne, ownerid, eventid, userid) " + 
+        "VALUES ('" + inhalt + "','" + sterne + "','" + ownerid + "','" + eventid + "','" + null + "')", (err,res) =>{
+            if(err) console.log(err);
+            else console.log("review for event created");
+    });
+}
+
+// public
+function createReviewUser(inhalt, sterne, ownerid, userid){
+    pool.query(
+        "INSERT INTO review (inhalt, sterne, ownerid, eventid, userid) " + 
+        "VALUES ('" + inhalt + "','" + sterne + "','" + ownerid + "','" + null + "','" + userid + "')", (err,res) =>{
+            if(err) console.log(err);
+            else console.log("review for user created");
+    });
+}
+
+// public
+function createEvent(name, datum, uhrzeit, eventgroesse, preis, altersfreigabe, privat, kurzbeschreibung, beschreibung, bild, ownerid, locationid){
+    pool.query(
+        "INSERT INTO event (name, datum, uhrzeit, eventgroesse, freietickets, preis, altersfreigabe, privat, kurzbeschreibung, beschreibung, bild, ownerid, locationid) " + 
+        "VALUES ('" + name + "','" + datum + "','" + uhrzeit + "','" + eventgroesse + "','" + eventgroesse + "','" + preis + "','" + altersfreigabe +
+        "','" + privat + "','" + kurzbeschreibung + "','" + beschreibung + "','" + bild + "','" + ownerid + "','" + locationid + "')", (err,res) =>{
+            if(err) console.log(err);
+            else console.log("event created");
+    });
+}
+
+// public 
+function createServiceArtist(eventid, artistid){
+    pool.query(
+        "INSERT INTO serviceartist (eventid, artistid) " + 
+        "VALUES ('" + eventid + "','" + artistid + "')", (err,res) =>{
+            if(err) console.log(err);
+            else console.log("serviceartist created");
     });
 }
 
@@ -88,28 +177,9 @@ async function searchEvent(req,res){
     res.send(result)   
 }
 
-async function createEvent(req,res)
-{
-    let createString = "INSERT INTO event";
-    let variabels="(";
-    let values="(";
-    for(let name in req.body)
-    {
-        variabels+=name+",";
-        values+= "'"+req.body[name]+"'";
-        values+=",";
-    }
-    variabels = variabels.substring(0,variabels.length-2)+")";
-    variabels = variabels.substring(0,values.length-2)+")";
-
-    createString+=" "+ variabels + " VALUES "+ values;    
-
-    await pool.query(createString);
-}
-
-
-
-
-module.exports = {getUserById, getUserByEmail,createUser,searchEvent,createEvent};
+module.exports = {
+    createEndUser, createArtist, createCaterer, createEvent, createLocation, createReviewEvent, createReviewUser, createServiceArtist,
+    getUserById, getUserByEmail, searchEvent
+};
 
 
