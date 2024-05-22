@@ -39,11 +39,11 @@ app.post('/testpost/:id', (req,res)=>{
     res.status(200).send("ur id is: "+id+" and ur body is: "+servus);
 });
 
-app.post('/login', login);      // to log a user in
+app.post('/login', cookieJwtAuth,login);      // to log a user in
 
 app.get("/MyPage",cookieJwtAuth.Auth, (req,res)=>{     // test function
     const user = cookieJwtAuth.getUser(req);
-    res.status(200).send("Welcome "+user.uuid);
+    res.status(200).send("Welcome "+user.id);
 })
 
 app.post('/register', registration);    // register a user
