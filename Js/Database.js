@@ -214,30 +214,31 @@ async function searchEvent(req,res){
     let isOpenair =0;
     for(let name in req.body)
     {
-    
-        if(name.localeCompare("search")==0)
-        {
-            fileterOptions+= " e.UPPER(name) LIKE UPPER('%" + req.body[name] + "%')";
-        }
-        if(name.localeCompare("openair")==0)
-        {
-            isOpenair = 1
-            fileterOptions+= " JOIN location l ON e.locationid = l.id WHERE l.openair = "+req.body[name] ;
-        }
-        
-        else
-        {
-            if(Array.isArray(req.body[name]))
+        if(!req.body[name]==""){
+            if(name.localeCompare("search")==0)
             {
-                fileterOptions+= " e."+name + " BETWEEN '"+ req.body[name][0] + "' AND '" + req.body[name][1]+"'";
+                fileterOptions+= " e.UPPER(name) LIKE UPPER('%" + req.body[name] + "%')";
             }
-            else
+            if(name.localeCompare("openair")==0)
             {
-                fileterOptions+= " e."+name + " = '" + req.body[name] + "'";
+                isOpenair = 1
+                fileterOptions+= " JOIN location l ON e.locationid = l.id WHERE l.openair = "+req.body[name] ;
             }
             
+            else
+            {
+                if(Array.isArray(req.body[name]))
+                {
+                    fileterOptions+= " e."+name + " BETWEEN '"+ req.body[name][0] + "' AND '" + req.body[name][1]+"'";
+                }
+                else
+                {
+                    fileterOptions+= " e."+name + " = '" + req.body[name] + "'";
+                }
+                
+            }
+            fileterOptions += " AND"
         }
-        fileterOptions += " AND"
     }
     fileterOptions = fileterOptions.substring(0,fileterOptions.length-3)
     if(fileterOptions!=""&&isOpenair==0)
