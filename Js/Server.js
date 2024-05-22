@@ -7,10 +7,19 @@ const login = require('./Login'); // import login.js file
 const cookieJwtAuth = require('./CookieJwtAuth'); // import CookieJwtAuth.js file
 const registration = require('./Registration'); // import Registration.js file
 const database = require("./Database")
-
+const cors = require('cors')
+const corsOption= {
+    Credential: true
+}
 //middleware
+app.use(cors(corsOption))
 app.use(express.json()); // requiert to parse JSON form requests 
 app.use(cookieParser()); // requiert to parse cookies
+app.use((req, res, next) => {
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.set('X-Content-Type-Options', 'nosniff');
+    next();
+  });
 
 
 app.get('/test/:id', (req,res)=>{    // test get function
@@ -31,11 +40,11 @@ app.post('/testpost/:id', (req,res)=>{
     res.status(200).send("ur id is: "+id+" and ur body is: "+servus);
 });
 
-app.post('/login', login);      // to log a user in
+app.post('/login', cookieJwtAuth,login);      // to log a user in
 
 app.get("/MyPage",cookieJwtAuth.Auth, (req,res)=>{     // test function
     const user = cookieJwtAuth.getUser(req);
-    res.status(200).send("Welcome "+user.uuid);
+    res.status(200).send("Welcome "+user.id);
 })
 
 app.post('/register', registration);    // register a user

@@ -2,21 +2,33 @@ require('dotenv').config();
 const jwt = require('jsonwebtoken');
 
 function Auth (req, res, next){     //checks if there is a JWT cookie 
-    const token = req.cookies.token;
+    const token = req.headers["auth"]
     try {
         const user = jwt.verify(token, process.env.SECRET);
         next();
     }
     catch (err) {
-        res.clearCookie("token");
-        return res.redirect("/login");
+        return res.send("NOOOOOO");
+    }
+}
+
+function isLogedIn(req,res,next){
+    try
+    {
+        const token = req.headers["auth"]
+        const user = jwt.verify(token, process.env.SECRET);
+        res.send("u are already logged in")
+    }
+    catch
+    {
+        next()
     }
 }
 
 function getUser(req){  // returns the user information form the JWT cookie
-    const token = req.cookies.token;
+    const token =  req.headers["auth"];
     const user = jwt.verify(token, process.env.SECRET);
         return user;
 }
 
-module.exports = {Auth, getUser};
+module.exports = {Auth, getUser,isLogedIn};
