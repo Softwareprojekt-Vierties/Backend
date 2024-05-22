@@ -342,7 +342,19 @@ async function searchEvent(req,res){
     let isOpenair =0;
     for(let name in req.body)
     {
-        if(!req.body[name]=="" || !req.body[name][0]==""){
+        if(!req.body[name]==""){
+            if(req.body[name][0]=="")
+                {
+                    req.body[name][0]=0
+                    if(req.body.name[1]=="")
+                    {
+                        continue;
+                    }
+                }
+            if(req.body[name][1]=="")
+            {
+                req.body[name][1]=0;
+            }
             if(name.localeCompare("search")==0)
             {
                 fileterOptions+= " e.UPPER(name) LIKE UPPER('%" + req.body[name] + "%')";
