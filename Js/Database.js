@@ -343,18 +343,6 @@ async function searchEvent(req,res){
     for(let name in req.body)
     {
         if(!req.body[name]==""){
-            if(req.body[name][0]=="")
-                {
-                    req.body[name][0]=0
-                    if(req.body.name[1]=="")
-                    {
-                        continue;
-                    }
-                }
-            if(req.body[name][1]=="")
-            {
-                req.body[name][1]=0;
-            }
             if(name.localeCompare("search")==0)
             {
                 fileterOptions+= " e.UPPER(name) LIKE UPPER('%" + req.body[name] + "%')";
@@ -368,6 +356,18 @@ async function searchEvent(req,res){
             {
                 if(Array.isArray(req.body[name]))
                 {
+                    if(req.body[name][0]=="")
+                        {
+                            req.body[name][0]=0
+                            if(req.body.name[1]=="")
+                            {
+                                continue;
+                            }
+                        }
+                    if(req.body[name][1]=="")
+                    {
+                        req.body[name][1]=0;
+                    }
                     fileterOptions+= " e."+name + " BETWEEN '"+ req.body[name][0] + "' AND '" + req.body[name][1]+"'";
                 }
                 else
