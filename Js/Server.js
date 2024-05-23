@@ -64,5 +64,5 @@ const server = app.listen(port, (error) => {           // starts the server on t
     console.log("Server is running on port", port);
 });
 
-
+// export things for test
 module.exports={app,server};
