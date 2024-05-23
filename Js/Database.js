@@ -291,23 +291,6 @@ async function createTicket(userid,eventid,id){
     }))
 }
 
-// public
-async function createServiceArtist(id,eventid,artistid){
-    const serchString = "INSERT INTO serviceartist (id,eventid,artistid) VALUES ('"+id+"','"+eventid+"','"+artistid+"')"
-    await pool.query(serchString, (err,res=>{
-        if(err)
-            {
-                console.log(err);
-                return false;
-            } 
-            else 
-            {
-                console.log("serviceartist created");
-                return true;
-            }
-    }))
-}
-
 // ------------------------- GET - QUERIES ------------------------- //
 
 async function getUserById(id){
@@ -395,7 +378,7 @@ async function searchEvent(req,res){
 }
 
 module.exports = {
-    createEndUser, createArtist, createCaterer, createEvent, createLocation, createReviewEvent, createReviewUser, createReviewLocation, createServiceArtist, createLied, createGericht, createPlaylist, createPlaylistInhalt, createTicket, createServiceArtist,
+    createEndUser, createArtist, createCaterer, createEvent, createLocation, createReviewEvent, createReviewUser, createReviewLocation, createServiceArtist, createLied, createGericht, createPlaylist, createPlaylistInhalt, createTicket,
     getUserById, getUserByEmail, searchEvent
 };
 
