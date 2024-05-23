@@ -36,23 +36,26 @@ async function createAppUser(benutzername, profilname, email, password, profilbi
 
 // public
 async function createEndUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, alter, arten, lied, gericht, geschlecht){
+   
     // create app_user first
-    await createAppUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region);
-    // create endnutzer afterwards
-    await pool.query(
+    await createAppUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region).then(result =>{
+        // create endnutzer afterwards
+    pool.query(
         "INSERT INTO endnutzer (emailfk, alter, arten, lied, gericht, geschlecht) " + 
         "VALUES ('" + email + "','" + alter + "','" + arten + "','" + lied + "','" + gericht + "','" + geschlecht + "')", (err,res) =>{
-            if(err)
-            {
-                console.log(err);
-                return false;
-            } 
-            else 
-            {
-                console.log("enduser created");
-                return true;
-            }
+        if(err)
+        {
+            console.log(err);
+            return false;
+        } 
+        else 
+        {
+            console.log("enduser created");
+            return true;
+        }
     });
+    })
+    
 }
 
 // public
