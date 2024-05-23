@@ -57,9 +57,12 @@ app.post('/createEvent',(req,res)=>{
     res.status(200).send("event")
 })    // creates a new events
 
-app.listen(port, (error) => {           // starts the server on the port
+const server = app.listen(port, (error) => {           // starts the server on the port
     if (error) {
         console.log("Error running the server");
     }
     console.log("Server is running on port", port);
 });
+
+
+module.exports={app,server};
