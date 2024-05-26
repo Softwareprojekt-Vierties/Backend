@@ -40,20 +40,23 @@ async function createEndUser(benutzername, profilname, email, password, profilbi
     // create app_user first
     await createAppUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region).then(result =>{
         // create endnutzer afterwards
-    pool.query(
-        "INSERT INTO endnutzer (emailfk, alter, arten, lied, gericht, geschlecht) " + 
-        "VALUES ('" + email + "','" + alter + "','" + arten + "','" + lied + "','" + gericht + "','" + geschlecht + "')", (err,res) =>{
-        if(err)
-        {
-            console.log(err);
-            return false;
-        } 
-        else 
-        {
-            console.log("enduser created");
-            return true;
+        while (result == null) {
+            // wait
         }
-    });
+        pool.query(
+            "INSERT INTO endnutzer (emailfk, alter, arten, lied, gericht, geschlecht) " + 
+            "VALUES ('" + email + "','" + alter + "','" + arten + "','" + lied + "','" + gericht + "','" + geschlecht + "')", (err,res) =>{
+            if(err)
+            {
+                console.log(err);
+                return false;
+            } 
+            else 
+            {
+                console.log("enduser created");
+                return true;
+            }
+        });
     })
     
 }
@@ -61,43 +64,51 @@ async function createEndUser(benutzername, profilname, email, password, profilbi
 // public
 async function createArtist(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, preis, kategorie, erfahrung){
     // create app_user first
-    await createAppUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region);
-    // create artist afterwards
-    await pool.query(
-        "INSERT INTO artist (emailfk, preis, kategorie, erfahrung) " + 
-        "VALUES ('" + email + "','" + preis + "','" + kategorie + "','" + erfahrung + "')", (err,res) =>{
-            if(err)
-                {
-                    console.log(err);
-                    return false;
-                } 
-                else 
-                {
-                    console.log("artist created");
-                    return true;
-                }
-    });
+    await createAppUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region).then(result =>{
+        // create artist afterwards
+        while (result == null) {
+            // wait
+        }
+        pool.query(
+            "INSERT INTO artist (emailfk, preis, kategorie, erfahrung) " + 
+            "VALUES ('" + email + "','" + preis + "','" + kategorie + "','" + erfahrung + "')", (err,res) =>{
+                if(err)
+                    {
+                        console.log(err);
+                        return false;
+                    } 
+                    else 
+                    {
+                        console.log("artist created");
+                        return true;
+                    }
+        });
+    })
 }
 
 // public
 async function createCaterer(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, preis, kategorie, erfahrung){
     // create app_user first
-    await createAppUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region);
-    // create caterer afterwards
-    await pool.query(
-        "INSERT INTO caterer (emailfk, preis, kategorie, erfahrung) " + 
-        "VALUES ('" + email + "','" + preis + "','" + kategorie + "','" + erfahrung + "')", (err,res) =>{
-            if(err)
-                {
-                    console.log(err);
-                    return false;
-                } 
-                else 
-                {
-                    console.log("caterer created");
-                    return true;
-                }
-    });
+    await createAppUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region).then(result => {
+        // create caterer afterwards
+        while (result == null) {
+            // wait
+        }
+        pool.query(
+            "INSERT INTO caterer (emailfk, preis, kategorie, erfahrung) " + 
+            "VALUES ('" + email + "','" + preis + "','" + kategorie + "','" + erfahrung + "')", (err,res) =>{
+                if(err)
+                    {
+                        console.log(err);
+                        return false;
+                    } 
+                    else 
+                    {
+                        console.log("caterer created");
+                        return true;
+                    }
+        });
+    })
 }
 
 // public
