@@ -40,7 +40,7 @@ app.post('/testpost/:id', (req,res)=>{
     res.status(200).send("ur id is: "+id+" and ur body is: "+servus);
 });
 
-app.post('/login', cookieJwtAuth,login);      // to log a user in
+app.post('/login', cookieJwtAuth.isLogedIn,login);      // to log a user in
 
 app.get("/MyPage",cookieJwtAuth.Auth, (req,res)=>{     // test function
     const user = cookieJwtAuth.getUser(req);
@@ -48,6 +48,34 @@ app.get("/MyPage",cookieJwtAuth.Auth, (req,res)=>{     // test function
 })
 
 app.post('/register', registration);    // register a user
+
+app.post('/testSearch', (req,res)=>{
+    try
+    {
+        database.getStuffbyName(req).then(result =>{
+            res.status(200).send(result);
+        });
+        
+    }
+    catch (err)
+    {
+        res.status(400).send(err)
+    }
+});
+
+app.post('/search.caterer',(req,res) =>{
+    try
+    {
+        database.getCatererByName(req.body["name"]).then(result =>{
+            res.status(200).send(result);
+        });
+        
+    }
+    catch (err)
+    {
+        res.status(400).send(err)
+    }
+})
 
 app.post('/event',(req,res)=>{
     const {eventname,datum,uhrzeit,eventgroesse,preis,altersfreigabe,privat,kurzbeschreibung,beschreibung,bild,ownerid,locationid} = req.body

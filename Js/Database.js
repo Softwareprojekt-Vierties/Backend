@@ -182,8 +182,19 @@ function createServiceArtist(id,eventid,artistid){
 
 // ------------------------- GET - QUERIES ------------------------- //
 
+async function getStuffbyName(req){
+    
+    const result = await pool.query("SELECT * FROM "+req.body["tabel"]+" WHERE UPPER(name) LIKE UPPER('%" + req.body["value"] + "%')")
+    return result;
+}
+
+async function getCatererByName(name){
+    const result = await pool.query("SELECT c.* FROM caterer c JOIN app_user a ON c.emailfk = a.email WHERE UPPER(a.benutzername) LIKE UPPER('%"+name+"%')");
+    return result;
+}
+
 async function getUserById(id){
-    await pool.query('SELECT * FROM app_user WHERE uuid =' +id, (err,res) =>{
+    await pool.query('SELECT * FROM app_user WHERE id =' +id, (err,res) =>{
         if(!err)
         {
             console.log(res.rows);
@@ -256,7 +267,7 @@ async function searchEvent(req,res){
 
 module.exports = {
     createEndUser, createArtist, createCaterer, createEvent, createLocation, createReviewEvent, createReviewUser, createReviewLocation, createServiceArtist, createLied, createGericht, createPlaylist, createPlaylistInhalt, createTicket, createServiceArtist,
-    getUserById, getUserByEmail, searchEvent
+    getUserById, getUserByEmail, searchEvent, getStuffbyName, getCatererByName
 };
 
 
