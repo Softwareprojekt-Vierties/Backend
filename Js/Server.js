@@ -75,6 +75,20 @@ app.post('/search.caterer',(req,res) =>{
     {
         res.status(400).send(err)
     }
+});
+
+app.post('/search.artist',(req,res) =>{
+    try
+    {
+        database.getArtistByName(req.body["name"]).then(result =>{
+            res.status(200).send(result);
+        });
+        
+    }
+    catch (err)
+    {
+        res.status(400).send(err)
+    }
 })
 
 app.post('/event',(req,res)=>{

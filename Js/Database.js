@@ -189,7 +189,12 @@ async function getStuffbyName(req){
 }
 
 async function getCatererByName(name){
-    const result = await pool.query("SELECT c.* FROM caterer c JOIN app_user a ON c.emailfk = a.email WHERE UPPER(a.benutzername) LIKE UPPER('%"+name+"%')");
+    const result = await pool.query("SELECT c.*,a.benutzername, a.profilname,a.profilbild,a.kurzbeschreibung,a.beschreibung,a.region FROM caterer c JOIN app_user a ON c.emailfk = a.email WHERE UPPER(a.benutzername) LIKE UPPER('%"+name+"%')");
+    return result;
+}
+
+async function getArtistByName(name){
+    const result = await pool.query("SELECT ar.*, a.benutzername, a.profilname,a.profilbild,a.kurzbeschreibung,a.beschreibung,a.region FROM artist ar JOIN app_user a ON ar.emailfk = a.email WHERE UPPER(a.benutzername) LIKE UPPER('%"+name+"%')");
     return result;
 }
 
@@ -267,7 +272,7 @@ async function searchEvent(req,res){
 
 module.exports = {
     createEndUser, createArtist, createCaterer, createEvent, createLocation, createReviewEvent, createReviewUser, createReviewLocation, createServiceArtist, createLied, createGericht, createPlaylist, createPlaylistInhalt, createTicket, createServiceArtist,
-    getUserById, getUserByEmail, searchEvent, getStuffbyName, getCatererByName
+    getUserById, getUserByEmail, searchEvent, getStuffbyName, getCatererByName , getArtistByName
 };
 
 
