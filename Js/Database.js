@@ -387,7 +387,9 @@ async function searchEvent(req,res){
     }
 
     console.log(searchString)
-    const result = await pool.query(searchString)
+    let result = await pool.query(searchString)
+    const result2 = await pool.query("SELECT l.name,l.id FROM location l JOIN event e ON e.locationid = l.id")
+    result.rows  = result.rows.concat(result2.rows)
     res.send(result)   
 }
 
