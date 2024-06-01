@@ -103,12 +103,26 @@ app.get('/tickets/:id', (req,res)=>{
     {
         res.status(400).send(err)
     }
-})
+});
 
 app.get('/event/artist/:id', (req,res)=>{
     try
     {       
         database.getArtistByEvent(req.params["id"]).then(result =>{
+            res.status(200).send(result);
+        });
+        
+    }
+    catch (err)
+    {
+        res.status(400).send(err)
+    }
+});
+
+app.get('/event/caterer/:id', (req,res)=>{
+    try
+    {       
+        database.getCatererByEvent(req.params["id"]).then(result =>{
             res.status(200).send(result);
         });
         
