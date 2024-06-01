@@ -240,6 +240,13 @@ async function getCatererByEvent(id){
     return result;
 }
 
+async function getPlaylistContent(name){
+    const sqlstring = "SELECT p.name AS playlistname, l.name AS liedname FROM playlist p JOIN playlistinhalt pi ON p.id = pi.playlistid JOIN lied l ON pi.liedid = l.id WHERE UPPER(p.name) LIKE UPPER('%"+name+"%')"
+    const result = await pool.query(sqlstring);
+    console.log(result)
+    return result;
+}
+
 async function searchEvent(req,res){
     let searchString = "SELECT e.* FROM event e";
     let fileterOptions="";
@@ -288,5 +295,5 @@ async function searchEvent(req,res){
 
 module.exports = {
     createEndUser, createArtist, createCaterer, createEvent, createLocation, createReviewEvent, createReviewUser, createReviewLocation, createServiceArtist, createLied, createGericht, createPlaylist, createPlaylistInhalt, createTicket, createServiceArtist,
-    getUserById, getUserByEmail, searchEvent, getStuffbyName, getCatererByName , getArtistByName, getAllTicketsFromUser, getArtistByEvent, getCatererByEvent
+    getUserById, getUserByEmail, searchEvent, getStuffbyName, getCatererByName , getArtistByName, getAllTicketsFromUser, getArtistByEvent, getCatererByEvent, getPlaylistContent
 };

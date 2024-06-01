@@ -133,6 +133,20 @@ app.get('/event/caterer/:id', (req,res)=>{
     }
 })
 
+app.get('/playlist/:name', (req,res)=>{
+    try
+    {       
+        database.getPlaylistContent(req.params["name"]).then(result =>{
+            res.status(200).send(result);
+        });
+        
+    }
+    catch (err)
+    {
+        res.status(400).send(err)
+    }
+})
+
 
 app.post('/event',(req,res)=>{
     const {eventname,datum,uhrzeit,eventgroesse,preis,altersfreigabe,privat,kurzbeschreibung,beschreibung,bild,ownerid,locationid} = req.body
