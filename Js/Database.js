@@ -1,3 +1,4 @@
+const { response } = require('express');
 const {Pool} = require('pg');
 
 
@@ -213,6 +214,11 @@ async function getUserById(id){
     });
 }
 
+async function getAllTicketsFromUser(userId){
+    const result = await pool.query("SELECT name FROM event  JOIN tickets ON tickets.eventid = event.id WHERE tickets.userid = '" +userId+"'");
+    return result
+}
+
 async function getUserByEmail(email,pass){
     try {
         const {rows} = await pool.query("SELECT * FROM app_user WHERE email = '" + email + "' AND password = '" + pass + "'");
@@ -272,5 +278,5 @@ async function searchEvent(req,res){
 
 module.exports = {
     createEndUser, createArtist, createCaterer, createEvent, createLocation, createReviewEvent, createReviewUser, createReviewLocation, createServiceArtist, createLied, createGericht, createPlaylist, createPlaylistInhalt, createTicket, createServiceArtist,
-    getUserById, getUserByEmail, searchEvent, getStuffbyName, getCatererByName , getArtistByName
+    getUserById, getUserByEmail, searchEvent, getStuffbyName, getCatererByName , getArtistByName, getAllTicketsFromUser
 };
