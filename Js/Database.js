@@ -274,5 +274,3 @@ module.exports = {
     createEndUser, createArtist, createCaterer, createEvent, createLocation, createReviewEvent, createReviewUser, createReviewLocation, createServiceArtist, createLied, createGericht, createPlaylist, createPlaylistInhalt, createTicket, createServiceArtist,
     getUserById, getUserByEmail, searchEvent, getStuffbyName, getCatererByName , getArtistByName
 };
-
-
