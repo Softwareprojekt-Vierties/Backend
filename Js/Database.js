@@ -230,6 +230,11 @@ async function getUserByEmail(email,pass){
     
 }
 
+async function getArtistByEvent(id){
+    const result = await pool.query("SELECT a.benutzername,a.profilbild FROM app_user a JOIN artist ar  ON ar.emailfk = a.email JOIN serviceartist sa ON sa.artistid = ar.id JOIN event e ON e.id = sa.eventid WHERE sa.eventid = '"+id+"'");
+    return result;
+}
+
 async function searchEvent(req,res){
     let searchString = "SELECT e.* FROM event e";
     let fileterOptions="";
@@ -278,5 +283,5 @@ async function searchEvent(req,res){
 
 module.exports = {
     createEndUser, createArtist, createCaterer, createEvent, createLocation, createReviewEvent, createReviewUser, createReviewLocation, createServiceArtist, createLied, createGericht, createPlaylist, createPlaylistInhalt, createTicket, createServiceArtist,
-    getUserById, getUserByEmail, searchEvent, getStuffbyName, getCatererByName , getArtistByName, getAllTicketsFromUser
+    getUserById, getUserByEmail, searchEvent, getStuffbyName, getCatererByName , getArtistByName, getAllTicketsFromUser, getArtistByEvent
 };

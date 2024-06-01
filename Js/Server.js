@@ -105,6 +105,21 @@ app.get('/tickets/:id', (req,res)=>{
     }
 })
 
+app.get('/event/artist/:id', (req,res)=>{
+    try
+    {       
+        database.getArtistByEvent(req.params["id"]).then(result =>{
+            res.status(200).send(result);
+        });
+        
+    }
+    catch (err)
+    {
+        res.status(400).send(err)
+    }
+})
+
+
 app.post('/event',(req,res)=>{
     const {eventname,datum,uhrzeit,eventgroesse,preis,altersfreigabe,privat,kurzbeschreibung,beschreibung,bild,ownerid,locationid} = req.body
     database.createEvent(eventname,datum,uhrzeit,eventgroesse,preis,altersfreigabe,privat,kurzbeschreibung,beschreibung,bild,ownerid,locationid)
