@@ -1,4 +1,4 @@
-const apiKey = "5b3ce3597851110001cf6248a0e410bd9aef4d01b7088f2b257b0bb8"
+const apiKey = "-"
 
 module.exports = async(location1,location2,maxdistance) =>{
     const location1Coords = await geocodeAddress(location1,apiKey)
