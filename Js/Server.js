@@ -69,6 +69,12 @@ app.post('/createArtist',(req,res)=>{
     res.status(200).send("event")
 })    // creates a new Artist
 
+app.post('/createLocation',(req,res)=>{
+    const {addresse, name, beschreibung, ownerID, privat, kurzbeschreibung, preis, kapazitaet, openair, flaeche} = req.body
+    database.createLocation(addresse, name, beschreibung, ownerID, privat, kurzbeschreibung, preis, kapazitaet, openair, flaeche)
+    res.status(200).send("event")
+})    // creates a new Location
+
 const server = app.listen(port, (error) => {           // starts the server on the port
     if (error) {
         console.log("Error running the server");
