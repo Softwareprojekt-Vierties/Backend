@@ -57,6 +57,18 @@ app.post('/createEvent',(req,res)=>{
     res.status(200).send("event")
 })    // creates a new events
 
+app.post('/createCaterer',(req,res)=>{
+    const {benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, preis, kategorie, erfahrung} = req.body
+    database.createCaterer(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, preis, kategorie, erfahrung)
+    res.status(200).send("event")
+})    // creates a new Caterer
+
+app.post('/createArtist',(req,res)=>{
+    const {benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, preis, kategorie, erfahrung} = req.body
+    database.createArtist(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, preis, kategorie, erfahrung)
+    res.status(200).send("event")
+})    // creates a new Artist
+
 const server = app.listen(port, (error) => {           // starts the server on the port
     if (error) {
         console.log("Error running the server");
