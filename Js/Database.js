@@ -18,20 +18,16 @@ const pool = new Pool({
 
 // private
 async function createAppUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region){
-    await pool.query(
-        "INSERT INTO app_user (benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region) " + 
-        "VALUES ('" + benutzername + "','" + profilname + "','" + email + "','" + password + "','" + profilbild + "','" + kurzbeschreibung + "','" + beschreibung + "','" + region + "')", (err,res) =>{
-            if(err)
-            {
-                console.log(err);
-                return false;
-            } 
-            else 
-            {
-                console.log("app_user created");
-                return true;
-            }
-    });
+    var query = "INSERT INTO app_user (benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region) VALUES (?,?,?,?,?,?,?,?)";
+    
+    try {
+        await pool.query(query, [benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region]);
+        console.log("app_user created");
+        return true;
+    } catch (err) {
+        console.log(err);
+        return false;
+    }
 }
 
 // public
