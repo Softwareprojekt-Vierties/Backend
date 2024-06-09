@@ -59,6 +59,7 @@ async function createEndUser(benutzername, profilname, email, password, profilbi
     await createAppUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region).then(result =>{
         // create endnutzer afterwards
         while (result == null) {
+            console.log("result is null")
             // wait
         }
         pool.query(
