@@ -1,3 +1,4 @@
+const { response } = require('express');
 const {Pool} = require('pg');
 
 
@@ -307,8 +308,24 @@ async function createTicket(userid,eventid,id){
 
 // ------------------------- GET - QUERIES ------------------------- //
 
+async function getStuffbyName(req){
+    
+    const result = await pool.query("SELECT * FROM "+req.body["tabel"]+" WHERE UPPER(name) LIKE UPPER('%" + req.body["value"] + "%')")
+    return result;
+}
+
+async function getCatererByName(name){
+    const result = await pool.query("SELECT c.*,a.benutzername, a.profilname,a.profilbild,a.kurzbeschreibung,a.beschreibung,a.region FROM caterer c JOIN app_user a ON c.emailfk = a.email WHERE UPPER(a.benutzername) LIKE UPPER('%"+name+"%')");
+    return result;
+}
+
+async function getArtistByName(name){
+    const result = await pool.query("SELECT ar.*, a.benutzername, a.profilname,a.profilbild,a.kurzbeschreibung,a.beschreibung,a.region FROM artist ar JOIN app_user a ON ar.emailfk = a.email WHERE UPPER(a.benutzername) LIKE UPPER('%"+name+"%')");
+    return result;
+}
+
 async function getUserById(id){
-    await pool.query('SELECT * FROM app_user WHERE uuid =' +id, (err,res) =>{
+    await pool.query('SELECT * FROM app_user WHERE id =' +id, (err,res) =>{
         if(!err)
         {
             console.log(res.rows);
@@ -322,6 +339,11 @@ async function getUserById(id){
     });
 }
 
+async function getAllTicketsFromUser(userId){
+    const result = await pool.query("SELECT name FROM event  JOIN tickets ON tickets.eventid = event.id WHERE tickets.userid = '" +userId+"'");
+    return result
+}
+
 async function getUserByEmail(email,pass){
     try {
         const {rows} = await pool.query("SELECT * FROM app_user WHERE email = '" + email + "' AND password = '" + pass + "'");
@@ -331,6 +353,23 @@ async function getUserByEmail(email,pass){
         return null;
     }
     
+}
+
+async function getArtistByEvent(id){
+    const result = await pool.query("SELECT a.benutzername,a.profilbild FROM app_user a JOIN artist ar  ON ar.emailfk = a.email JOIN serviceartist sa ON sa.artistid = ar.id JOIN event e ON e.id = sa.eventid WHERE sa.eventid = '"+id+"'");
+    return result;
+}
+
+async function getCatererByEvent(id){
+    const result = await pool.query("SELECT a.benutzername,a.profilbild FROM app_user a JOIN caterer cr  ON cr.emailfk = a.email JOIN servicecaterer sc ON sc.catererid = cr.id JOIN event e ON e.id = sc.eventid WHERE sc.eventid = '"+id+"'");
+    return result;
+}
+
+async function getPlaylistContent(name){
+    const sqlstring = "SELECT p.name AS playlistname, l.name AS liedname FROM playlist p JOIN playlistinhalt pi ON p.id = pi.playlistid JOIN lied l ON pi.liedid = l.id WHERE UPPER(p.name) LIKE UPPER('%"+name+"%')"
+    const result = await pool.query(sqlstring);
+    console.log(result)
+    return result;
 }
 
 async function searchEvent(req,res){
@@ -394,8 +433,7 @@ async function searchEvent(req,res){
 }
 
 module.exports = {
-    createEndUser, createArtist, createCaterer, createEvent, createLocation, createReviewEvent, createReviewUser, createReviewLocation, createServiceArtist, createLied, createGericht, createPlaylist, createPlaylistInhalt, createTicket,
-    getUserById, getUserByEmail, searchEvent
+    createEndUser, createArtist, createCaterer, createEvent, createLocation, createReviewEvent, createReviewUser, createReviewLocation, createServiceArtist, createLied, createGericht, createPlaylist, createPlaylistInhalt, createTicket, createServiceArtist,
+    getUserById, getUserByEmail, searchEvent, getStuffbyName, getCatererByName , getArtistByName, getAllTicketsFromUser, getArtistByEvent, getCatererByEvent, getPlaylistContent
 };
-
 

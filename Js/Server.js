@@ -49,6 +49,104 @@ app.get("/MyPage",cookieJwtAuth.Auth, (req,res)=>{     // test function
 
 app.post('/register', registration);    // register a user
 
+app.post('/testSearch', (req,res)=>{
+    try
+    {
+        database.getStuffbyName(req).then(result =>{
+            res.status(200).send(result);
+        });
+        
+    }
+    catch (err)
+    {
+        res.status(400).send(err)
+    }
+});
+
+app.post('/search.caterer',(req,res) =>{
+    try
+    {
+        database.getCatererByName(req.body["name"]).then(result =>{
+            res.status(200).send(result);
+        });
+        
+    }
+    catch (err)
+    {
+        res.status(400).send(err)
+    }
+});
+
+app.post('/search.artist',(req,res) =>{
+    try
+    {
+        database.getArtistByName(req.body["name"]).then(result =>{
+            res.status(200).send(result);
+        });
+        
+    }
+    catch (err)
+    {
+        res.status(400).send(err)
+    }
+})
+
+app.get('/tickets/:id', (req,res)=>{
+    try
+    {       
+        database.getAllTicketsFromUser(req.params["id"]).then(result =>{
+            res.status(200).send(result);
+        });
+        
+    }
+    catch (err)
+    {
+        res.status(400).send(err)
+    }
+});
+
+app.get('/event/artist/:id', (req,res)=>{
+    try
+    {       
+        database.getArtistByEvent(req.params["id"]).then(result =>{
+            res.status(200).send(result);
+        });
+        
+    }
+    catch (err)
+    {
+        res.status(400).send(err)
+    }
+});
+
+app.get('/event/caterer/:id', (req,res)=>{
+    try
+    {       
+        database.getCatererByEvent(req.params["id"]).then(result =>{
+            res.status(200).send(result);
+        });
+        
+    }
+    catch (err)
+    {
+        res.status(400).send(err)
+    }
+})
+
+app.get('/playlist/:name', (req,res)=>{
+    try
+    {       
+        database.getPlaylistContent(req.params["name"]).then(result =>{
+            res.status(200).send(result);
+        });
+        
+    }
+    catch (err)
+    {
+        res.status(400).send(err)
+    }
+})
+
 app.post('/searchEvent',database.searchEvent);  // searchs events with filter param
 
 app.post('/createEvent',(req,res)=>{
@@ -60,19 +158,19 @@ app.post('/createEvent',(req,res)=>{
 app.post('/createCaterer',(req,res)=>{
     const {benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, preis, kategorie, erfahrung} = req.body
     database.createCaterer(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, preis, kategorie, erfahrung)
-    res.status(200).send("event")
+    res.status(200).send("Caterer")
 })    // creates a new Caterer
 
 app.post('/createArtist',(req,res)=>{
     const {benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, preis, kategorie, erfahrung} = req.body
     database.createArtist(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, preis, kategorie, erfahrung)
-    res.status(200).send("event")
+    res.status(200).send("Artist")
 })    // creates a new Artist
 
 app.post('/createLocation',(req,res)=>{
     const {addresse, name, beschreibung, ownerID, privat, kurzbeschreibung, preis, kapazitaet, openair, flaeche} = req.body
     database.createLocation(addresse, name, beschreibung, ownerID, privat, kurzbeschreibung, preis, kapazitaet, openair, flaeche)
-    res.status(200).send("event")
+    res.status(200).send("Location")
 })    // creates a new Location
 
 const server = app.listen(port, (error) => {           // starts the server on the port
