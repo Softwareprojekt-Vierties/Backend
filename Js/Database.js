@@ -19,374 +19,371 @@ const pool = new Pool({
 
 // private
 async function createAppUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region){
-    await pool.query(
-        "INSERT INTO app_user (benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region) VALUES ($1::text, $2::text, $3::text, $4::text, $5::bytea, $6::text, $7::text, $8::text)",
-        [benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region], (err,res) =>{
-            if(err)
-            {
-                console.log(err);
-                return false;
-            } 
-            else 
-            {
-                console.log("app_user created");
-                return true;
-            }
-    });
-
-    /*
-    await pool.query(
-        "INSERT INTO app_user (benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region) " + 
-        "VALUES ('" + benutzername + "','" + profilname + "','" + email + "','" + password + "','" + profilbild + "','" + kurzbeschreibung + "','" + beschreibung + "','" + region + "')", (err,res) =>{
-            if(err)
-            {
-                console.log(err);
-                return false;
-            } 
-            else 
-            {
-                console.log("app_user created");
-                return true;
-            }
-    });
-    */
+    try {
+        const res = await pool.query(
+            "INSERT INTO app_user (benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region) VALUES ($1::text, $2::text, $3::text, $4::text, $5, $6::text, $7::text, $8::text)",
+            [benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region])
+        console.log("app_user created")
+        return true;
+    } catch (err) {
+        console.log(err)
+        return false
+    }
 }
 
 // public
 async function createEndUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, alter, arten, lied, gericht, geschlecht){
-   
     // create app_user first
-    await createAppUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region).then(result =>{
-        // create endnutzer afterwards
-        while (result == null) {
-            // wait
-        }
-        pool.query(
-            "INSERT INTO endnutzer (emailfk, alter, arten, lied, gericht, geschlecht) " + 
-            "VALUES ('" + email + "','" + alter + "','" + arten + "','" + lied + "','" + gericht + "','" + geschlecht + "')", (err,res) =>{
-            if(err)
-            {
-                console.log(err);
-                return false;
-            } 
-            else 
-            {
-                console.log("enduser created");
-                return true;
-            }
-        });
-    })
+    await createAppUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region)
+    // create enduser afterwards
+    try {
+        const res = await pool.query(
+            "INSERT INTO endnutzer (emailfk, alter, arten, lied, gericht, geschlecht) VALUES ($1::text, $2::int, $3::text, $4::text, $5::text, $6::text)",
+            [email, alter, arten, lied, gericht, geschlecht]
+        )
+        console.log("enduser created")
+        return true
+    } catch (err) {
+        console.log(err)
+        return false
+    }
     
 }
 
 // public
 async function createArtist(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, preis, kategorie, erfahrung){
     // create app_user first
-    await createAppUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region).then(result =>{
-        // create artist afterwards
-        while (result == null) {
-            // wait
-        }
-        pool.query(
+    await createAppUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region)
+    // create artist afterwards
+    try {
+        const res = await pool.query(
             "INSERT INTO artist (emailfk, preis, kategorie, erfahrung) " + 
-            "VALUES ('" + email + "','" + preis + "','" + kategorie + "','" + erfahrung + "')", (err,res) =>{
-                if(err)
-                    {
-                        console.log(err);
-                        return false;
-                    } 
-                    else 
-                    {
-                        console.log("artist created");
-                        return true;
-                    }
-        });
-    })
+            "VALUES ($1::text, $2::text, $3::text, $4::text)",
+            [email,preis,kategorie,erfahrung]
+        )
+        console.log("artist created")
+        return true
+    } catch (err) {
+        console.log(err)
+        return false
+    }
 }
 
 // public
 async function createCaterer(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, preis, kategorie, erfahrung){
     // create app_user first
-    await createAppUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region).then(result => {
-        // create caterer afterwards
-        while (result == null) {
-            // wait
-        }
-        pool.query(
+    await createAppUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region)
+    // create caterer afterwards
+    try {
+        const res = await pool.query(
             "INSERT INTO caterer (emailfk, preis, kategorie, erfahrung) " + 
-            "VALUES ('" + email + "','" + preis + "','" + kategorie + "','" + erfahrung + "')", (err,res) =>{
-                if(err)
-                    {
-                        console.log(err);
-                        return false;
-                    } 
-                    else 
-                    {
-                        console.log("caterer created");
-                        return true;
-                    }
-        });
-    })
+            "VALUES ($1::text, $2::text, $3::text, $4::text)",
+            [email,preis,kategorie,erfahrung]
+        )
+        console.log("Caterer created")
+        return true
+    } catch (err) {
+        console.log(err)
+        return false
+    }
 }
 
 // public
 async function createLocation(addresse, name, beschreibung, ownerID, privat, kurzbeschreibung, preis, kapazitaet, openair, flaeche){
-    await pool.query(
-        "INSERT INTO location (addresse, name, beschreibung, ownerid, privat, kurzbeschreibung, preis, kapazitaet, openair, flaeche) " + 
-        "VALUES ('" + addresse + "','" + name + "','" + beschreibung + "','" + ownerID + "','" + privat + "','" + kurzbeschreibung + "','" + preis + "','" + kapazitaet + "','" + openair + "','" + flaeche + "')", (err,res) =>{
-            if(err)
-                {
-                    console.log(err);
-                    return false;
-                } 
-                else 
-                {
-                    console.log("location created");
-                    return true;
-                }
-    });
+    try {   
+        const res = await pool.query(
+            "INSERT INTO location (addresse, name, beschreibung, ownerid, privat, kurzbeschreibung, preis, kapazitaet, openair, flaeche) " + 
+            "VALUES ($1::text, $2::text, $3::text; $4::int, $5::bool, $6::text, $7::text, $8::text, $9::bool, $10::text)",
+            [addresse, name, beschreibung, ownerID, privat, kurzbeschreibung, preis, kapazitaet, openair, flaeche]
+        )
+        console.log("location Created")
+        return ture
+    } catch(err) {
+        console.log(err)
+        return false
+    }
 }
 
 // public
 async function createReviewEvent(inhalt, sterne, ownerid, eventid){
-    await pool.query(
-        "INSERT INTO review (inhalt, sterne, ownerid, eventid, userid, locationid) " + 
-        "VALUES ('" + inhalt + "','" + sterne + "','" + ownerid + "','" + eventid + "','" + null + "','"  + null + "')", (err,res) =>{
-            if(err)
-                {
-                    console.log(err);
-                    return false;
-                } 
-                else 
-                {
-                    console.log("review for event created");
-                    return true;
-                }
-    });
+    try {
+        const res = await pool.query(
+            "INSERT INTO review (inhalt, sterne, ownerid, eventid, userid, locationid) " + 
+            "VALUES ($1::text,$2::int,$3::int,$4::int,$5,$6)", 
+            [inhalt,sterne,ownerid,eventid,null,null]
+        )
+        console.log("Review for Event Created")
+        return ture
+    } catch(err) {
+        console.log(err)
+        return false
+    }
 }
 
 // public
 async function createReviewUser(inhalt, sterne, ownerid, userid){
-    await pool.query(
-        "INSERT INTO review (inhalt, sterne, ownerid, eventid, userid, locationid) " + 
-        "VALUES ('" + inhalt + "','" + sterne + "','" + ownerid + "','" + null + "','" + userid + "','" + null + "')", (err,res) =>{
-            if(err)
-                {
-                    console.log(err);
-                    return false;
-                } 
-                else 
-                {
-                    console.log("review for user created");
-                    return true;
-                }
-    });
+    try {
+        const res = await pool.query(
+            "INSERT INTO review (inhalt, sterne, ownerid, eventid, userid, locationid) " + 
+            "VALUES ($1::text,$2::int,$3::int,$4,$5::int,$6)",
+            [inhalt,sterne,ownerid,null,userid,null]
+        )
+        console.log("Review for User Created")
+        return ture
+    } catch(err) {
+        console.log(err)
+        return false
+    }
 }
 
 // public
 async function createReviewLocation(inhalt, sterne, ownerid, locationid){
-    await pool.query(
-        "INSERT INTO review (inhalt, sterne, ownerid, eventid, userid, locationid) " + 
-        "VALUES ('" + inhalt + "','" + sterne + "','" + ownerid + "','" + null + "','" + null + "','" + locationid + "')", (err,res) =>{
-            if(err)
-                {
-                    console.log(err);
-                    return false;
-                } 
-                else 
-                {
-                    console.log("review for location created");
-                    return true;
-                }
-    });
+    try {
+        const res = await pool.query(
+            "INSERT INTO review (inhalt, sterne, ownerid, eventid, userid, locationid) " + 
+            "VALUES ($1::text,$2::int,$3::int,$4,$5,$6::int)",
+            [inhalt,sterne,ownerid,null,null,locationid]
+        )
+        console.log("Review for Location Created")
+        return ture
+    } catch(err) {
+        console.log(err)
+        return false
+    }
 }
 
 // public
 async function createEvent(name, datum, uhrzeit, eventgroesse, preis, altersfreigabe, privat, kurzbeschreibung, beschreibung, bild, ownerid, locationid){
-    await pool.query(
-        "INSERT INTO event (name, datum, uhrzeit, eventgroesse, freietickets, preis, altersfreigabe, privat, kurzbeschreibung, beschreibung, bild, ownerid, locationid) " + 
-        "VALUES ('" + name + "','" + datum + "','" + uhrzeit + "','" + eventgroesse + "','" + eventgroesse + "','" + preis + "','" + altersfreigabe +
-        "','" + privat + "','" + kurzbeschreibung + "','" + beschreibung + "','" + bild + "','" + ownerid + "','" + locationid + "')", (err,res) =>{
-            if(err)
-                {
-                    console.log(err);
-                    return false;
-                } 
-                else 
-                {
-                    console.log("event created");
-                    return true;
-                }
-    });
+    try {
+        const res = await pool.query(
+            "INSERT INTO event (name, datum, uhrzeit, eventgroesse, freietickets, preis, altersfreigabe, privat, kurzbeschreibung, beschreibung, bild, ownerid, locationid) " + 
+            "VALUES ($1::text, $2, $3::int, $4::int, $5::int, $6::int, $7::int, $8::bool, $9::text, $10::text, $11, $12::int, $13::int)",
+            [name,datum,uhrzeit,eventgroesse,eventgroesse,preis,altersfreigabe,privat,kurzbeschreibung,beschreibung,bild,ownerid,locationid]
+        )
+        console.log("Event Created")
+        return ture
+    } catch(err) {
+        console.log(err)
+        return false
+    }
 }
 
 // public 
 async function createServiceArtist(eventid, artistid){
-    await pool.query(
-        "INSERT INTO serviceartist (eventid, artistid) " + 
-        "VALUES ('" + eventid + "','" + artistid + "')", (err,res) =>{
-            if(err)
-                {
-                    console.log(err);
-                    return false;
-                } 
-                else 
-                {
-                    console.log("serviceartist created");
-                    return true;
-                }
-    });
+    try {
+        const res = await pool.query(
+            "INSERT INTO serviceartist (eventid, artistid) VALUES ($1::int,$2::int)",
+            [eventid,artistid]
+        )
+        console.log("Service Artist Created")
+        return ture
+    } catch(err) {
+        console.log(err)
+        return false
+    }
 }
 
 // public
-async function createLied(id,ownerid,name,laenge,erscheinung){
-    const serchString = "INSERT INTO lied (id,ownerid,name,laenge,erscheinung) VALUES ('"+id+"','"+ownerid+"','"+name+"','"+laenge+"','"+erscheinung+"')"
-    await pool.query(serchString, (err,res=>{
-        if(err)
-            {
-                console.log(err);
-                return false;
-            } 
-            else 
-            {
-                console.log("lied created");
-                return true;
-            }
-    }))
+async function createLied(ownerid,name,laenge,erscheinung){
+    try {
+        const res = await pool.query(
+            "INSERT INTO lied (ownerid, name, laenge, erscheinung) VALUES ($1::int, $2::text, $3::int, $4::date)",
+            [ownerid,name,laenge,erscheinung]
+        )
+        console.log("Lied created")
+        return ture
+    } catch(err) {
+        console.log(err)
+        return false
+    }
 }
 
 // public
-async function createGericht(id,ownerid=null,name,beschreibung,bild=null){
-    const serchString = "INSERT INTO gericht (id,ownerid,name,beschreibung,bild) VALUES ('"+id+"','"+ownerid+"','"+name+"','"+beschreibung+"','"+bild+"')"
-    await pool.query(serchString, (err,res=>{
-        if(err)
-            {
-                console.log(err);
-                return false;
-            } 
-            else 
-            {
-                console.log("gericht created");
-                return true;
-            }
-    }))
+async function createGericht(ownerid=null,name,beschreibung,bild=null){
+    try {
+        const result = await pool.query(
+            "INSERT INTO gericht (ownerid,name,beschreibung,bild) VALUES ($1, $2::text, $3::text, $4)",
+            [ownerid, name, beschreibung, bild]
+        )
+        console.log("Gericht created")
+        return true
+    } catch (err) {
+        console.log(err)
+        return false
+    }
 }
 
 // public
-async function createPlaylist(id,name,artistid){
-    const serchString = "INSERT INTO playlist (id,name,artistid) VALUES ('"+id+"','"+name+"','"+artistid+"')"
-    await pool.query(serchString, (err,res=>{
-        if(err)
-            {
-                console.log(err);
-                return false;
-            } 
-            else 
-            {
-                console.log("playlist created");
-                return true;
-            }
-    }))
+async function createPlaylist(name,artistid){
+    try {
+        const result = await pool.query(
+            "INSERT INTO playlist (name, artistid) VALUES ($1::text, $2::int)",
+            [name, artistid]
+        )
+        console.log("Playlist created")
+        return true
+    } catch (err) {
+        console.log(err)
+        return false
+    }
 }
 
 // public
-async function createPlaylistInhalt(playlistid,liedid,id){
-    const serchString = "INSERT INTO playlistinhalt (id,playlistid,liedid) VALUES ('"+id+"','"+playlistid+"','"+liedid+"')"
-    await pool.query(serchString, (err,res=>{
-        if(err)
-            {
-                console.log(err);
-                return false;
-            } 
-            else 
-            {
-                console.log("playlistinhalt created");
-                return true;
-            }
-    }))
+async function createPlaylistInhalt(playlistid,liedid){
+    try {
+        const result = await pool.query(
+            "INSERT INTO playlistinhalt (playlistid,liedid) VALUES ($1::int, $2::int)",
+            [playlistid, liedid]
+        )
+        console.log("PlaylistInhalt created")
+        return true
+    } catch (err) {
+        console.log(err)
+        return false
+    }
 }
 
 // public
-async function createTicket(userid,eventid,id){
-    const serchString = "INSERT INTO tickets (id,userid,eventid) VALUES ('"+id+"','"+userid+"','"+eventid+"')"
-    await pool.query(serchString, (err,res=>{
-        if(err)
-            {
-                console.log(err);
-                return false;
-            } 
-            else 
-            {
-                console.log("ticket created");
-                return true;
-            }
-    }))
+async function createTicket(userid,eventid){
+    try {
+        const result = await pool.query(
+            "INSERT INTO tickets (userid,eventid) VALUES ($1::int, $2::int)",
+            [userid, eventid]
+        )
+        console.log("Ticked created")
+        return true
+    } catch (err) {
+        console.log(err)
+        return false
+    }
 }
 
 // ------------------------- GET - QUERIES ------------------------- //
 
 async function getStuffbyName(req){
-    
-    const result = await pool.query("SELECT * FROM "+req.body["tabel"]+" WHERE UPPER(name) LIKE UPPER('%" + req.body["value"] + "%')")
-    return result;
+    try {
+        const result = await pool.query(
+            "SELECT * FROM $1::text WHERE UPPER(name) LIKE UPPER($2)",
+            [req.body["table"], req.body["value"]]
+        )
+        console.log(result)
+        return result
+    } catch (err) {
+        console.log(err)
+        return null
+    }
 }
 
 async function getCatererByName(name){
-    const result = await pool.query("SELECT c.*,a.benutzername, a.profilname,a.profilbild,a.kurzbeschreibung,a.beschreibung,a.region FROM caterer c JOIN app_user a ON c.emailfk = a.email WHERE UPPER(a.benutzername) LIKE UPPER('%"+name+"%')");
-    return result;
+    try {
+        const result = await pool.query(
+            "SELECT c.*,a.benutzername, a.profilname,a.profilbild,a.kurzbeschreibung,a.beschreibung,a.region FROM caterer c JOIN app_user a ON c.emailfk = a.email WHERE UPPER(a.benutzername) LIKE UPPER($1::text)",
+            [`%${name}%`]
+        )
+        console.log(result)
+        return result
+    } catch (err) {
+        console.log(err)
+        return null
+    }
 }
 
 async function getArtistByName(name){
-    const result = await pool.query("SELECT ar.*, a.benutzername, a.profilname,a.profilbild,a.kurzbeschreibung,a.beschreibung,a.region FROM artist ar JOIN app_user a ON ar.emailfk = a.email WHERE UPPER(a.benutzername) LIKE UPPER('%"+name+"%')");
-    return result;
+    try {
+        const result = await pool.query(
+            "SELECT ar.*, a.benutzername, a.profilname,a.profilbild,a.kurzbeschreibung,a.beschreibung,a.region FROM artist ar JOIN app_user a ON ar.emailfk = a.email WHERE UPPER(a.benutzername) LIKE UPPER($1::text)",
+            [`%${name}%`]
+        )
+        console.log(result)
+        return result
+    } catch (err) {
+        console.log(err)
+        return null
+    }
 }
 
 async function getUserById(id){
-    await pool.query('SELECT * FROM app_user WHERE id =' +id, (err,res) =>{
-        if(!err)
-        {
-            console.log(res.rows);
-            return res.rows;
-        }
-        else
-        {
-            console.log(err);
-            return null;
-        }
-    });
+    try {
+        const result = await pool.query(
+            "SELECT * FROM app_user WHERE id = $1::int",
+            [id]
+        )
+        console.log(result)
+        return result
+    } catch (err) {
+        console.log(err)
+        return null
+    }
 }
 
 async function getAllTicketsFromUser(userId){
-    const result = await pool.query("SELECT name FROM event  JOIN tickets ON tickets.eventid = event.id WHERE tickets.userid = '" +userId+"'");
-    return result
+    try {
+        const result = await pool.query(
+            "SELECT name FROM event  JOIN tickets ON tickets.eventid = event.id WHERE tickets.userid = $1::int",
+            [userId]
+        )
+        console.log(result)
+        return result
+    } catch (err) {
+        console.log(err)
+        return null
+    }
 }
 
 async function getUserByEmail(email,pass){
     try {
-        const {rows} = await pool.query("SELECT * FROM app_user WHERE email = '" + email + "' AND password = '" + pass + "'");
-        return rows[0];
+        const result = await pool.query(
+            "SELECT * FROM app_user WHERE email = $1::text AND password = $2::text",
+            [email, pass]
+        )
+        console.log(result)
+        return result
     } catch (err) {
-        console.log(err);
-        return null;
+        console.log(err)
+        return null
     }
-    
 }
 
 async function getArtistByEvent(id){
-    const result = await pool.query("SELECT a.benutzername,a.profilbild FROM app_user a JOIN artist ar  ON ar.emailfk = a.email JOIN serviceartist sa ON sa.artistid = ar.id JOIN event e ON e.id = sa.eventid WHERE sa.eventid = '"+id+"'");
-    return result;
+    try {
+        const result = await pool.query(
+            "SELECT a.benutzername,a.profilbild FROM app_user a JOIN artist ar  ON ar.emailfk = a.email JOIN serviceartist sa ON sa.artistid = ar.id JOIN event e ON e.id = sa.eventid WHERE sa.eventid = $1::int",
+            [id]
+        )
+        console.log(result)
+        return result
+    } catch (err) {
+        console.log(err)
+        return null
+    }
 }
 
 async function getCatererByEvent(id){
-    const result = await pool.query("SELECT a.benutzername,a.profilbild FROM app_user a JOIN caterer cr  ON cr.emailfk = a.email JOIN servicecaterer sc ON sc.catererid = cr.id JOIN event e ON e.id = sc.eventid WHERE sc.eventid = '"+id+"'");
-    return result;
+    try {
+        const result = await pool.query(
+            "SELECT a.benutzername,a.profilbild FROM app_user a JOIN caterer cr  ON cr.emailfk = a.email JOIN servicecaterer sc ON sc.catererid = cr.id JOIN event e ON e.id = sc.eventid WHERE sc.eventid = $1::int",
+            [id]
+        )
+        console.log(result)
+        return result
+    } catch (err) {
+        console.log(err)
+        return null
+    }
 }
 
-async function getPlaylistContent(name){
-    const sqlstring = "SELECT p.name AS playlistname, l.name AS liedname FROM playlist p JOIN playlistinhalt pi ON p.id = pi.playlistid JOIN lied l ON pi.liedid = l.id WHERE UPPER(p.name) LIKE UPPER('%"+name+"%')"
-    const result = await pool.query(sqlstring);
-    console.log(result)
-    return result;
+async function getPlaylistContent(name) {
+    try {
+        const result = await pool.query(
+            "SELECT p.name AS playlistname, l.name AS liedname FROM playlist p JOIN playlistinhalt pi ON p.id = pi.playlistid JOIN lied l ON pi.liedid = l.id WHERE UPPER(p.name) LIKE UPPER($1)",
+            [`%${name}%`]
+        )
+        console.log(result)
+        return result
+    } catch (err) {
+        console.log(err)
+        return null
+    }
 }
 
 async function searchEvent(req,res){
