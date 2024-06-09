@@ -22,7 +22,7 @@ module.exports = async(req, res) => {
     }
     catch(err)
     {
-        console.log(err);
+        console.err(err);
         return res.status(400).send("User not found");
     }
     

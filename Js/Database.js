@@ -26,7 +26,7 @@ async function createAppUser(benutzername, profilname, email, password, profilbi
         console.log("app_user created")
         return true;
     } catch (err) {
-        console.log(err)
+        console.err(err)
         return false
     }
 }
@@ -44,7 +44,7 @@ async function createEndUser(benutzername, profilname, email, password, profilbi
         console.log("enduser created")
         return true
     } catch (err) {
-        console.log(err)
+        console.err(err)
         return false
     }
     
@@ -64,7 +64,7 @@ async function createArtist(benutzername, profilname, email, password, profilbil
         console.log("artist created")
         return true
     } catch (err) {
-        console.log(err)
+        console.err(err)
         return false
     }
 }
@@ -83,7 +83,7 @@ async function createCaterer(benutzername, profilname, email, password, profilbi
         console.log("Caterer created")
         return true
     } catch (err) {
-        console.log(err)
+        console.err(err)
         return false
     }
 }
@@ -99,7 +99,7 @@ async function createLocation(addresse, name, beschreibung, ownerID, privat, kur
         console.log("location Created")
         return ture
     } catch(err) {
-        console.log(err)
+        console.err(err)
         return false
     }
 }
@@ -115,7 +115,7 @@ async function createReviewEvent(inhalt, sterne, ownerid, eventid){
         console.log("Review for Event Created")
         return ture
     } catch(err) {
-        console.log(err)
+        console.err(err)
         return false
     }
 }
@@ -131,7 +131,7 @@ async function createReviewUser(inhalt, sterne, ownerid, userid){
         console.log("Review for User Created")
         return ture
     } catch(err) {
-        console.log(err)
+        console.err(err)
         return false
     }
 }
@@ -147,7 +147,7 @@ async function createReviewLocation(inhalt, sterne, ownerid, locationid){
         console.log("Review for Location Created")
         return ture
     } catch(err) {
-        console.log(err)
+        console.err(err)
         return false
     }
 }
@@ -163,7 +163,7 @@ async function createEvent(name, datum, uhrzeit, eventgroesse, preis, altersfrei
         console.log("Event Created")
         return ture
     } catch(err) {
-        console.log(err)
+        console.err(err)
         return false
     }
 }
@@ -178,7 +178,7 @@ async function createServiceArtist(eventid, artistid){
         console.log("Service Artist Created")
         return ture
     } catch(err) {
-        console.log(err)
+        console.err(err)
         return false
     }
 }
@@ -193,7 +193,7 @@ async function createLied(ownerid,name,laenge,erscheinung){
         console.log("Lied created")
         return ture
     } catch(err) {
-        console.log(err)
+        console.err(err)
         return false
     }
 }
@@ -208,7 +208,7 @@ async function createGericht(ownerid=null,name,beschreibung,bild=null){
         console.log("Gericht created")
         return true
     } catch (err) {
-        console.log(err)
+        console.err(err)
         return false
     }
 }
@@ -223,7 +223,7 @@ async function createPlaylist(name,artistid){
         console.log("Playlist created")
         return true
     } catch (err) {
-        console.log(err)
+        console.err(err)
         return false
     }
 }
@@ -238,7 +238,7 @@ async function createPlaylistInhalt(playlistid,liedid){
         console.log("PlaylistInhalt created")
         return true
     } catch (err) {
-        console.log(err)
+        console.err(err)
         return false
     }
 }
@@ -253,7 +253,7 @@ async function createTicket(userid,eventid){
         console.log("Ticked created")
         return true
     } catch (err) {
-        console.log(err)
+        console.err(err)
         return false
     }
 }
@@ -269,7 +269,7 @@ async function getStuffbyName(req){
         console.log(result)
         return result
     } catch (err) {
-        console.log(err)
+        console.err(err)
         return null
     }
 }
@@ -283,7 +283,7 @@ async function getCatererByName(name){
         console.log(result)
         return result
     } catch (err) {
-        console.log(err)
+        console.err(err)
         return null
     }
 }
@@ -297,7 +297,7 @@ async function getArtistByName(name){
         console.log(result)
         return result
     } catch (err) {
-        console.log(err)
+        console.err(err)
         return null
     }
 }
@@ -311,7 +311,7 @@ async function getUserById(id){
         console.log(result)
         return result
     } catch (err) {
-        console.log(err)
+        console.err(err)
         return null
     }
 }
@@ -325,7 +325,7 @@ async function getAllTicketsFromUser(userId){
         console.log(result)
         return result
     } catch (err) {
-        console.log(err)
+        console.err(err)
         return null
     }
 }
@@ -339,7 +339,7 @@ async function getUserByEmail(email,pass){
         console.log(result)
         return result
     } catch (err) {
-        console.log(err)
+        console.err(err)
         return null
     }
 }
@@ -353,7 +353,7 @@ async function getArtistByEvent(id){
         console.log(result)
         return result
     } catch (err) {
-        console.log(err)
+        console.err(err)
         return null
     }
 }
@@ -367,7 +367,7 @@ async function getCatererByEvent(id){
         console.log(result)
         return result
     } catch (err) {
-        console.log(err)
+        console.err(err)
         return null
     }
 }
@@ -381,7 +381,7 @@ async function getPlaylistContent(name) {
         console.log(result)
         return result
     } catch (err) {
-        console.log(err)
+        console.err(err)
         return null
     }
 }
@@ -439,7 +439,6 @@ async function searchEvent(req,res){
         searchString+= fileterOptions;
     }
 
-    console.log(searchString)
     let result = await pool.query(searchString)
     const result2 = await pool.query("SELECT l.name,l.id FROM location l JOIN event e ON e.locationid = l.id")
     result.rows  = result.rows.concat(result2.rows)
