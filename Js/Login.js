@@ -7,7 +7,7 @@ module.exports = async(req, res) => {
     const {email, pass} = req.body;
     try
     {
-        const user  = await Database.getUserByEmail(email,pass);
+        const user  = await Database.comparePassword(email,pass);
         if(user!=null)
         {
             const token = jwt.sign(user,SECRET,{expiresIn: '3h'});

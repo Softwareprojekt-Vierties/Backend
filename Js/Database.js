@@ -1,4 +1,5 @@
 const { response } = require('express');
+const bcrypt = require('bcrypt');
 const {Pool} = require('pg');
 
 
@@ -15,6 +16,31 @@ const pool = new Pool({
     allowExitOnIdle: false
 });
 
+async function comparePassword(email, password) {
+    try {
+        const result = await pool.query(
+            "SELECT * FROM app_user WHERE email = $1::text",
+            [email]
+        )
+
+        bcrypt.compare(password, result.rows[4], (err, res) => {
+            if (err) {
+                console.log('Error comparing passwords:', err)
+                return null
+            }
+            if (result) {
+                console.log('User authenticated!')
+                return result
+            }
+            console.log('Authentication failed.')
+            return null
+        })
+    } catch (err) {
+        console.log(err)
+        return null
+    }
+}
+
 // ------------------------- CREATE - QUERIES ------------------------- //
 
 // private
@@ -22,7 +48,7 @@ async function createAppUser(benutzername, profilname, email, password, profilbi
     try {
         const res = await pool.query(
             "INSERT INTO app_user (benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region) VALUES ($1::text, $2::text, $3::text, $4::text, $5, $6::text, $7::text, $8::text)",
-            [benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region])
+            [benutzername, profilname, email, bcrypt.hash(password), profilbild, kurzbeschreibung, beschreibung, region])
         console.log("app_user created")
         return true;
     } catch (err) {
@@ -330,11 +356,11 @@ async function getAllTicketsFromUser(userId){
     }
 }
 
-async function getUserByEmail(email,pass){
+async function getUserByEmail(email){
     try {
         const result = await pool.query(
-            "SELECT * FROM app_user WHERE email = $1::text AND password = $2::text",
-            [email, pass]
+            "SELECT id, benutzername, profilname, email, profilbild, kurzbeschreibung, beschreibung, region FROM app_user WHERE email = $1::text",
+            [email]
         )
         console.log(result)
         return result
@@ -448,6 +474,7 @@ async function searchEvent(req,res){
 
 module.exports = {
     createEndUser, createArtist, createCaterer, createEvent, createLocation, createReviewEvent, createReviewUser, createReviewLocation, createServiceArtist, createLied, createGericht, createPlaylist, createPlaylistInhalt, createTicket, createServiceArtist,
-    getUserById, getUserByEmail, searchEvent, getStuffbyName, getCatererByName , getArtistByName, getAllTicketsFromUser, getArtistByEvent, getCatererByEvent, getPlaylistContent
+    getUserById, getUserByEmail, searchEvent, getStuffbyName, getCatererByName , getArtistByName, getAllTicketsFromUser, getArtistByEvent, getCatererByEvent, getPlaylistContent,
+    comparePassword
 };
 
