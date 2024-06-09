@@ -47,6 +47,30 @@ app.get("/MyPage",cookieJwtAuth.Auth, (req,res)=>{     // test function
     res.status(200).send("Welcome "+user.id);
 })
 
+app.post('/createEvent',(req,res)=>{
+    const {eventname,datum,uhrzeit,eventgroesse,preis,altersfreigabe,privat,kurzbeschreibung,beschreibung,bild,ownerid,locationid} = req.body
+    database.createEvent(eventname,datum,uhrzeit,eventgroesse,preis,altersfreigabe,privat,kurzbeschreibung,beschreibung,bild,ownerid,locationid)
+    res.status(200).send("event")
+})    // creates a new events
+
+app.post('/createCaterer',(req,res)=>{
+    const {benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, preis, kategorie, erfahrung} = req.body
+    database.createCaterer(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, preis, kategorie, erfahrung)
+    res.status(200).send("event")
+})    // creates a new Caterer
+
+app.post('/createArtist',(req,res)=>{
+    const {benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, preis, kategorie, erfahrung} = req.body
+    database.createArtist(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, preis, kategorie, erfahrung)
+    res.status(200).send("event")
+})    // creates a new Artist
+
+app.post('/createLocation',(req,res)=>{
+    const {addresse, name, beschreibung, ownerID, privat, kurzbeschreibung, preis, kapazitaet, openair, flaeche} = req.body
+    database.createLocation(addresse, name, beschreibung, ownerID, privat, kurzbeschreibung, preis, kapazitaet, openair, flaeche)
+    res.status(200).send("event")
+})    // creates a new Location
+
 app.post('/register', registration);    // register a user
 
 app.post('/testSearch', (req,res)=>{
