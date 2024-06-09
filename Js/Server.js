@@ -1,6 +1,9 @@
 
 const express = require("express"); // import express for REST API
 const cookieParser = require("cookie-parser"); // import cookie parser for cookies
+const multer = require('multer') 
+
+const upload = multer({ dest: 'uploads/' }); // Dateien werden im 'uploads' Verzeichnis gespeichert
 const app = express(); // create app used for the Server 
 const port = 5000; // connection port
 const login = require('./Login'); // import login.js file
@@ -167,8 +170,9 @@ app.post('/createArtist',(req,res)=>{
     res.status(200).send("Artist")
 })    // creates a new Artist
 
-app.post('/createLocation',(req,res)=>{
+app.post('/createLocation', upload.single('bild'),(req,res)=>{
     console.log(req.body)
+    console.log(req.file)
     const {addresse, region, name, beschreibung, ownerID, privat, kurzbeschreibung, preis, kapazitaet, openair, flaeche, bild} = req.body
     database.createLocation(addresse + " " + region, name, beschreibung, ownerID, privat, kurzbeschreibung, preis, kapazitaet, openair, flaeche, bild)
     res.status(200).send("Location")
