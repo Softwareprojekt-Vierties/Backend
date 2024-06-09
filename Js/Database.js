@@ -18,166 +18,291 @@ const pool = new Pool({
 // ------------------------- CREATE - QUERIES ------------------------- //
 
 // private
-function createAppUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region){
-    pool.query(
+async function createAppUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region){
+    await pool.query(
         "INSERT INTO app_user (benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region) " + 
-        "VALUES ('" + benutzername + "','" + profilname == null ? benutzername : profilname + "','" + email + "','" + password + "','" + profilbild + "','" + kurzbeschreibung + "','" + beschreibung + "','" + region + "')", (err,res) =>{
-            if(err) console.log(err);
-            else console.log("app_user created");
+        "VALUES ('" + benutzername + "','" + profilname + "','" + email + "','" + password + "','" + profilbild + "','" + kurzbeschreibung + "','" + beschreibung + "','" + region + "')", (err,res) =>{
+            if(err)
+            {
+                console.log(err);
+                return false;
+            } 
+            else 
+            {
+                console.log("app_user created");
+                return true;
+            }
     });
 }
 
 // public
-function createEndUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, alter, arten, lied, gericht, geschlecht){
+async function createEndUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, alter, arten, lied, gericht, geschlecht){
+   
     // create app_user first
-    createAppUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region);
-    // create endnutzer afterwards
-    pool.query(
-        "INSERT INTO endnutzer (emailfk, alter, arten, lied, gericht, geschlecht) " + 
-        "VALUES ('" + email + "','" + alter + "','" + arten + "','" + lied + "','" + gericht + "','" + geschlecht + "')", (err,res) =>{
-        if(err) console.log(err);
-        else console.log("endnutzer created");
-    });
+    await createAppUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region).then(result =>{
+        // create endnutzer afterwards
+        while (result == null) {
+            // wait
+        }
+        pool.query(
+            "INSERT INTO endnutzer (emailfk, alter, arten, lied, gericht, geschlecht) " + 
+            "VALUES ('" + email + "','" + alter + "','" + arten + "','" + lied + "','" + gericht + "','" + geschlecht + "')", (err,res) =>{
+            if(err)
+            {
+                console.log(err);
+                return false;
+            } 
+            else 
+            {
+                console.log("enduser created");
+                return true;
+            }
+        });
+    })
+    
 }
 
 // public
-function createArtist(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, preis, kategorie, erfahrung){
+async function createArtist(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, preis, kategorie, erfahrung){
     // create app_user first
-    createAppUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region);
-    // create artist afterwards
-    pool.query(
-        "INSERT INTO artist (emailfk, preis, kategorie, erfahrung) " + 
-        "VALUES ('" + email + "','" + preis + "','" + kategorie + "','" + erfahrung + "')", (err,res) =>{
-            if(err) console.log(err);
-            else console.log("artist created");
-    });
+    await createAppUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region).then(result =>{
+        // create artist afterwards
+        while (result == null) {
+            // wait
+        }
+        pool.query(
+            "INSERT INTO artist (emailfk, preis, kategorie, erfahrung) " + 
+            "VALUES ('" + email + "','" + preis + "','" + kategorie + "','" + erfahrung + "')", (err,res) =>{
+                if(err)
+                    {
+                        console.log(err);
+                        return false;
+                    } 
+                    else 
+                    {
+                        console.log("artist created");
+                        return true;
+                    }
+        });
+    })
 }
 
 // public
-function createCaterer(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, preis, kategorie, erfahrung){
+async function createCaterer(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, preis, kategorie, erfahrung){
     // create app_user first
-    createAppUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region);
-    // create caterer afterwards
-    pool.query(
-        "INSERT INTO caterer (emailfk, preis, kategorie, erfahrung) " + 
-        "VALUES ('" + email + "','" + preis + "','" + kategorie + "','" + erfahrung + "')", (err,res) =>{
-            if(err) console.log(err);
-            else console.log("caterer created");
-    });
+    await createAppUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region).then(result => {
+        // create caterer afterwards
+        while (result == null) {
+            // wait
+        }
+        pool.query(
+            "INSERT INTO caterer (emailfk, preis, kategorie, erfahrung) " + 
+            "VALUES ('" + email + "','" + preis + "','" + kategorie + "','" + erfahrung + "')", (err,res) =>{
+                if(err)
+                    {
+                        console.log(err);
+                        return false;
+                    } 
+                    else 
+                    {
+                        console.log("caterer created");
+                        return true;
+                    }
+        });
+    })
 }
 
 // public
-function createLocation(addresse, name, beschreibung, ownerID, privat, kurzbeschreibung, preis, kapazitaet, openair, flaeche){
-    pool.query(
+async function createLocation(addresse, name, beschreibung, ownerID, privat, kurzbeschreibung, preis, kapazitaet, openair, flaeche){
+    await pool.query(
         "INSERT INTO location (addresse, name, beschreibung, ownerid, privat, kurzbeschreibung, preis, kapazitaet, openair, flaeche) " + 
         "VALUES ('" + addresse + "','" + name + "','" + beschreibung + "','" + ownerID + "','" + privat + "','" + kurzbeschreibung + "','" + preis + "','" + kapazitaet + "','" + openair + "','" + flaeche + "')", (err,res) =>{
-            if(err) console.log(err);
-            else console.log("location created");
+            if(err)
+                {
+                    console.log(err);
+                    return false;
+                } 
+                else 
+                {
+                    console.log("location created");
+                    return true;
+                }
     });
 }
 
 // public
-function createReviewEvent(inhalt, sterne, ownerid, eventid){
-    pool.query(
+async function createReviewEvent(inhalt, sterne, ownerid, eventid){
+    await pool.query(
         "INSERT INTO review (inhalt, sterne, ownerid, eventid, userid, locationid) " + 
         "VALUES ('" + inhalt + "','" + sterne + "','" + ownerid + "','" + eventid + "','" + null + "','"  + null + "')", (err,res) =>{
-            if(err) console.log(err);
-            else console.log("review for event created");
+            if(err)
+                {
+                    console.log(err);
+                    return false;
+                } 
+                else 
+                {
+                    console.log("review for event created");
+                    return true;
+                }
     });
 }
 
 // public
-function createReviewUser(inhalt, sterne, ownerid, userid){
-    pool.query(
+async function createReviewUser(inhalt, sterne, ownerid, userid){
+    await pool.query(
         "INSERT INTO review (inhalt, sterne, ownerid, eventid, userid, locationid) " + 
         "VALUES ('" + inhalt + "','" + sterne + "','" + ownerid + "','" + null + "','" + userid + "','" + null + "')", (err,res) =>{
-            if(err) console.log(err);
-            else console.log("review for user created");
+            if(err)
+                {
+                    console.log(err);
+                    return false;
+                } 
+                else 
+                {
+                    console.log("review for user created");
+                    return true;
+                }
     });
 }
 
 // public
-function createReviewLocation(inhalt, sterne, ownerid, locationid){
-    pool.query(
+async function createReviewLocation(inhalt, sterne, ownerid, locationid){
+    await pool.query(
         "INSERT INTO review (inhalt, sterne, ownerid, eventid, userid, locationid) " + 
         "VALUES ('" + inhalt + "','" + sterne + "','" + ownerid + "','" + null + "','" + null + "','" + locationid + "')", (err,res) =>{
-            if(err) console.log(err);
-            else console.log("review for location created");
+            if(err)
+                {
+                    console.log(err);
+                    return false;
+                } 
+                else 
+                {
+                    console.log("review for location created");
+                    return true;
+                }
     });
 }
 
 // public
-function createEvent(name, datum, uhrzeit, eventgroesse, preis, altersfreigabe, privat, kurzbeschreibung, beschreibung, bild, ownerid, locationid){
-    pool.query(
+async function createEvent(name, datum, uhrzeit, eventgroesse, preis, altersfreigabe, privat, kurzbeschreibung, beschreibung, bild, ownerid, locationid){
+    await pool.query(
         "INSERT INTO event (name, datum, uhrzeit, eventgroesse, freietickets, preis, altersfreigabe, privat, kurzbeschreibung, beschreibung, bild, ownerid, locationid) " + 
         "VALUES ('" + name + "','" + datum + "','" + uhrzeit + "','" + eventgroesse + "','" + eventgroesse + "','" + preis + "','" + altersfreigabe +
         "','" + privat + "','" + kurzbeschreibung + "','" + beschreibung + "','" + bild + "','" + ownerid + "','" + locationid + "')", (err,res) =>{
-            if(err) console.log(err);
-            else console.log("event created");
+            if(err)
+                {
+                    console.log(err);
+                    return false;
+                } 
+                else 
+                {
+                    console.log("event created");
+                    return true;
+                }
     });
 }
 
 // public 
-function createServiceArtist(eventid, artistid){
-    pool.query(
+async function createServiceArtist(eventid, artistid){
+    await pool.query(
         "INSERT INTO serviceartist (eventid, artistid) " + 
         "VALUES ('" + eventid + "','" + artistid + "')", (err,res) =>{
-            if(err) console.log(err);
-            else console.log("serviceartist created");
+            if(err)
+                {
+                    console.log(err);
+                    return false;
+                } 
+                else 
+                {
+                    console.log("serviceartist created");
+                    return true;
+                }
     });
 }
 
 // public
-function createLied(id,ownerid,name,laenge,erscheinung){
+async function createLied(id,ownerid,name,laenge,erscheinung){
     const serchString = "INSERT INTO lied (id,ownerid,name,laenge,erscheinung) VALUES ('"+id+"','"+ownerid+"','"+name+"','"+laenge+"','"+erscheinung+"')"
-    pool.query(serchString, (err,res=>{
-        if(err) console.log(err);
-        else console.log("lied created");
+    await pool.query(serchString, (err,res=>{
+        if(err)
+            {
+                console.log(err);
+                return false;
+            } 
+            else 
+            {
+                console.log("lied created");
+                return true;
+            }
     }))
 }
 
 // public
-function createGericht(id,ownerid=null,name,beschreibung,bild=null){
+async function createGericht(id,ownerid=null,name,beschreibung,bild=null){
     const serchString = "INSERT INTO gericht (id,ownerid,name,beschreibung,bild) VALUES ('"+id+"','"+ownerid+"','"+name+"','"+beschreibung+"','"+bild+"')"
-    pool.query(serchString, (err,res=>{
-        if(err) console.log(err);
-        else console.log("gericht created");
+    await pool.query(serchString, (err,res=>{
+        if(err)
+            {
+                console.log(err);
+                return false;
+            } 
+            else 
+            {
+                console.log("gericht created");
+                return true;
+            }
     }))
 }
 
 // public
-function createPlaylist(id,name,artistid){
+async function createPlaylist(id,name,artistid){
     const serchString = "INSERT INTO playlist (id,name,artistid) VALUES ('"+id+"','"+name+"','"+artistid+"')"
-    pool.query(serchString, (err,res=>{
-        if(err) console.log(err);
-        else console.log("playlist created");
+    await pool.query(serchString, (err,res=>{
+        if(err)
+            {
+                console.log(err);
+                return false;
+            } 
+            else 
+            {
+                console.log("playlist created");
+                return true;
+            }
     }))
 }
 
 // public
-function createPlaylistInhalt(playlistid,liedid,id){
+async function createPlaylistInhalt(playlistid,liedid,id){
     const serchString = "INSERT INTO playlistinhalt (id,playlistid,liedid) VALUES ('"+id+"','"+playlistid+"','"+liedid+"')"
-    pool.query(serchString, (err,res=>{
-        if(err) console.log(err);
-        else console.log("playlistinhalt created");
+    await pool.query(serchString, (err,res=>{
+        if(err)
+            {
+                console.log(err);
+                return false;
+            } 
+            else 
+            {
+                console.log("playlistinhalt created");
+                return true;
+            }
     }))
 }
 
 // public
-function createTicket(userid,eventid,id){
+async function createTicket(userid,eventid,id){
     const serchString = "INSERT INTO tickets (id,userid,eventid) VALUES ('"+id+"','"+userid+"','"+eventid+"')"
-    pool.query(serchString, (err,res=>{
-        if(err) console.log(err);
-        else console.log("ticket created");
-    }))
-}
-
-// public
-function createServiceArtist(id,eventid,artistid){
-    const serchString = "INSERT INTO serviceartist (id,eventid,artistid) VALUES ('"+id+"','"+eventid+"','"+artistid+"')"
-    pool.query(serchString, (err,res=>{
-        if(err) console.log(err);
-        else console.log("serviceartist created");
+    await pool.query(serchString, (err,res=>{
+        if(err)
+            {
+                console.log(err);
+                return false;
+            } 
+            else 
+            {
+                console.log("ticket created");
+                return true;
+            }
     }))
 }
 
@@ -253,30 +378,42 @@ async function searchEvent(req,res){
     let isOpenair =0;
     for(let name in req.body)
     {
-    
-        if(name.localeCompare("search")==0)
-        {
-            fileterOptions+= " e.UPPER(name) LIKE UPPER('%" + req.body[name] + "%')";
-        }
-        if(name.localeCompare("openair")==0)
-        {
-            isOpenair = 1
-            fileterOptions+= " JOIN location l ON e.locationid = l.id WHERE l.openair = "+req.body[name] ;
-        }
-        
-        else
-        {
-            if(Array.isArray(req.body[name]))
+        if(!req.body[name]==""){
+            if(name.localeCompare("search")==0)
             {
-                fileterOptions+= " e."+name + " BETWEEN '"+ req.body[name][0] + "' AND '" + req.body[name][1]+"'";
+                fileterOptions+= " UPPER(e.name) LIKE UPPER('%" + req.body[name] + "%')";
             }
+            else if(name.localeCompare("openair")==0)
+            {
+                isOpenair = 1
+                fileterOptions+= " JOIN location l ON e.locationid = l.id WHERE l.openair = "+req.body[name] ;
+            }            
             else
             {
-                fileterOptions+= " e."+name + " = '" + req.body[name] + "'";
+                if(Array.isArray(req.body[name]))
+                {
+                    if(req.body[name][0]=="")
+                        {
+                            req.body[name][0]=0
+                            if(req.body[name][1]=="")
+                            {
+                                continue;
+                            }
+                        }
+                    if(req.body[name][1]=="")
+                    {
+                        req.body[name][1]=0;
+                    }
+                    fileterOptions+= " e."+name + " BETWEEN '"+ req.body[name][0] + "' AND '" + req.body[name][1]+"'";
+                }
+                else
+                {
+                    fileterOptions+= " e."+name + " = '" + req.body[name] + "'";
+                }
+                
             }
-            
+            fileterOptions += " AND"
         }
-        fileterOptions += " AND"
     }
     fileterOptions = fileterOptions.substring(0,fileterOptions.length-3)
     if(fileterOptions!=""&&isOpenair==0)
@@ -289,7 +426,9 @@ async function searchEvent(req,res){
     }
 
     console.log(searchString)
-    const result = await pool.query(searchString)
+    let result = await pool.query(searchString)
+    const result2 = await pool.query("SELECT l.name,l.id FROM location l JOIN event e ON e.locationid = l.id")
+    result.rows  = result.rows.concat(result2.rows)
     res.send(result)   
 }
 
@@ -297,3 +436,4 @@ module.exports = {
     createEndUser, createArtist, createCaterer, createEvent, createLocation, createReviewEvent, createReviewUser, createReviewLocation, createServiceArtist, createLied, createGericht, createPlaylist, createPlaylistInhalt, createTicket, createServiceArtist,
     getUserById, getUserByEmail, searchEvent, getStuffbyName, getCatererByName , getArtistByName, getAllTicketsFromUser, getArtistByEvent, getCatererByEvent, getPlaylistContent
 };
+
