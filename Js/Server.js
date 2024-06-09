@@ -168,8 +168,8 @@ app.post('/createArtist',(req,res)=>{
 })    // creates a new Artist
 
 app.post('/createLocation',(req,res)=>{
-    const {addresse, name, beschreibung, ownerID, privat, kurzbeschreibung, preis, kapazitaet, openair, flaeche, bild} = req.body
-    database.createLocation(addresse, name, beschreibung, ownerID, privat, kurzbeschreibung, preis, kapazitaet, openair, flaeche, bild)
+    const {addresse, region, name, beschreibung, ownerID, privat, kurzbeschreibung, preis, kapazitaet, openair, flaeche, bild} = req.body
+    database.createLocation(addresse + " " + region, name, beschreibung, ownerID, privat, kurzbeschreibung, preis, kapazitaet, openair, flaeche, bild)
     res.status(200).send("Location")
 })    // creates a new Location
 
