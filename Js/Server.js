@@ -173,8 +173,8 @@ app.post('/createArtist',(req,res)=>{
 app.post('/createLocation', upload.single('bild'),(req,res)=>{
     console.log(req.body)
     console.log(req.file)
-    const {addresse, region, name, beschreibung, ownerID, privat, kurzbeschreibung, preis, kapazitaet, openair, flaeche, bild} = req.body
-    database.createLocation(addresse + " " + region, name, beschreibung, ownerID, privat, kurzbeschreibung, preis, kapazitaet, openair, flaeche, bild)
+    const {addresse, region, name, beschreibung, ownerID, kurzbeschreibung, preis, kapazitaet, openair, flaeche, bild} = req.body // frontend is missing field 'privat'
+    database.createLocation(addresse + " " + region, name, beschreibung, ownerID, true, kurzbeschreibung, preis, kapazitaet, openair, flaeche, bild)
     res.status(200).send("Location")
 })    // creates a new Location
 
