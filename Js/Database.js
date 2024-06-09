@@ -89,12 +89,12 @@ async function createCaterer(benutzername, profilname, email, password, profilbi
 }
 
 // public
-async function createLocation(addresse, name, beschreibung, ownerID, privat, kurzbeschreibung, preis, kapazitaet, openair, flaeche){
+async function createLocation(addresse, name, beschreibung, ownerID, privat, kurzbeschreibung, preis, kapazitaet, openair, flaeche, bild){
     try {   
         const res = await pool.query(
-            "INSERT INTO location (addresse, name, beschreibung, ownerid, privat, kurzbeschreibung, preis, kapazitaet, openair, flaeche) " + 
-            "VALUES ($1::text, $2::text, $3::text; $4::int, $5::bool, $6::text, $7::text, $8::text, $9::bool, $10::text)",
-            [addresse, name, beschreibung, ownerID, privat, kurzbeschreibung, preis, kapazitaet, openair, flaeche]
+            "INSERT INTO location (addresse, name, beschreibung, ownerid, privat, kurzbeschreibung, preis, kapazitaet, openair, flaeche, bild) " + 
+            "VALUES ($1::text, $2::text, $3::text, $4::int, $5::bool, $6::text, $7::text, $8::text, $9::bool, $10::text, $11)",
+            [addresse, name, beschreibung, ownerID, privat, kurzbeschreibung, preis, kapazitaet, openair, flaeche, bild]
         )
         console.log("location Created")
         return ture
