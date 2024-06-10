@@ -1,6 +1,6 @@
 const { response } = require('express');
 const {Pool} = require('pg');
-const FileType = require('file-type')
+const {FileType} = require('file-type')
 
 
 const pool = new Pool({
