@@ -389,71 +389,85 @@ async function getPlaylistContent(name) {
 async function searchEvent(req,res){
     console.log(req.body)
 
-    let searchString = "SELECT e.*, l.name AS locationname FROM event e";
-    let fileterOptions="";
-    let isOpenair =0;
-    for(let name in req.body)
-    {
-        if(req.body[name]!=""){
-            if(name.localeCompare("search")==0)
-            {
-                fileterOptions+= " UPPER(e.name) LIKE UPPER('%" + req.body[name] + "%')";
-            }
-            else if(name.localeCompare("openair")==0)
-            {
-                isOpenair = 1
-                fileterOptions+= " JOIN location l ON e.locationid = l.id WHERE l.openair = "+req.body[name] ;
-            }              
-            else
-            {
-                if(Array.isArray(req.body[name]))
-                {
-                    if(req.body[name][0]=="")
-                        {
-                            req.body[name][0]=0
-                            if(req.body[name][1]=="")
-                            {
-                                continue;
-                            }
-                        }
-                    if(req.body[name][1]=="")
-                    {
-                        req.body[name][1]=0;
-                    }
-                    fileterOptions+= " e."+name + " BETWEEN '"+ req.body[name][0] + "' AND '" + req.body[name][1]+"'";
-                }
-                else
-                {
-                    fileterOptions+= " e."+name + " = '" + req.body[name] + "'";
-                }
-                
-            }
-            fileterOptions += " AND"
+    let query = "SELECT e.*, l.name AS locationname FROM event e JOIN location l ON e.locationid = l.id"
+    let additionalFilter = ""
+    let param = []
+
+    let paramIndex = 0;
+    for (let key in req.body) {
+        switch (req.body[key]) {
+            case 'openair':
+                additionalFilter += "l.openair = true"
+                break
+            case 'search':
+                paramIndex++
+                additionalFilter += "UPPER(e.name) LIKE UPPER ($"+paramIndex+")"
+                param.push(`%${req.body[key]}%`)
+                break
+            case 'datum':
+                paramIndex++
+                additionalFilter += "e.datum = $"+paramIndex+"::date"
+                param.push(req.body[key])
+                break
+            case 'uhrzeit':
+                paramIndex++
+                additionalFilter += "e.uhrzeit BETWEEN $"+paramIndex+" AND "
+                param.push((req.body[key])[0] == '' ? "00:00" : (req.body[key])[0])
+                paramIndex++
+                additionalFilter += "$"+paramIndex+""
+                param.push((req.body[key])[1] == '' ? "23:59" : (req.body[key])[1])
+                break
+            case 'eventgroesse':
+                paramIndex++
+                additionalFilter += "e.eventgroesse >= $"+paramIndex+"::int"
+                param.push(req.body[key])
+                break
+            case 'altersfreigabe':
+                paramIndex++
+                additionalFilter += "e.altersfreigabe >= $"+paramIndex+"::int"
+                param.push(req.body[key])
+                break
+            case 'region':
+                paramIndex++
+                additionalFilter += "UPPER(l.adresse) LIKE UPPER ($"+paramIndex+")"
+                param.push(`%${req.body[key]}%`)
+                break
+            case 'distanz':
+                console.error("DISTANZ NOT YET IMPLEMENTED")
+                break
+            default:
+                // do nothing
+                break
+        }
+        additionalFilter += " AND "
+    }
+
+    fileterOptions = fileterOptions.substring(0,fileterOptions.length-5) // remove the last ' AND '
+
+    if (paramIndex == 0) { // no additional params
+        try {
+            const result = await pool.query(query)
+            res.send(result)
+        } catch (err) {
+            console.error(err)
+            res.status(400).send("Error while searching for an event")
         }
     }
 
-    if (!fileterOptions.search("JOIN location l ON e.locationid = l.id")) {
-        fileterOptions += " JOIN location l ON e.locationid = l.id"
+    // with additional params
+    try {
+        const result = await pool.query(
+            query += " WHERE " + additionalFilter,
+            param
+        )
+        res.send(result)
+    } catch (err) {
+        console.error(err)
+        res.status(400).send("Error while searching for an event")
     }
-
-    fileterOptions = fileterOptions.substring(0,fileterOptions.length-3)
-    if(fileterOptions!=""&&isOpenair==0)
-    {
-        searchString+= " WHERE" + fileterOptions;
-    }
-    else if(isOpenair==1)
-    {
-        searchString+= fileterOptions;
-    }
-
-    let result = await pool.query(searchString)
-    //const result2 = await pool.query("SELECT l.name,l.id FROM location l JOIN event e ON e.locationid = l.id")
-    //result.rows  = result.rows.concat(result2.rows)
-    res.send(result)   
 }
 
 module.exports = {
     createEndUser, createArtist, createCaterer, createEvent, createLocation, createReviewEvent, createReviewUser, createReviewLocation, createServiceArtist, createLied, createGericht, createPlaylist, createPlaylistInhalt, createTicket, createServiceArtist,
     getUserById, getUserByEmail, searchEvent, getStuffbyName, getCatererByName , getArtistByName, getAllTicketsFromUser, getArtistByEvent, getCatererByEvent, getPlaylistContent
 };
-
