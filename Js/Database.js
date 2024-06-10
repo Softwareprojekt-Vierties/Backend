@@ -387,12 +387,14 @@ async function getPlaylistContent(name) {
 }
 
 async function searchEvent(req,res){
-    let searchString = "SELECT e.* FROM event e";
+    console.log(req.body)
+
+    let searchString = "SELECT e.*, l.name AS locationname FROM event e";
     let fileterOptions="";
     let isOpenair =0;
     for(let name in req.body)
     {
-        if(!req.body[name]==""){
+        if(req.body[name]!=""){
             if(name.localeCompare("search")==0)
             {
                 fileterOptions+= " UPPER(e.name) LIKE UPPER('%" + req.body[name] + "%')";
@@ -401,7 +403,7 @@ async function searchEvent(req,res){
             {
                 isOpenair = 1
                 fileterOptions+= " JOIN location l ON e.locationid = l.id WHERE l.openair = "+req.body[name] ;
-            }            
+            }              
             else
             {
                 if(Array.isArray(req.body[name]))
@@ -429,6 +431,11 @@ async function searchEvent(req,res){
             fileterOptions += " AND"
         }
     }
+
+    if (!fileterOptions.search("JOIN location l ON e.locationid = l.id")) {
+        fileterOptions += " JOIN location l ON e.locationid = l.id"
+    }
+
     fileterOptions = fileterOptions.substring(0,fileterOptions.length-3)
     if(fileterOptions!=""&&isOpenair==0)
     {
@@ -440,8 +447,8 @@ async function searchEvent(req,res){
     }
 
     let result = await pool.query(searchString)
-    const result2 = await pool.query("SELECT l.name,l.id FROM location l JOIN event e ON e.locationid = l.id")
-    result.rows  = result.rows.concat(result2.rows)
+    //const result2 = await pool.query("SELECT l.name,l.id FROM location l JOIN event e ON e.locationid = l.id")
+    //result.rows  = result.rows.concat(result2.rows)
     res.send(result)   
 }
 
