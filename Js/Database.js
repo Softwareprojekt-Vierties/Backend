@@ -1,6 +1,5 @@
 const { response } = require('express');
 const {Pool} = require('pg');
-const {FileType} = require('file-type')
 
 
 const pool = new Pool({
@@ -388,6 +387,7 @@ async function getPlaylistContent(name) {
 }
 
 async function searchEvent(req,res){
+    const { fileTypeFromBuffer } = await import('file-type'); // Dynamischer Import
     console.log(req.body)
 
     let query = "SELECT e.*, l.name AS locationname FROM event e JOIN location l ON e.locationid = l.id"
@@ -451,7 +451,7 @@ async function searchEvent(req,res){
             const events = await Promise.all(result.rows.map(async event => {
                 let mimeType = 'application/octet-stream' // Standard-MIME-Typ
                 if (event.bild) {
-                    const type = await FileType.fileTypeFromBuffer(event.bild)
+                    const type = await fileTypeFromBuffer(event.bild)
                     mimeType = type ? type.mime : mimeType
                 }
                 return {
