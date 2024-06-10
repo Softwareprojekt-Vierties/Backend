@@ -442,15 +442,15 @@ async function searchEvent(req,res){
         additionalFilter += " AND "
     }
 
-    fileterOptions = fileterOptions.substring(0,fileterOptions.length-5) // remove the last ' AND '
+    additionalFilter = additionalFilter.substring(0,additionalFilter.length-5) // remove the last ' AND '
 
     if (paramIndex == 0) { // no additional params
         try {
             const result = await pool.query(query)
-            res.send(result)
+            return res.send(result)
         } catch (err) {
             console.error(err)
-            res.status(400).send("Error while searching for an event")
+            return res.status(400).send("Error while searching for an event")
         }
     }
 
@@ -460,10 +460,10 @@ async function searchEvent(req,res){
             query += " WHERE " + additionalFilter,
             param
         )
-        res.send(result)
+        return res.send(result)
     } catch (err) {
         console.error(err)
-        res.status(400).send("Error while searching for an event")
+        return res.status(400).send("Error while searching for an event")
     }
 }
 
