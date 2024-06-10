@@ -475,7 +475,7 @@ async function searchEvent(req,res){
         const events = await Promise.all(result.rows.map(async event => {
             let mimeType = 'application/octet-stream' // Standard-MIME-Typ
             if (event.bild) {
-                const type = await FileType.fileTypeFromBuffer(event.bild)
+                const type = await fileTypeFromBuffer(event.bild)
                 mimeType = type ? type.mime : mimeType
             }
             return {
