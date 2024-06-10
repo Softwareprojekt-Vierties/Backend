@@ -1,5 +1,6 @@
 const { response } = require('express');
 const {Pool} = require('pg');
+const FileType = require('file-type')
 
 
 const pool = new Pool({
@@ -447,7 +448,18 @@ async function searchEvent(req,res){
     if (paramIndex == 0) { // no additional params
         try {
             const result = await pool.query(query)
-            return res.send(result)
+            const events = await Promise.all(result.rows.map(async event => {
+                let mimeType = 'application/octet-stream' // Standard-MIME-Typ
+                if (event.bild) {
+                    const type = await FileType.fileTypeFromBuffer(event.bild)
+                    mimeType = type ? type.mime : mimeType
+                }
+                return {
+                    ...event,
+                    eventBild: event.bild ? `data:${mimeType};base64,${event.bild.toString('base64')}` : null
+                }
+            }))
+            return res.send(events)
         } catch (err) {
             console.error(err)
             return res.status(400).send("Error while searching for an event")
@@ -460,7 +472,18 @@ async function searchEvent(req,res){
             query += " WHERE " + additionalFilter,
             param
         )
-        return res.send(result)
+        const events = await Promise.all(result.rows.map(async event => {
+            let mimeType = 'application/octet-stream' // Standard-MIME-Typ
+            if (event.bild) {
+                const type = await FileType.fileTypeFromBuffer(event.bild)
+                mimeType = type ? type.mime : mimeType
+            }
+            return {
+                ...event,
+                eventBild: event.bild ? `data:${mimeType};base64,${event.bild.toString('base64')}` : null
+            }
+        }))
+        return res.send(events)
     } catch (err) {
         console.error(err)
         return res.status(400).send("Error while searching for an event")

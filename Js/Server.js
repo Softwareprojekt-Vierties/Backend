@@ -1,8 +1,8 @@
-
 const express = require("express"); // import express for REST API
 const cookieParser = require("cookie-parser"); // import cookie parser for cookies
 const multer = require('multer') 
 
+const storage = multer.memoryStorage()
 const upload = multer({ dest: 'uploads/' }); // Dateien werden im 'uploads' Verzeichnis gespeichert
 const app = express(); // create app used for the Server 
 const port = 5000; // connection port
@@ -152,8 +152,9 @@ app.get('/playlist/:name', (req,res)=>{
 
 app.post('/searchEvent',database.searchEvent);  // searchs events with filter param
 
-app.post('/createEvent',(req,res)=>{
-    const {eventname,datum,uhrzeit,eventgroesse,preis,altersfreigabe,privat,kurzbeschreibung,beschreibung,bild,ownerid,locationid} = req.body
+app.post('/createEvent', upload.single('bild'), (req,res)=>{
+    const {eventname,datum,uhrzeit,eventgroesse,preis,altersfreigabe,privat,kurzbeschreibung,beschreibung,ownerid,locationid} = req.body
+    const bild = req.file
     database.createEvent(eventname,datum,uhrzeit,eventgroesse,preis,altersfreigabe,privat,kurzbeschreibung,beschreibung,bild,ownerid,locationid)
     res.status(200).send("event")
 })    // creates a new events
@@ -173,7 +174,8 @@ app.post('/createArtist',(req,res)=>{
 app.post('/createLocation', upload.single('bild'),(req,res)=>{
     console.log(req.body)
     console.log(req.file)
-    const {adresse, region, name, beschreibung, ownerID, kurzbeschreibung, preis, kapazitaet, openair, flaeche, bild} = req.body // frontend is missing field 'privat'
+    const {adresse, region, name, beschreibung, ownerID, kurzbeschreibung, preis, kapazitaet, openair, flaeche} = req.body // frontend is missing field 'privat'
+    const bild = req.file
     database.createLocation(adresse + " " + region, name, beschreibung, ownerID, true, kurzbeschreibung, preis, kapazitaet, openair, flaeche, bild)
     res.status(200).send("Location")
 })    // creates a new Location
