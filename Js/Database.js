@@ -18,12 +18,12 @@ const pool = new Pool({
 
 async function comparePassword(email, password) {
     try {
-        const hashedPassword = await pool.query(
-            "SELECT p.hash FROM app_user a JOIN password p ON a.password = p.id WHERE email = $1::text",
+        const SH = await pool.query(
+            "SELECT p.salt, p.hash FROM app_user a JOIN password p ON a.password = p.id WHERE email = $1::text",
             [email]
         )
 
-        bcrypt.compare(password, result.rows[4], (err, res) => {
+        bcrypt.compare(await bcrypt(password, SH[0]), SH[1], (err, res) => {
             if (err) {
                 console.log('Error comparing passwords:', err)
                 return null
