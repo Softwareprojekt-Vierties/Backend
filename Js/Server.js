@@ -150,6 +150,28 @@ app.get('/playlist/:name', (req,res)=>{
     }
 })
 
+app.post('/checkAccount',async(req,res)=>{
+    const {email, benutzername} = req.body;
+    try
+    {
+        const user  = await database.getUserByEmailandUsername(email,benutzername);
+        if(user.rowCount>0)
+        {
+            res.status(200).send("1");
+        }
+        else
+        {
+            res.status(400).send("0");
+            
+        }
+    }
+    catch(err)
+    {
+        console.log(err)
+        res.status(404).send("err")
+    }
+})
+
 app.post('/searchEvent',database.searchEvent);  // searchs events with filter param
 
 app.post('/createEvent', upload.single('bild'), (req,res)=>{

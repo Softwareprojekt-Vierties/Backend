@@ -4,10 +4,10 @@ SECRET = "BruhnsmanIsTheBest"
 
 
 module.exports = async(req, res) => {
-    const {email, pass} = req.body;
+    const {email, benutzername} = req.body;
     try
     {
-        const user  = await Database.getUserByEmail(email,pass);
+        const user  = await Database.getUserByEmailandUsername(email,benutzername);
         if(user!=null)
         {
             const token = jwt.sign(user,SECRET,{expiresIn: '3h'});

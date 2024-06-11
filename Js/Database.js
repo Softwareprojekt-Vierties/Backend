@@ -330,11 +330,11 @@ async function getAllTicketsFromUser(userId){
     }
 }
 
-async function getUserByEmail(email,pass){
+async function getUserByEmailandUsername(email,benutzername){
     try {
         const result = await pool.query(
-            "SELECT * FROM app_user WHERE email = $1::text AND password = $2::text",
-            [email, pass]
+            "SELECT * FROM app_user WHERE email = $1::text AND benutzername = $2::text",
+            [email, benutzername]
         )
         console.log(result)
         return result
@@ -343,6 +343,20 @@ async function getUserByEmail(email,pass){
         return null
     }
 }
+
+// async function getUserByEmail(email,pass){
+//     try {
+//         const result = await pool.query(
+//             "SELECT * FROM app_user WHERE email = $1::text AND password = $2::text",
+//             [email, pass]
+//         )
+//         console.log(result)
+//         return result
+//     } catch (err) {
+//         console.error(err)
+//         return null
+//     }
+// }
 
 async function getArtistByEvent(id){
     try {
@@ -492,5 +506,5 @@ async function searchEvent(req,res){
 
 module.exports = {
     createEndUser, createArtist, createCaterer, createEvent, createLocation, createReviewEvent, createReviewUser, createReviewLocation, createServiceArtist, createLied, createGericht, createPlaylist, createPlaylistInhalt, createTicket, createServiceArtist,
-    getUserById, getUserByEmail, searchEvent, getStuffbyName, getCatererByName , getArtistByName, getAllTicketsFromUser, getArtistByEvent, getCatererByEvent, getPlaylistContent
+    getUserById, getUserByEmailandUsername, searchEvent, getStuffbyName, getCatererByName , getArtistByName, getAllTicketsFromUser, getArtistByEvent, getCatererByEvent, getPlaylistContent
 };
