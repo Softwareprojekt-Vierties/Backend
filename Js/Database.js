@@ -25,14 +25,17 @@ async function comparePassword(email, password) {
 
         console.log("Given Password:", await bcrypt.hash(password, SH.rows[0]['salt']))
 
-        bcrypt.compare(await bcrypt.hash(password, SH.rows[0]['salt']), SH.rows[0]['hash'], (err, res) => {
+        bcrypt.compare(await bcrypt.hash(password, SH.rows[0]['salt']), SH.rows[0]['hash'], async (err, res) => {
             if (err) {
                 console.log('Error comparing passwords:', err)
                 return null
             }
             if (res) {
                 console.log('User authenticated!')
-                return res
+                return await pool.query(
+                    "SELECT * FROM app_user WHERE email = $::text",
+                    [email]
+                )
             }
             console.log('Authentication failed.')
             return null
