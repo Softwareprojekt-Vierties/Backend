@@ -144,7 +144,7 @@ async function createLocation(adresse, name, beschreibung, ownerID, privat, kurz
             [adresse, name, beschreibung, ownerID, privat, kurzbeschreibung, preis, kapazitaet, openair, flaeche, bild]
         )
         console.log("location Created")
-        return ture
+        return true
     } catch(err) {
         console.error(err)
         return false
