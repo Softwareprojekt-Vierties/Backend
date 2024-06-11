@@ -1,4 +1,5 @@
 const { response } = require('express');
+const bcrypt = require('bcrypt');
 const {Pool} = require('pg');
 
 
@@ -15,17 +16,62 @@ const pool = new Pool({
     allowExitOnIdle: false
 });
 
+async function comparePassword(email, password) {
+    try {
+        const SH = await pool.query(
+            "SELECT p.salt, p.hash FROM app_user a JOIN password p ON a.password = p.id WHERE email = $1::text",
+            [email]
+        )
+
+        bcrypt.compare(await bcrypt(password, SH[0]), SH[1], (err, res) => {
+            if (err) {
+                console.log('Error comparing passwords:', err)
+                return null
+            }
+            if (result) {
+                console.log('User authenticated!')
+                return result
+            }
+            console.log('Authentication failed.')
+            return null
+        })
+    } catch (err) {
+        console.log(err)
+        return null
+    }
+}
+
 // ------------------------- CREATE - QUERIES ------------------------- //
 
 // private
 async function createAppUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region){
+    let passwordID = undefined
     try {
-        const res = await pool.query(
-            "INSERT INTO app_user (benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region) VALUES ($1::text, $2::text, $3::text, $4::text, $5, $6::text, $7::text, $8::text)",
-            [benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region])
+        // first save the password
+        const salt = await bcrypt.genSalt(15)
+        passwordID = await pool.query(
+            `INSERT INTO password (salt, hash) VALUES ($1, $2) RETURNING id`,
+            [salt, await bcrypt.hash(password, salt)]
+        )
+
+        if (passwordID === undefined) throw new Error("Password konnte nicht auf der Datenbank gespeichert werden!")
+        
+        // then create the app_user
+        await pool.query(
+            "INSERT INTO app_user (benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region) VALUES ($1::text, $2::text, $3::text, $4::integer, $5, $6::text, $7::text, $8::text)",
+            [benutzername, profilname, email, passwordID, profilbild, kurzbeschreibung, beschreibung, region])
         console.log("app_user created")
         return true;
     } catch (err) {
+        // delete the password if creation of app_user failed
+        if (passwordID != undefined) {
+            await pool.query(
+                "DELETE FROM password WHERE id = $1::integer",
+                [passwordID]
+            ).catch(err => {
+                console.error("Failed to remove password:",err)
+            })
+        }
         console.error(err)
         return false
     }
@@ -802,5 +848,6 @@ async function searchArtist(req,res){
 
 module.exports = {
     createEndUser, createArtist, createCaterer, createEvent, createLocation, createReviewEvent, createReviewUser, createReviewLocation, createServiceArtist, createLied, createGericht, createPlaylist, createPlaylistInhalt, createTicket, createServiceArtist,
-    getUserById, getUserByEmailandUsername, searchEvent, searchLocaiton,searchCaterer, searchArtist , getStuffbyName , getLocationById,getCatererByName , getArtistByName, getAllTicketsFromUser, getArtistByEvent, getCatererByEvent, getPlaylistContent
+    getUserById, getUserByEmailandUsername, searchEvent, searchLocaiton,searchCaterer, searchArtist , getStuffbyName , getLocationById,getCatererByName , getArtistByName, getAllTicketsFromUser, getArtistByEvent, getCatererByEvent, getPlaylistContent,
+    comparePassword
 };
