@@ -18,8 +18,8 @@ const pool = new Pool({
 
 async function comparePassword(email, password) {
     try {
-        const result = await pool.query(
-            "SELECT * FROM app_user WHERE email = $1::text",
+        const hashedPassword = await pool.query(
+            "SELECT p.hash FROM app_user a JOIN password p ON a.password = p.id WHERE email = $1::text",
             [email]
         )
 
@@ -45,14 +45,34 @@ async function comparePassword(email, password) {
 
 // private
 async function createAppUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region){
+    let passwordID = undefined
     try {
-        const res = await pool.query(
-            "INSERT INTO app_user (benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region) VALUES ($1::text, $2::text, $3::text, $4::text, $5, $6::text, $7::text, $8::text)",
-            [benutzername, profilname, email, bcrypt.hash(password), profilbild, kurzbeschreibung, beschreibung, region])
+        // first save the password
+        const salt = await bcrypt.genSalt(15)
+        passwordID = await pool.query(
+            `INSERT INTO password (salt, hash) VALUES ($1, $2) RETURNING id`,
+            [salt, await bcrypt.hash(password, salt)]
+        )
+
+        if (passwordID === undefined) throw new Error("Password konnte nicht auf der Datenbank gespeichert werden!")
+        
+        // then create the app_user
+        await pool.query(
+            "INSERT INTO app_user (benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region) VALUES ($1::text, $2::text, $3::text, $4::integer, $5, $6::text, $7::text, $8::text)",
+            [benutzername, profilname, email, passwordID, profilbild, kurzbeschreibung, beschreibung, region])
         console.log("app_user created")
         return true;
     } catch (err) {
-        console.log(err)
+        // delete the password if creation of app_user failed
+        if (passwordID != undefined) {
+            await pool.query(
+                "DELETE FROM password WHERE id = $1::integer",
+                [passwordID]
+            ).catch(err => {
+                console.error("Failed to remove password:",err)
+            })
+        }
+        console.error(err)
         return false
     }
 }
