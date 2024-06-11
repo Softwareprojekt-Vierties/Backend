@@ -1,6 +1,7 @@
 const { response } = require('express');
 const bcrypt = require('bcrypt');
 const {Pool} = require('pg');
+const cookieJwtAuth = require('CookieJwtAuth')
 
 
 const pool = new Pool({
@@ -306,7 +307,174 @@ async function createTicket(userid,eventid){
 }
 
 // ------------------------- UPDATE - QUERIES ------------------------- //
+async function updateApp_user(profilname, profilbild, kurzbeschreibung, beschreibung, region, email) {
+    try {
+        const result = await pool.query(
+            `UPDATE app_user SET
+            profilname = $1::text,
+            profilbild = $2::bytea,
+            kurzbeschreibung = $3::text,
+            beschreibung = $4::text,
+            region = $5::text
+            WHERE email = $6::text`,
+            [profilname, profilbild, kurzbeschreibung, beschreibung, region, email]
+        )
+        console.log(`app_user UPDATED`)
+        return true
+    } catch (err) {
+        console.error(`COULDN'T UPDATE app_user`,err)
+        return false
+    }
+}
 
+async function updateEndnutzer(profilname, profilbild, kurzbeschreibung, beschreibung, region, email, alter, arten, lied, gericht, geschlecht) {
+    if (!updateApp_user(profilname, profilbild, kurzbeschreibung, beschreibung, region, email)) { // if failed
+        console.error(`CANNOT UPDATE endnutzer BECAUSE UPDATE app_user FAILED`)
+        return false
+    }
+
+    try {
+        const result = await pool.query(
+            `UPDATE endnutzer SET
+            alter = $1::int,
+            arten = $2::text,
+            lied = $3::text,
+            gericht = $4::text,
+            geschlecht = $5::text
+            WHERE emailfk = $6::text`,
+            [alter, arten, lied, gericht, geschlecht, email]
+        )
+        console.log(`endnutzer UPDATED`)
+        return true
+    } catch (err) {
+        console.error(`COULDN'T UPDATE endnutzer`,err)
+        return false
+    }
+}
+
+async function updateArtist(profilname, profilbild, kurzbeschreibung, beschreibung, region, email, preis, kategorie, erfahrung) {
+    if (!updateApp_user(profilname, profilbild, kurzbeschreibung, beschreibung, region, email)) { // if failed
+        console.error(`CANNOT UPDATE artist BECAUSE UPDATE app_user FAILED`)
+        return false
+    }
+
+    try {
+        const result = await pool.query(
+            `UPDATE artist SET
+            preis = $1::text,
+            kategorie = $2::text,
+            erfahrung = $3::text,
+            WHERE emailfk = $4::text`,
+            [preis, kategorie, erfahrung, email]
+        )
+        console.log(`artist UPDATED`)
+        return true
+    } catch (err) {
+        console.error(`COULDN'T UPDATE artist`,err)
+        return false
+    }
+}
+
+async function updateCaterer(profilname, profilbild, kurzbeschreibung, beschreibung, region, email, preis, kategorie, erfahrung) {
+    if (!updateApp_user(profilname, profilbild, kurzbeschreibung, beschreibung, region, email)) { // if failed
+        console.error(`CANNOT UPDATE caterer BECAUSE UPDATE app_user FAILED`)
+        return false
+    }
+
+    try {
+        const result = await pool.query(
+            `UPDATE caterer SET
+            preis = $1::text,
+            kategorie = $2::text,
+            erfahrung = $3::text
+            WHERE emailfk = $4::text`,
+            [preis, kategorie, erfahrung, email]
+        )
+        console.log(`caterer UPDATED`)
+        return true
+    } catch (err) {
+        console.error(`COULDN'T UPDATE caterer`,err)
+        return false
+    }
+}
+
+async function updateEvent() {
+    console.error("UPDATE EVENT NOT YET IMPLEMENTED")
+    return false
+}
+
+async function updateGericht() {
+    console.error("UPDATE GERICHT NOT YET IMPLEMENTED")
+    return false
+}
+
+async function updateLied() {
+    console.error("UPDATE LIED NOT YET IMPLEMENTED")
+    return false
+}
+
+async function updateLocation(locationid, adresse, name, beschreibung, privat, kurzbeschreibung, preis, openair, flaeche, bild, kapazitaet) {
+    try {
+        const result = await pool.query(
+            `UPDATE location SET
+            adresse = $1::text,
+            name = $2::text,
+            beschreibung = $3::text,
+            privat = $4::boolean,
+            kurzbeschreibung = $5::text,
+            preis = $6::text,
+            openair = $7::boolean,
+            flaeche = $8::text,
+            bild = $9::bytea,
+            kapazitaet = $10::int
+            WHERE id = $11::int`,
+            [adresse, name, beschreibung, privat, kurzbeschreibung, preis, openair, flaeche, bild, kapazitaet, locationid]
+        )
+        console.log(`location UPDATED`)
+        return true
+    } catch (err) {
+        console.error(`COULDN'T UPDATE location`,err)
+        return false
+    }
+}
+
+async function updatePassword(token, oldPassword, newPassword) {
+    try {
+        const cookie = cookieJwtAuth.getUser(token)
+
+        // create new hashed Password
+        const salt = await bcrypt.genSalt(15)
+        const newHash = await bcrypt.hash(newPassword, salt)
+
+        // compare given old password to the one stored on DB
+        const oldHash = await pool.query(
+            `SELECT hash FROM password WHERE id = $1::int`,
+            [cookie.rows[0]['password']]
+        )
+        const isMatch = await bcrypt.compare(oldPassword, oldHash.rows[0]['hash'])
+        // check
+        if (!isMatch) throw new Error("OLD PASSWORD DOES NOT MATCH WITH THE ONE SAVED ON THE DB")
+
+        // if check passed, update password
+        const result = await pool.query(
+            `UPDATE password SET
+            salt = $1::text,
+            hash = $2::text
+            WHERE id = $3::int`,
+            [salt, newHash, cookie.rows[0]['password']]
+        )
+        console.log(`password UPDATED`)
+        return true
+    } catch (err) {
+        console.error(`COULDN'T UPDATE password`,err)
+        return false
+    }
+}
+
+async function updatePlaylist() {
+    console.error("UPDATE PLAYLIST NOT YET IMPLEMENTED")
+    return false
+}
 
 // ------------------------- GET - QUERIES ------------------------- //
 async function getStuffbyName(req){
