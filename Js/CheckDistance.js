@@ -1,29 +1,47 @@
 const apiKey = "5b3ce3597851110001cf6248a0e410bd9aef4d01b7088f2b257b0bb8"
 
 module.exports = async(location1,location2,maxdistance) =>{
-    const location1Coords = await geocodeAddress(location1,apiKey)
-    const location2Coords = await geocodeAddress(location2,apiKey)
-
-    if(location1Coords && location2Coords)
+    try
     {
-        const distanceData = await getDistance(location1Coords,location2Coords,apiKey)
-        if(distanceData)
+        const location1Coords = await geocodeAddress(location1,apiKey)
+        const location2Coords = await geocodeAddress(location2,apiKey)
+
+        if(location1Coords && location2Coords)
         {
-            console.log(distanceData["routes"][0]["summary"]["distance"]/1000)
-            const distance = distanceData["routes"][0]["summary"]["distance"]/1000; // Convert to kilometers
-            console.log(maxdistance+" , "+distance)
-            if(distance > maxdistance)
+            
+            if(calcDistance(location1Coords,location2Coords) <= maxdistance)
             {
-                console.log("hallo")
-                return "1"
+                return true
             }
             else
             {
-                console.log("hakllo")
-                return "0"
+                return false
             }
+            
+            // const distanceData = await getDistance(location1Coords,location2Coords,apiKey)
+            // if(distanceData)
+            // {
+            //     console.log(distanceData["routes"][0]["summary"]["distance"]/1000)
+            //     const distance = distanceData["routes"][0]["summary"]["distance"]/1000; // Convert to kilometers
+            //     console.log(maxdistance+" , "+distance)
+            //     if(distance > maxdistance)
+            //     {
+            //         console.log("hallo")
+            //         return "1"
+            //     }
+            //     else
+            //     {
+            //         console.log("hakllo")
+            //         return "0"
+            //     }
+            // }
+            // return "42"
         }
-        return "42"
+    }
+    catch(err)
+    {
+        console.error(err)
+        return false
     }
 }
 
@@ -49,4 +67,28 @@ async function getDistance(originCoords, destinationCoords, apiKey) {
         })
     });
     return await response.json();
+}
+
+function degreesToRadians(degrees) {
+    var radians = (degrees * Math.PI)/180;
+    return radians;
+  }
+
+// Function takes two objects, that contain coordinates to a starting and destination location.
+function calcDistance (startingCoords, destinationCoords){
+    
+    let startingLat = degreesToRadians(startingCoords[1]);
+    let startingLong = degreesToRadians(startingCoords[0]);
+    let destinationLat = degreesToRadians(destinationCoords[1]);
+    let destinationLong = degreesToRadians(destinationCoords[0]);
+  
+    // Radius of the Earth in kilometers
+    let radius = 6370;
+  
+    // Haversine equation
+    let distanceInKilometers = Math.acos(Math.sin(startingLat) * Math.sin(destinationLat) +
+    Math.cos(startingLat) * Math.cos(destinationLat) *
+    Math.cos(startingLong - destinationLong)) * radius;
+  
+    return distanceInKilometers;
 }
