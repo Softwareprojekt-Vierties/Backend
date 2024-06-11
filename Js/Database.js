@@ -28,9 +28,9 @@ async function comparePassword(email, password) {
                 console.log('Error comparing passwords:', err)
                 return null
             }
-            if (result) {
+            if (res) {
                 console.log('User authenticated!')
-                return result
+                return res
             }
             console.log('Authentication failed.')
             return null
