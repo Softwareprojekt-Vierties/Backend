@@ -23,22 +23,18 @@ async function comparePassword(email, password) {
             [email]
         )
 
-        bcrypt.compare(password, SH.rows[0]['hash'], async (err, res) => {
-            if (err) {
-                console.error('Error comparing passwords:', err)
-                return null
-            }
-            console.log("res:",res)
-            if (res) {
-                console.log('User authenticated!')
-                return await pool.query(
-                    "SELECT * FROM app_user WHERE email = $1::text",
-                    [email]
-                )
-            }
-            console.error('Authentication failed.')
-            return null
-        })
+        const isMatch = await bcrypt.compare(password, SH.rows[0]['hash'])
+
+        if (isMatch) {
+            console.log('User authenticated!')
+            const user = await pool.query(
+                "SELECT * FROM app_user WHERE email = $1::text",
+                [email]
+            )
+            return user.rows[0]
+        }
+        console.error('Authentication failed.')
+        return null
     } catch (err) {
         console.error(err)
         return null
