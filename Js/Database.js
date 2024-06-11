@@ -54,10 +54,12 @@ async function createAppUser(benutzername, profilname, email, password, profilbi
             [salt, await bcrypt.hash(password, salt)]
         )
 
+        console.log("PasswordID",passwordID)
+
         if (passwordID === undefined) throw new Error("Password konnte nicht auf der Datenbank gespeichert werden!")
         
         // then create the app_user
-        await pool.query(
+        const result = await pool.query(
             "INSERT INTO app_user (benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region) VALUES ($1::text, $2::text, $3::text, $4::integer, $5, $6::text, $7::text, $8::text)",
             [benutzername, profilname, email, passwordID, profilbild, kurzbeschreibung, beschreibung, region])
         console.log("app_user created")
