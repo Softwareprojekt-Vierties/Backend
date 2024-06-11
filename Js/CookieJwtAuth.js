@@ -16,7 +16,7 @@ function isLogedIn(req,res,next){
     try
     {
         const token = req.headers["auth"]
-        const user = jwt.verify(token, process.env.SECRET)
+        const user = jwt.verify(token, SECRET)
         res.send("u are already logged in")
     }
     catch
@@ -25,8 +25,7 @@ function isLogedIn(req,res,next){
     }
 }
 
-function getUser(req){  // returns the user information form the JWT cookie
-    const token =  req.headers["auth"];
+function getUser(token){  // returns the user information form the JWT cookie
     const user = jwt.verify(token, SECRET);
         return user;
 }
