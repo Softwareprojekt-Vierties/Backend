@@ -52,7 +52,7 @@ async function createAppUser(benutzername, profilname, email, password, profilbi
         passwordID = await pool.query(
             `INSERT INTO password (salt, hash) VALUES ($1, $2) RETURNING id`,
             [salt, await bcrypt.hash(password, salt)]
-        ).rows[0]
+        )[`rows`][0]
 
         console.log("PasswordID",passwordID)
 
