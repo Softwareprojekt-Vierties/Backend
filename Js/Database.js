@@ -23,26 +23,25 @@ async function comparePassword(email, password) {
             [email]
         )
 
-        bcrypt.compare(await bcrypt(password, SH[0]), SH[1], (err, res) => {
-            if (err) {
-                console.log('Error comparing passwords:', err)
-                return null
-            }
-            if (result) {
-                console.log('User authenticated!')
-                return result
-            }
-            console.log('Authentication failed.')
-            return null
-        })
+        const isMatch = await bcrypt.compare(password, SH.rows[0]['hash'])
+
+        if (isMatch) {
+            console.log('User authenticated!')
+            const user = await pool.query(
+                "SELECT * FROM app_user WHERE email = $1::text",
+                [email]
+            )
+            return user.rows[0]
+        }
+        console.error('Authentication failed.')
+        return null
     } catch (err) {
-        console.log(err)
+        console.error(err)
         return null
     }
 }
 
 // ------------------------- CREATE - QUERIES ------------------------- //
-
 // private
 async function createAppUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region){
     let passwordID = undefined
@@ -61,7 +60,7 @@ async function createAppUser(benutzername, profilname, email, password, profilbi
         // then create the app_user
         const result = await pool.query(
             "INSERT INTO app_user (benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region) VALUES ($1::text, $2::text, $3::text, $4::integer, $5, $6::text, $7::text, $8::text)",
-            [benutzername, profilname, email, passwordID, profilbild, kurzbeschreibung, beschreibung, region])
+            [benutzername, profilname, email, passwordID['id'], profilbild, kurzbeschreibung, beschreibung, region])
         console.log("app_user created")
         return true;
     } catch (err) {
@@ -69,7 +68,7 @@ async function createAppUser(benutzername, profilname, email, password, profilbi
         if (passwordID != undefined) {
             await pool.query(
                 "DELETE FROM password WHERE id = $1::integer",
-                [passwordID]
+                [passwordID['id']]
             ).catch(err => {
                 console.error("Failed to remove password:",err)
             })
@@ -141,11 +140,11 @@ async function createLocation(adresse, name, beschreibung, ownerID, privat, kurz
     try {   
         const res = await pool.query(
             "INSERT INTO location (adresse, name, beschreibung, ownerid, privat, kurzbeschreibung, preis, kapazitaet, openair, flaeche, bild) " + 
-            "VALUES ($1::text, $2::text, $3::text, $4::int, $5::bool, $6::text, $7::text, $8::text, $9::bool, $10::text, $11)",
+            "VALUES ($1::text, $2::text, $3::text, $4::int, $5::bool, $6::text, $7::text, $8::int, $9::bool, $10::text, $11)",
             [adresse, name, beschreibung, ownerID, privat, kurzbeschreibung, preis, kapazitaet, openair, flaeche, bild]
         )
         console.log("location Created")
-        return ture
+        return true
     } catch(err) {
         console.error(err)
         return false
@@ -306,8 +305,10 @@ async function createTicket(userid,eventid){
     }
 }
 
-// ------------------------- GET - QUERIES ------------------------- //
+// ------------------------- UPDATE - QUERIES ------------------------- //
 
+
+// ------------------------- GET - QUERIES ------------------------- //
 async function getStuffbyName(req){
     try {
         const result = await pool.query(
@@ -847,9 +848,9 @@ async function searchArtist(req,res){
     }
 }
 
-
 module.exports = {
+    comparePassword,
     createEndUser, createArtist, createCaterer, createEvent, createLocation, createReviewEvent, createReviewUser, createReviewLocation, createServiceArtist, createLied, createGericht, createPlaylist, createPlaylistInhalt, createTicket, createServiceArtist,
-    getUserById, getUserByEmailandUsername, searchEvent, searchLocaiton,searchCaterer, searchArtist , getStuffbyName , getLocationById,getCatererByName , getArtistByName, getAllTicketsFromUser, getArtistByEvent, getCatererByEvent, getPlaylistContent,
-    comparePassword
+    getUserById, getUserByEmailandUsername , getStuffbyName , getLocationById, getCatererByName , getArtistByName, getAllTicketsFromUser, getArtistByEvent, getCatererByEvent, getPlaylistContent,
+    searchEvent, searchLocaiton,searchCaterer, searchArtist
 };

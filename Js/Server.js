@@ -175,7 +175,7 @@ app.post('/createLocation', upload.single('bild'),(req,res)=>{
     console.log(req.file)
     const {adresse, region, name, beschreibung, ownerID, kurzbeschreibung, preis, kapazitaet, openair, flaeche} = req.body // frontend is missing field 'privat'
     const bild = req.file
-    database.createLocation(adresse + " " + region, name, beschreibung, ownerID, true, kurzbeschreibung, preis, kapazitaet, openair, flaeche, bild)
+    database.createLocation(adresse + ", " + region, name, beschreibung, ownerID, true, kurzbeschreibung, preis, kapazitaet, openair, flaeche, bild)
     res.status(200).send("Location")
 })    // creates a new Location
 
