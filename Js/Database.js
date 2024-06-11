@@ -34,7 +34,7 @@ async function comparePassword(email, password) {
             if (res) {
                 console.log('User authenticated!')
                 return await pool.query(
-                    "SELECT * FROM app_user WHERE email = $::text",
+                    "SELECT * FROM app_user WHERE email = $1::text",
                     [email]
                 )
             }
