@@ -23,7 +23,7 @@ async function comparePassword(email, password) {
             [email]
         )
 
-        bcrypt.compare(await bcrypt(password, SH[0]), SH[1], (err, res) => {
+        bcrypt.compare(await bcrypt.hash(password, SH[0]), SH[1], (err, res) => {
             if (err) {
                 console.log('Error comparing passwords:', err)
                 return null
