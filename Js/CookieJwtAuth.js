@@ -25,8 +25,7 @@ function isLogedIn(req,res,next){
     }
 }
 
-function getUser(req){  // returns the user information form the JWT cookie
-    const token =  req.headers["auth"];
+function getUser(token){  // returns the user information form the JWT cookie
     const user = jwt.verify(token, process.env.SECRET);
         return user;
 }
