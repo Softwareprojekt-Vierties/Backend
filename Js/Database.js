@@ -61,7 +61,7 @@ async function createAppUser(benutzername, profilname, email, password, profilbi
         // then create the app_user
         const result = await pool.query(
             "INSERT INTO app_user (benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region) VALUES ($1::text, $2::text, $3::text, $4::integer, $5, $6::text, $7::text, $8::text)",
-            [benutzername, profilname, email, passwordID, profilbild, kurzbeschreibung, beschreibung, region])
+            [benutzername, profilname, email, passwordID['id'], profilbild, kurzbeschreibung, beschreibung, region])
         console.log("app_user created")
         return true;
     } catch (err) {
@@ -69,7 +69,7 @@ async function createAppUser(benutzername, profilname, email, password, profilbi
         if (passwordID != undefined) {
             await pool.query(
                 "DELETE FROM password WHERE id = $1::integer",
-                [passwordID]
+                [passwordID['id']]
             ).catch(err => {
                 console.error("Failed to remove password:",err)
             })
