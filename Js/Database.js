@@ -274,6 +274,20 @@ async function getStuffbyName(req){
     }
 }
 
+async function getLocationById(req,res){
+    try {
+        const result = await pool.query(
+            "SELECT * FROM location WHERE id = $1::int",
+            [req.params["id"]]
+        )
+        console.log(req.params["id"])
+        return res.status(200).send(result)
+    } catch (err) {
+        console.error(err)
+        return res.status(400).send(null)
+    }
+}
+
 async function getCatererByName(name){
     try {
         const result = await pool.query(
@@ -410,7 +424,7 @@ async function searchEvent(req,res){
 
     let paramIndex = 0;
     for (let key in req.body) {
-        switch (req.body[key]) {
+        switch (key) {
             case 'openair':
                 additionalFilter += "l.openair = true"
                 break
@@ -479,8 +493,7 @@ async function searchEvent(req,res){
             return res.status(400).send("Error while searching for an event")
         }
     }
-
-    // with additional params
+        // with additional params
     try {
         const result = await pool.query(
             query += " WHERE " + additionalFilter,
@@ -504,7 +517,290 @@ async function searchEvent(req,res){
     }
 }
 
+async function searchLocaiton(req,res){
+    const { fileTypeFromBuffer } = await import('file-type'); // Dynamischer Import
+    console.log(req.body)
+
+    let query = "SELECT * FROM location"
+    let additionalFilter = ""
+    let param = []
+
+    let paramIndex = 0;
+    for (let key in req.body) {
+        switch (key) {
+            case 'openair':
+                paramIndex++
+                additionalFilter += "openair = $"+paramIndex+"::boolean"
+                param.push(req.body[key])
+                break
+            case 'search':
+                paramIndex++
+                additionalFilter += "UPPER(name) LIKE UPPER ($"+paramIndex+")"
+                param.push(`%${req.body[key]}%`)
+                break
+            case 'region':
+                paramIndex++
+                additionalFilter += "UPPER(adresse) LIKE UPPER ($"+paramIndex+")"
+                param.push(`%${req.body[key]}%`)
+                break
+            case 'preis':
+                paramIndex++
+                additionalFilter += "preis >= $"+paramIndex+"::text"
+                param.push(req.body[key])
+                break
+            case 'kapazitaet':
+                paramIndex++
+                additionalFilter += "kapazitaet >= $"+paramIndex+"::int"
+                param.push(req.body[key])
+                break
+            case 'bewertung':
+                console.error("BEWERTUNG NOT YET IMPLEMENTED")
+                break
+            case 'distanz':
+                console.error("DISTANZ NOT YET IMPLEMENTED")
+                break
+            default:
+                // do nothing
+                break
+        }
+        additionalFilter += " AND "
+    }
+
+    additionalFilter = additionalFilter.substring(0,additionalFilter.length-5) // remove the last ' AND '
+    if (paramIndex == 0) { // no additional params
+        try {
+            const result = await pool.query(query)
+            const events = await Promise.all(result.rows.map(async event => {
+                let mimeType = 'application/octet-stream' // Standard-MIME-Typ
+                if (event.bild) {
+                    const type = await fileTypeFromBuffer(event.bild)
+                    mimeType = type ? type.mime : mimeType
+                }
+                return {
+                    ...event,
+                    eventBild: event.bild ? `data:${mimeType};base64,${event.bild.toString('base64')}` : null
+                }
+            }))
+            return res.send(events)
+        } catch (err) {
+            console.error(err)
+            return res.status(400).send("Error while searching for an event")
+        }
+    }
+
+    // with additional params
+    try {
+        const result = await pool.query(
+            query += " WHERE " + additionalFilter,
+            param
+            
+        )
+        const events = await Promise.all(result.rows.map(async event => {
+            let mimeType = 'application/octet-stream' // Standard-MIME-Typ
+            if (event.bild) {
+                const type = await fileTypeFromBuffer(event.bild)
+                mimeType = type ? type.mime : mimeType
+            }
+            return {
+                ...event,
+                eventBild: event.bild ? `data:${mimeType};base64,${event.bild.toString('base64')}` : null
+            }
+        }))
+        return res.send(events)
+    } catch (err) {
+        console.error(err)
+        return res.status(400).send("Error while searching for an event")
+    }
+}
+
+// Needs to be testet
+async function searchCaterer(req,res){
+    const { fileTypeFromBuffer } = await import('file-type'); // Dynamischer Import
+    console.log(req.body)
+
+    let query = "SELECT c.preis,c.kategorie,c.erfahrung,a.profilnamen,a.profilbild,a.kurzbeschreibung FROM caterer c JOIN app_user a ON c.emailfk = a.email"
+    let additionalFilter = ""
+    let param = []
+
+    let paramIndex = 0;
+    for (let key in req.body) {
+        switch (key) {
+            case 'openair':
+                //probelm
+                additionalFilter += "openair = $"+paramIndex+"::boolean"
+                param.push(req.body[key])
+                break
+            case 'profilname':
+                paramIndex++
+                additionalFilter += "UPPER(a.profilname) LIKE UPPER ($"+paramIndex+")"
+                param.push(`%${req.body[key]}%`)
+                break
+            case 'region':
+                paramIndex++
+                additionalFilter += "UPPER(a.region) LIKE UPPER ($"+paramIndex+")"
+                param.push(`%${req.body[key]}%`)
+                break
+            case 'preis':
+                paramIndex++
+                additionalFilter += "c.preis >= $"+paramIndex+"::text"
+                param.push(req.body[key])
+                break
+            case 'erfahrung':
+                paramIndex++
+                additionalFilter += "c.erfahrung >= $"+paramIndex+"::text"
+                param.push(req.body[key])
+                break
+            case 'kategorie':
+                paramIndex++
+                additionalFilter += "UPPER(c.kategorie) LIKE UPPER ($"+paramIndex+")"
+                param.push(`%${req.body[key]}%`)
+                break
+            default:
+                // do nothing
+                break
+        }
+        additionalFilter += " AND "
+    }
+
+    additionalFilter = additionalFilter.substring(0,additionalFilter.length-5) // remove the last ' AND '
+    if (paramIndex == 0) { // no additional params
+        try {
+            const result = await pool.query(query)
+            const events = await Promise.all(result.rows.map(async event => {
+                let mimeType = 'application/octet-stream' // Standard-MIME-Typ
+                if (event.bild) {
+                    const type = await fileTypeFromBuffer(event.bild)
+                    mimeType = type ? type.mime : mimeType
+                }
+                return {
+                    ...event,
+                    eventBild: event.bild ? `data:${mimeType};base64,${event.bild.toString('base64')}` : null
+                }
+            }))
+            return res.send(events)
+        } catch (err) {
+            console.error(err)
+            return res.status(400).send("Error while searching for an event")
+        }
+    }
+
+    // with additional params
+    try {
+        const result = await pool.query(
+            query += " WHERE " + additionalFilter,
+            param
+            
+        )
+        const events = await Promise.all(result.rows.map(async event => {
+            let mimeType = 'application/octet-stream' // Standard-MIME-Typ
+            if (event.bild) {
+                const type = await fileTypeFromBuffer(event.bild)
+                mimeType = type ? type.mime : mimeType
+            }
+            return {
+                ...event,
+                eventBild: event.bild ? `data:${mimeType};base64,${event.bild.toString('base64')}` : null
+            }
+        }))
+        return res.send(events)
+    } catch (err) {
+        console.error(err)
+        return res.status(400).send("Error while searching for an event")
+    }
+}
+// Needs to be testet
+async function searchArtist(req,res){
+    const { fileTypeFromBuffer } = await import('file-type'); // Dynamischer Import
+    console.log(req.body)
+
+    let query = "SELECT a.preis,a.kategorie,a.erfahrung,ap.profilnamen,ap.profilbild,ap.kurzbeschreibung FROM artist a JOIN app_user ap ON a.emailfk = ap.email"
+    let additionalFilter = ""
+    let param = []
+
+    let paramIndex = 0;
+    for (let key in req.body) {
+        switch (key) {
+            case 'profilname':
+                paramIndex++
+                additionalFilter += "UPPER(ap.profilname) LIKE UPPER ($"+paramIndex+")"
+                param.push(`%${req.body[key]}%`)
+                break
+            case 'region':
+                paramIndex++
+                additionalFilter += "UPPER(ap.region) LIKE UPPER ($"+paramIndex+")"
+                param.push(`%${req.body[key]}%`)
+                break
+            case 'preis':
+                paramIndex++
+                additionalFilter += "a.preis >= $"+paramIndex+"::text"
+                param.push(req.body[key])
+                break
+            case 'erfahrung':
+                paramIndex++
+                additionalFilter += "a.erfahrung >= $"+paramIndex+"::text"
+                param.push(req.body[key])
+                break
+            case 'kategorie':
+                paramIndex++
+                additionalFilter += "UPPER(a.kategorie) LIKE UPPER ($"+paramIndex+")"
+                param.push(`%${req.body[key]}%`)
+                break
+            default:
+                // do nothing
+                break
+        }
+        additionalFilter += " AND "
+    }
+
+    additionalFilter = additionalFilter.substring(0,additionalFilter.length-5) // remove the last ' AND '
+    if (paramIndex == 0) { // no additional params
+        try {
+            const result = await pool.query(query)
+            const events = await Promise.all(result.rows.map(async event => {
+                let mimeType = 'application/octet-stream' // Standard-MIME-Typ
+                if (event.bild) {
+                    const type = await fileTypeFromBuffer(event.bild)
+                    mimeType = type ? type.mime : mimeType
+                }
+                return {
+                    ...event,
+                    eventBild: event.bild ? `data:${mimeType};base64,${event.bild.toString('base64')}` : null
+                }
+            }))
+            return res.send(events)
+        } catch (err) {
+            console.error(err)
+            return res.status(400).send("Error while searching for an event")
+        }
+    }
+
+    // with additional params
+    try {
+        const result = await pool.query(
+            query += " WHERE " + additionalFilter,
+            param
+            
+        )
+        const events = await Promise.all(result.rows.map(async event => {
+            let mimeType = 'application/octet-stream' // Standard-MIME-Typ
+            if (event.bild) {
+                const type = await fileTypeFromBuffer(event.bild)
+                mimeType = type ? type.mime : mimeType
+            }
+            return {
+                ...event,
+                eventBild: event.bild ? `data:${mimeType};base64,${event.bild.toString('base64')}` : null
+            }
+        }))
+        return res.send(events)
+    } catch (err) {
+        console.error(err)
+        return res.status(400).send("Error while searching for an event")
+    }
+}
+
+
 module.exports = {
     createEndUser, createArtist, createCaterer, createEvent, createLocation, createReviewEvent, createReviewUser, createReviewLocation, createServiceArtist, createLied, createGericht, createPlaylist, createPlaylistInhalt, createTicket, createServiceArtist,
-    getUserById, getUserByEmailandUsername, searchEvent, getStuffbyName, getCatererByName , getArtistByName, getAllTicketsFromUser, getArtistByEvent, getCatererByEvent, getPlaylistContent
+    getUserById, getUserByEmailandUsername, searchEvent, searchLocaiton,searchCaterer, searchArtist , getStuffbyName , getLocationById,getCatererByName , getArtistByName, getAllTicketsFromUser, getArtistByEvent, getCatererByEvent, getPlaylistContent
 };

@@ -43,6 +43,8 @@ app.post('/testpost/:id', (req,res)=>{
     res.status(200).send("ur id is: "+id+" and ur body is: "+servus);
 });
 
+app.get("/getLocation/:id",database.getLocationById)
+
 app.post('/login', cookieJwtAuth.isLogedIn,login);      // to log a user in
 
 app.get("/MyPage",cookieJwtAuth.Auth, (req,res)=>{     // test function
@@ -65,34 +67,6 @@ app.post('/testSearch', (req,res)=>{
         res.status(400).send(err)
     }
 });
-
-app.post('/search.caterer',(req,res) =>{
-    try
-    {
-        database.getCatererByName(req.body["name"]).then(result =>{
-            res.status(200).send(result);
-        });
-        
-    }
-    catch (err)
-    {
-        res.status(400).send(err)
-    }
-});
-
-app.post('/search.artist',(req,res) =>{
-    try
-    {
-        database.getArtistByName(req.body["name"]).then(result =>{
-            res.status(200).send(result);
-        });
-        
-    }
-    catch (err)
-    {
-        res.status(400).send(err)
-    }
-})
 
 app.get('/tickets/:id', (req,res)=>{
     try
@@ -173,6 +147,9 @@ app.post('/checkAccount',async(req,res)=>{
 })
 
 app.post('/searchEvent',database.searchEvent);  // searchs events with filter param
+app.post('/searchLoacation',database.searchLocaiton);  // searchs Locations with filter param
+app.post('/searchCaterer',database.searchCaterer);  // searchs Caterer with filter param
+app.post('/searchArtist',database.searchArtist);  // searchs Artist with filter param
 
 app.post('/createEvent', upload.single('bild'), (req,res)=>{
     const {eventname,datum,uhrzeit,eventgroesse,preis,altersfreigabe,privat,kurzbeschreibung,beschreibung,ownerid,locationid} = req.body
