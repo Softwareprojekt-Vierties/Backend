@@ -703,12 +703,12 @@ async function searchEvent(req,res){
         if (doAND) additionalFilter += " AND "
     }
 
-    console.log(additionalFilter)
     additionalFilter = additionalFilter.substring(0,additionalFilter.length-5) // remove the last ' AND '
 
     if (paramIndex == 0) { // no additional params
         try {
             const result = await pool.query(query)
+            console.log(result)
             return res.send(result)
         } catch (err) {
             console.error(err)
@@ -721,6 +721,8 @@ async function searchEvent(req,res){
             query += " WHERE " + additionalFilter,
             param
         )
+        console.log(result)
+        console.log("ROWS",result.rows)
         return res.send(result)
     } catch (err) {
         console.error(err)
