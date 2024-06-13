@@ -54,6 +54,25 @@ app.get("/MyPage",cookieJwtAuth.Auth, (req,res)=>{     // test function
     res.status(200).send("Welcome "+user.id);
 })
 
+app.post("/updateArtist",(req,res)=>{
+    const {profilname, profilbild, kurzbeschreibung, beschreibung, region, email, preis, kategorie, erfahrung} = req.body
+    try
+    {
+        const result = database.updateArtist(profilname, profilbild, kurzbeschreibung, beschreibung, region, email, preis, kategorie, erfahrung)
+        if(result)
+        {
+            res.status(200).send("Updatet Artist")
+        }
+        res.status(400).send("problem")
+    }
+    catch(err)
+    {
+        console.error(err)
+        res.send(400).send("big Problem")
+    }
+    
+})
+
 app.post('/register', registration);    // register a user
 
 app.post('/testSearch', (req,res)=>{
