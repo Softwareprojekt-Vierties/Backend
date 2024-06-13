@@ -709,7 +709,7 @@ async function searchEvent(req,res){
     if (paramIndex == 0) { // no additional params
         try {
             const result = await pool.query(query)
-            return res.send(events)
+            return res.send(result)
         } catch (err) {
             console.error(err)
             return res.status(400).send("Error while searching for an event")
@@ -721,7 +721,7 @@ async function searchEvent(req,res){
             query += " WHERE " + additionalFilter,
             param
         )
-        return res.send(events)
+        return res.send(result)
     } catch (err) {
         console.error(err)
         return res.status(400).send("Error while searching for an event")
@@ -789,7 +789,7 @@ async function searchLocaiton(req,res){
     if (paramIndex == 0) { // no additional params
         try {
             const result = await pool.query(query)
-            return res.send(events)
+            return res.send(result)
         } catch (err) {
             console.error(err)
             return res.status(400).send("Error while searching for an event")
@@ -802,7 +802,7 @@ async function searchLocaiton(req,res){
             query += " WHERE " + additionalFilter,
             param
         )
-        return res.send(events)
+        return res.send(result)
     } catch (err) {
         console.error(err)
         return res.status(400).send("Error while searching for an event")
@@ -864,7 +864,7 @@ async function searchCaterer(req,res){
     if (paramIndex == 0) { // no additional params
         try {
             const result = await pool.query(query)
-            return res.send(events)
+            return res.send(result)
         } catch (err) {
             console.error(err)
             return res.status(400).send("Error while searching for an event")
@@ -878,7 +878,7 @@ async function searchCaterer(req,res){
             param
             
         )
-        return res.send(events)
+        return res.send(result)
     } catch (err) {
         console.error(err)
         return res.status(400).send("Error while searching for an event")
@@ -934,7 +934,7 @@ async function searchArtist(req,res){
     if (paramIndex == 0) { // no additional params
         try {
             const result = await pool.query(query)
-            return res.send(events)
+            return res.send(result)
         } catch (err) {
             console.error(err)
             return res.status(400).send("Error while searching for an event")
@@ -946,9 +946,8 @@ async function searchArtist(req,res){
         const result = await pool.query(
             query += " WHERE " + additionalFilter,
             param
-            
         )
-        return res.send(events)
+        return res.send(result)
     } catch (err) {
         console.error(err)
         return res.status(400).send("Error while searching for an event")
