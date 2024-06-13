@@ -691,6 +691,7 @@ async function searchEvent(req,res){
         if (doAND) additionalFilter += " AND "
     }
 
+    console.log(additionalFilter)
     additionalFilter = additionalFilter.substring(0,additionalFilter.length-5) // remove the last ' AND '
 
     if (paramIndex == 0) { // no additional params
