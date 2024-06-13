@@ -55,6 +55,7 @@ app.get("/MyPage",cookieJwtAuth.Auth, (req,res)=>{     // test function
 })
 
 app.post("/updateArtist",(req,res)=>{
+    console.log(req.body)
     const {profilname, profilbild, kurzbeschreibung, beschreibung, region, email, preis, kategorie, erfahrung} = req.body
     try
     {
