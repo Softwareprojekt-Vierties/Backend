@@ -942,5 +942,5 @@ module.exports = {
     comparePassword,
     createEndUser, createArtist, createCaterer, createEvent, createLocation, createReviewEvent, createReviewUser, createReviewLocation, createServiceArtist, createLied, createGericht, createPlaylist, createPlaylistInhalt, createTicket, createServiceArtist,
     getUserById, getUserByEmailandUsername , getStuffbyName , getLocationById, getCatererByName , getArtistByID, getAllTicketsFromUser, getArtistByEvent, getCatererByEvent, getPlaylistContent,
-    searchEvent, searchLocaiton,searchCaterer, searchArtist
+    searchEvent, searchLocaiton,searchCaterer, searchArtist, updateArtist
 };
