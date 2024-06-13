@@ -161,16 +161,16 @@ app.post('/createEvent', async (req,res)=> {
 
 app.post('/createCaterer', async (req,res)=> {
     console.log("REQUEST TO CREATE CATERER",req.body)
-    const {benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, preis, kategorie, erfahrung} = req.body
-    const result = await database.createCaterer(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, preis, kategorie, erfahrung)
+    const {benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, adresse, preis, kategorie, erfahrung} = req.body
+    const result = await database.createCaterer(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, adresse + ", " + region, preis, kategorie, erfahrung)
     if (result) res.status(200).send("CATERER CREATED")
     else res.status(404).send("FAILED TO CREATE CATERER")
 })    // creates a new Caterer
 
 app.post('/createArtist', async (req,res)=> {
     console.log("REQUEST TO CREATE ARTIST",req.body)
-    const {benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, preis, kategorie, erfahrung} = req.body
-    const result = await database.createArtist(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, preis, kategorie, erfahrung)
+    const {benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, adresse, preis, kategorie, erfahrung} = req.body
+    const result = await database.createArtist(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, adresse + ", " + region, preis, kategorie, erfahrung)
     if (result) res.status(200).send("ARTIST CREATED")
     else res.status(404).send("FAILED TO CREATE ARTIST")
 })    // creates a new Artist
