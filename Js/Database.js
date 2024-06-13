@@ -681,9 +681,11 @@ async function searchEvent(req,res){
                 break
             case 'distanz':
                 console.error("DISTANZ NOT YET IMPLEMENTED")
+                doAND = false
                 break
             default:
                 // do nothing
+                doAND = false
                 break
         }
         if (doAND) additionalFilter += " AND "
@@ -752,6 +754,7 @@ async function searchLocaiton(req,res){
                 break
             case 'bewertung':
                 console.error("BEWERTUNG NOT YET IMPLEMENTED")
+                doAND = false
                 break
             case 'distanz':
                 console.error("DISTANZ NOT YET IMPLEMENTED")
@@ -759,6 +762,7 @@ async function searchLocaiton(req,res){
                 break
             default:
                 // do nothing
+                doAND = false
                 break
         }
         if (doAND) additionalFilter += " AND "
@@ -792,7 +796,7 @@ async function searchLocaiton(req,res){
 async function searchCaterer(req,res){
     console.log(req.body)
 
-    let query = "SELECT c.preis,c.kategorie,c.erfahrung,a.profilnamen,a.profilbild,a.kurzbeschreibung FROM caterer c JOIN app_user a ON c.emailfk = a.email"
+    let query = "SELECT c.preis,c.kategorie,c.erfahrung,a.profilname,a.profilbild,a.kurzbeschreibung FROM caterer c JOIN app_user a ON c.emailfk = a.email"
     let additionalFilter = ""
     let param = []
 
@@ -833,6 +837,7 @@ async function searchCaterer(req,res){
                 break
             default:
                 // do nothing
+                doAND = false
                 break
         }
         if (doAND) additionalFilter += " AND "
@@ -866,7 +871,7 @@ async function searchCaterer(req,res){
 async function searchArtist(req,res){
     console.log(req.body)
 
-    let query = "SELECT a.preis,a.kategorie,a.erfahrung,ap.profilnamen,ap.profilbild,ap.kurzbeschreibung FROM artist a JOIN app_user ap ON a.emailfk = ap.email"
+    let query = "SELECT a.preis,a.kategorie,a.erfahrung,ap.profilname,ap.profilbild,ap.kurzbeschreibung FROM artist a JOIN app_user ap ON a.emailfk = ap.email"
     let additionalFilter = ""
     let param = []
 
@@ -902,6 +907,7 @@ async function searchArtist(req,res){
                 break
             default:
                 // do nothing
+                doAND = false
                 break
         }
         if (doAND) additionalFilter += " AND "
