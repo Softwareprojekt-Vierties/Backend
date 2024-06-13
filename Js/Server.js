@@ -170,11 +170,10 @@ app.post('/createArtist',(req,res)=>{
     res.status(200).send("Artist")
 })    // creates a new Artist
 
-app.post('/createLocation', upload.single('bild'),(req,res)=>{
+app.post('/createLocation', (req,res)=>{
     console.log(req.body)
-    console.log(req.file)
-    const {adresse, region, name, beschreibung, ownerID, kurzbeschreibung, preis, kapazitaet, openair, flaeche} = req.body // frontend is missing field 'privat'
-    const bild = req.file
+    // TEST: BILD IN DB SPEICHERN
+    const {adresse, region, name, beschreibung, ownerID, kurzbeschreibung, preis, kapazitaet, openair, flaeche, bild} = req.body // frontend is missing field 'privat'
     database.createLocation(adresse + ", " + region, name, beschreibung, ownerID, true, kurzbeschreibung, preis, kapazitaet, openair, flaeche, bild)
     res.status(200).send("Location")
 })    // creates a new Location

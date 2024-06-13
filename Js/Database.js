@@ -632,7 +632,6 @@ async function getPlaylistContent(name) {
 }
 
 async function searchEvent(req,res){
-    const { fileTypeFromBuffer } = await import('file-type'); // Dynamischer Import
     console.log(req.body)
 
     let query = "SELECT e.*, l.name AS locationname FROM event e JOIN location l ON e.locationid = l.id"
@@ -640,7 +639,9 @@ async function searchEvent(req,res){
     let param = []
 
     let paramIndex = 0;
+    let doAND
     for (let key in req.body) {
+        doAND = true
         switch (key) {
             case 'openair':
                 additionalFilter += "l.openair = true"
@@ -685,7 +686,7 @@ async function searchEvent(req,res){
                 // do nothing
                 break
         }
-        additionalFilter += " AND "
+        if (doAND) additionalFilter += " AND "
     }
 
     additionalFilter = additionalFilter.substring(0,additionalFilter.length-5) // remove the last ' AND '
@@ -693,17 +694,6 @@ async function searchEvent(req,res){
     if (paramIndex == 0) { // no additional params
         try {
             const result = await pool.query(query)
-            const events = await Promise.all(result.rows.map(async event => {
-                let mimeType = 'application/octet-stream' // Standard-MIME-Typ
-                if (event.bild) {
-                    const type = await fileTypeFromBuffer(event.bild)
-                    mimeType = type ? type.mime : mimeType
-                }
-                return {
-                    ...event,
-                    eventBild: event.bild ? `data:${mimeType};base64,${event.bild.toString('base64')}` : null
-                }
-            }))
             return res.send(events)
         } catch (err) {
             console.error(err)
@@ -716,17 +706,6 @@ async function searchEvent(req,res){
             query += " WHERE " + additionalFilter,
             param
         )
-        const events = await Promise.all(result.rows.map(async event => {
-            let mimeType = 'application/octet-stream' // Standard-MIME-Typ
-            if (event.bild) {
-                const type = await fileTypeFromBuffer(event.bild)
-                mimeType = type ? type.mime : mimeType
-            }
-            return {
-                ...event,
-                eventBild: event.bild ? `data:${mimeType};base64,${event.bild.toString('base64')}` : null
-            }
-        }))
         return res.send(events)
     } catch (err) {
         console.error(err)
@@ -735,7 +714,6 @@ async function searchEvent(req,res){
 }
 
 async function searchLocaiton(req,res){
-    const { fileTypeFromBuffer } = await import('file-type'); // Dynamischer Import
     console.log(req.body)
 
     let query = "SELECT * FROM location"
@@ -743,8 +721,9 @@ async function searchLocaiton(req,res){
     let param = []
 
     let paramIndex = 0;
+    let doAND
     for (let key in req.body) {
-        let doAND = true
+        doAND = true
         switch (key) {
             case 'openair':
                 paramIndex++
@@ -789,17 +768,6 @@ async function searchLocaiton(req,res){
     if (paramIndex == 0) { // no additional params
         try {
             const result = await pool.query(query)
-            const events = await Promise.all(result.rows.map(async event => {
-                let mimeType = 'application/octet-stream' // Standard-MIME-Typ
-                if (event.bild) {
-                    const type = await fileTypeFromBuffer(event.bild)
-                    mimeType = type ? type.mime : mimeType
-                }
-                return {
-                    ...event,
-                    eventBild: event.bild ? `data:${mimeType};base64,${event.bild.toString('base64')}` : null
-                }
-            }))
             return res.send(events)
         } catch (err) {
             console.error(err)
@@ -812,19 +780,7 @@ async function searchLocaiton(req,res){
         const result = await pool.query(
             query += " WHERE " + additionalFilter,
             param
-            
         )
-        const events = await Promise.all(result.rows.map(async event => {
-            let mimeType = 'application/octet-stream' // Standard-MIME-Typ
-            if (event.bild) {
-                const type = await fileTypeFromBuffer(event.bild)
-                mimeType = type ? type.mime : mimeType
-            }
-            return {
-                ...event,
-                eventBild: event.bild ? `data:${mimeType};base64,${event.bild.toString('base64')}` : null
-            }
-        }))
         return res.send(events)
     } catch (err) {
         console.error(err)
@@ -834,7 +790,6 @@ async function searchLocaiton(req,res){
 
 // Needs to be testet
 async function searchCaterer(req,res){
-    const { fileTypeFromBuffer } = await import('file-type'); // Dynamischer Import
     console.log(req.body)
 
     let query = "SELECT c.preis,c.kategorie,c.erfahrung,a.profilnamen,a.profilbild,a.kurzbeschreibung FROM caterer c JOIN app_user a ON c.emailfk = a.email"
@@ -842,7 +797,9 @@ async function searchCaterer(req,res){
     let param = []
 
     let paramIndex = 0;
+    let doAND
     for (let key in req.body) {
+        doAND = true
         switch (key) {
             case 'openair':
                 //probelm
@@ -878,24 +835,13 @@ async function searchCaterer(req,res){
                 // do nothing
                 break
         }
-        additionalFilter += " AND "
+        if (doAND) additionalFilter += " AND "
     }
 
     additionalFilter = additionalFilter.substring(0,additionalFilter.length-5) // remove the last ' AND '
     if (paramIndex == 0) { // no additional params
         try {
             const result = await pool.query(query)
-            const events = await Promise.all(result.rows.map(async event => {
-                let mimeType = 'application/octet-stream' // Standard-MIME-Typ
-                if (event.bild) {
-                    const type = await fileTypeFromBuffer(event.bild)
-                    mimeType = type ? type.mime : mimeType
-                }
-                return {
-                    ...event,
-                    eventBild: event.bild ? `data:${mimeType};base64,${event.bild.toString('base64')}` : null
-                }
-            }))
             return res.send(events)
         } catch (err) {
             console.error(err)
@@ -910,17 +856,6 @@ async function searchCaterer(req,res){
             param
             
         )
-        const events = await Promise.all(result.rows.map(async event => {
-            let mimeType = 'application/octet-stream' // Standard-MIME-Typ
-            if (event.bild) {
-                const type = await fileTypeFromBuffer(event.bild)
-                mimeType = type ? type.mime : mimeType
-            }
-            return {
-                ...event,
-                eventBild: event.bild ? `data:${mimeType};base64,${event.bild.toString('base64')}` : null
-            }
-        }))
         return res.send(events)
     } catch (err) {
         console.error(err)
@@ -929,7 +864,6 @@ async function searchCaterer(req,res){
 }
 // Needs to be testet
 async function searchArtist(req,res){
-    const { fileTypeFromBuffer } = await import('file-type'); // Dynamischer Import
     console.log(req.body)
 
     let query = "SELECT a.preis,a.kategorie,a.erfahrung,ap.profilnamen,ap.profilbild,ap.kurzbeschreibung FROM artist a JOIN app_user ap ON a.emailfk = ap.email"
@@ -937,7 +871,9 @@ async function searchArtist(req,res){
     let param = []
 
     let paramIndex = 0;
+    let doAND = true
     for (let key in req.body) {
+        doAND = true
         switch (key) {
             case 'profilname':
                 paramIndex++
@@ -968,24 +904,13 @@ async function searchArtist(req,res){
                 // do nothing
                 break
         }
-        additionalFilter += " AND "
+        if (doAND) additionalFilter += " AND "
     }
 
     additionalFilter = additionalFilter.substring(0,additionalFilter.length-5) // remove the last ' AND '
     if (paramIndex == 0) { // no additional params
         try {
             const result = await pool.query(query)
-            const events = await Promise.all(result.rows.map(async event => {
-                let mimeType = 'application/octet-stream' // Standard-MIME-Typ
-                if (event.bild) {
-                    const type = await fileTypeFromBuffer(event.bild)
-                    mimeType = type ? type.mime : mimeType
-                }
-                return {
-                    ...event,
-                    eventBild: event.bild ? `data:${mimeType};base64,${event.bild.toString('base64')}` : null
-                }
-            }))
             return res.send(events)
         } catch (err) {
             console.error(err)
@@ -1000,17 +925,6 @@ async function searchArtist(req,res){
             param
             
         )
-        const events = await Promise.all(result.rows.map(async event => {
-            let mimeType = 'application/octet-stream' // Standard-MIME-Typ
-            if (event.bild) {
-                const type = await fileTypeFromBuffer(event.bild)
-                mimeType = type ? type.mime : mimeType
-            }
-            return {
-                ...event,
-                eventBild: event.bild ? `data:${mimeType};base64,${event.bild.toString('base64')}` : null
-            }
-        }))
         return res.send(events)
     } catch (err) {
         console.error(err)
