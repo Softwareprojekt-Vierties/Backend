@@ -151,32 +151,36 @@ app.post('/searchLoacation',database.searchLocaiton);  // searchs Locations with
 app.post('/searchCaterer',database.searchCaterer);  // searchs Caterer with filter param
 app.post('/searchArtist',database.searchArtist);  // searchs Artist with filter param
 
-app.post('/createEvent', upload.single('bild'), (req,res)=>{
-    const {eventname,datum,uhrzeit,eventgroesse,preis,altersfreigabe,privat,kurzbeschreibung,beschreibung,ownerid,locationid} = req.body
-    const bild = req.file
-    database.createEvent(eventname,datum,uhrzeit,eventgroesse,preis,altersfreigabe,privat,kurzbeschreibung,beschreibung,bild,ownerid,locationid)
-    res.status(200).send("event")
+app.post('/createEvent', async (req,res)=> {
+    console.log("REQUEST TO CREATE EVENT",req.body)
+    const {eventname,datum,uhrzeit,eventgroesse,preis,altersfreigabe,privat,kurzbeschreibung,beschreibung,bild,ownerid,locationid} = req.body
+    const result = await database.createEvent(eventname,datum,uhrzeit,eventgroesse,preis,altersfreigabe,privat,kurzbeschreibung,beschreibung,bild,ownerid,locationid)
+    if (result) res.status(200).send("EVENT CREATED")
+    else res.status(404).send("FAILED TO CREATE EVENT")
 })    // creates a new events
 
-app.post('/createCaterer',(req,res)=>{
+app.post('/createCaterer', async (req,res)=> {
+    console.log("REQUEST TO CREATE CATERER",req.body)
     const {benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, preis, kategorie, erfahrung} = req.body
-    database.createCaterer(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, preis, kategorie, erfahrung)
-    res.status(200).send("Caterer")
+    const result = await database.createCaterer(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, preis, kategorie, erfahrung)
+    if (result) res.status(200).send("CATERER CREATED")
+    else res.status(404).send("FAILED TO CREATE CATERER")
 })    // creates a new Caterer
 
-app.post('/createArtist',(req,res)=>{
+app.post('/createArtist', async (req,res)=> {
+    console.log("REQUEST TO CREATE ARTIST",req.body)
     const {benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, preis, kategorie, erfahrung} = req.body
-    database.createArtist(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, preis, kategorie, erfahrung)
-    res.status(200).send("Artist")
+    const result = await database.createArtist(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, preis, kategorie, erfahrung)
+    if (result) res.status(200).send("ARTIST CREATED")
+    else res.status(404).send("FAILED TO CREATE ARTIST")
 })    // creates a new Artist
 
-app.post('/createLocation', (req,res)=>{
+app.post('/createLocation', async (req,res)=> {
     console.log("REQUEST TO CREATE LOCATION",req.body)
-    // TEST: BILD IN DB SPEICHERN
     const {adresse, region, name, beschreibung, ownerID, kurzbeschreibung, preis, kapazitaet, openair, flaeche, bild} = req.body // frontend is missing field 'privat'
-    const result = database.createLocation(adresse + ", " + region, name, beschreibung, ownerID, true, kurzbeschreibung, preis, kapazitaet, openair, flaeche, bild)
-    if (result) res.status(200).send("Location")
-    else res.status(404).send("Failed to create location")
+    const result = await database.createLocation(adresse + ", " + region, name, beschreibung, ownerID, true, kurzbeschreibung, preis, kapazitaet, openair, flaeche, bild)
+    if (result) res.status(200).send("LOCATION CREATED")
+    else res.status(404).send("FAILED TO CREATE LOCATION")
 })    // creates a new Location
 
 const server = app.listen(port, (error) => {           // starts the server on the port
