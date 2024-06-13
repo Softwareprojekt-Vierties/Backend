@@ -59,12 +59,14 @@ app.post("/updateArtist",(req,res)=>{
     const {profilname, profilbild, kurzbeschreibung, beschreibung, region, email, preis, kategorie, erfahrung} = req.body
     try
     {
-        const result = database.updateArtist(profilname, profilbild, kurzbeschreibung, beschreibung, region, email, preis, kategorie, erfahrung)
-        if(result)
-        {
-            res.status(200).send("Updatet Artist")
-        }
-        res.status(400).send("problem")
+        database.updateArtist(profilname, profilbild, kurzbeschreibung, beschreibung, region, email, preis, kategorie, erfahrung).then(resualt =>{
+            if(result)
+                {
+                    res.status(200).send("Updatet Artist")
+                }
+            else   {res.status(400).send("problem")}
+        })
+        
     }
     catch(err)
     {
