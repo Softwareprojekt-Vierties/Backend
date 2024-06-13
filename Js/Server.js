@@ -45,6 +45,8 @@ app.post('/testpost/:id', (req,res)=>{
 
 app.get("/getLocation/:id",database.getLocationById)
 
+app.get("/getArtistById/:id",database.getArtistByID)
+
 app.post('/login', cookieJwtAuth.isLogedIn,login);      // to log a user in
 
 app.get("/MyPage",cookieJwtAuth.Auth, (req,res)=>{     // test function

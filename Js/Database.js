@@ -519,11 +519,11 @@ async function getCatererByName(name){
     }
 }
 
-async function getArtistByName(name){
+async function getArtistByID(id){
     try {
         const result = await pool.query(
-            "SELECT ar.*, a.benutzername, a.profilname,a.profilbild,a.kurzbeschreibung,a.beschreibung,a.region FROM artist ar JOIN app_user a ON ar.emailfk = a.email WHERE UPPER(a.benutzername) LIKE UPPER($1::text)",
-            [`%${name}%`]
+            "SELECT ar.*, a.benutzername, a.profilname,a.profilbild,a.kurzbeschreibung,a.beschreibung,a.region FROM artist ar JOIN app_user a ON ar.emailfk = a.email WHERE ar.id = $1",
+            [id]
         )
         console.log(result)
         return result
@@ -940,6 +940,6 @@ async function searchArtist(req,res){
 module.exports = {
     comparePassword,
     createEndUser, createArtist, createCaterer, createEvent, createLocation, createReviewEvent, createReviewUser, createReviewLocation, createServiceArtist, createLied, createGericht, createPlaylist, createPlaylistInhalt, createTicket, createServiceArtist,
-    getUserById, getUserByEmailandUsername , getStuffbyName , getLocationById, getCatererByName , getArtistByName, getAllTicketsFromUser, getArtistByEvent, getCatererByEvent, getPlaylistContent,
+    getUserById, getUserByEmailandUsername , getStuffbyName , getLocationById, getCatererByName , getArtistByID, getAllTicketsFromUser, getArtistByEvent, getCatererByEvent, getPlaylistContent,
     searchEvent, searchLocaiton,searchCaterer, searchArtist
 };
