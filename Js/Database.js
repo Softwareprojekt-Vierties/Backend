@@ -652,6 +652,10 @@ async function searchEvent(req,res){
                 param.push(`%${req.body[key]}%`)
                 break
             case 'datum':
+                if (req.body[key] === '') {
+                    doAND = false
+                    break
+                }
                 paramIndex++
                 additionalFilter += "e.datum = $"+paramIndex+"::date"
                 param.push(req.body[key])
@@ -665,11 +669,19 @@ async function searchEvent(req,res){
                 param.push((req.body[key])[1] == '' ? "23:59" : (req.body[key])[1])
                 break
             case 'eventgroesse':
+                if (req.body[key] === '') {
+                    doAND = false
+                    break
+                }
                 paramIndex++
                 additionalFilter += "e.eventgroesse >= $"+paramIndex+"::int"
                 param.push(req.body[key])
                 break
             case 'altersfreigabe':
+                if (req.body[key] === '') {
+                    doAND = false
+                    break
+                }
                 paramIndex++
                 additionalFilter += "e.altersfreigabe >= $"+paramIndex+"::int"
                 param.push(req.body[key])
@@ -749,6 +761,10 @@ async function searchLocaiton(req,res){
                 param.push(req.body[key])
                 break
             case 'kapazitaet':
+                if (req.body[key] === '') {
+                    doAND = false
+                    break
+                }
                 paramIndex++
                 additionalFilter += "kapazitaet >= $"+paramIndex+"::int"
                 param.push(req.body[key])
