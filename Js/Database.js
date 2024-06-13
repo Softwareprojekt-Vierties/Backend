@@ -519,17 +519,18 @@ async function getCatererByName(name){
     }
 }
 
-async function getArtistByID(id){
+async function getArtistByID(req,res){
+    const id = req.params["id"]
     try {
         const result = await pool.query(
             "SELECT ar.*, a.benutzername, a.profilname,a.profilbild,a.kurzbeschreibung,a.beschreibung,a.region FROM artist ar JOIN app_user a ON ar.emailfk = a.email WHERE ar.id = $1",
             [id]
         )
         console.log(result)
-        return result
+        return res.status(200).send(result)
     } catch (err) {
         console.error(err)
-        return null
+        return res.status(400).send(null)
     }
 }
 
