@@ -171,11 +171,12 @@ app.post('/createArtist',(req,res)=>{
 })    // creates a new Artist
 
 app.post('/createLocation', (req,res)=>{
-    console.log(req.body)
+    console.log("REQUEST TO CREATE LOCATION",req.body)
     // TEST: BILD IN DB SPEICHERN
     const {adresse, region, name, beschreibung, ownerID, kurzbeschreibung, preis, kapazitaet, openair, flaeche, bild} = req.body // frontend is missing field 'privat'
-    database.createLocation(adresse + ", " + region, name, beschreibung, ownerID, true, kurzbeschreibung, preis, kapazitaet, openair, flaeche, bild)
-    res.status(200).send("Location")
+    const result = database.createLocation(adresse + ", " + region, name, beschreibung, ownerID, true, kurzbeschreibung, preis, kapazitaet, openair, flaeche, bild)
+    if (result) res.status(200).send("Location")
+    else res.status(404).send("Failed to create location")
 })    // creates a new Location
 
 const server = app.listen(port, (error) => {           // starts the server on the port
