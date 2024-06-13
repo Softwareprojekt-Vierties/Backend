@@ -744,6 +744,7 @@ async function searchLocaiton(req,res){
 
     let paramIndex = 0;
     for (let key in req.body) {
+        let doAND = true
         switch (key) {
             case 'openair':
                 paramIndex++
@@ -775,12 +776,13 @@ async function searchLocaiton(req,res){
                 break
             case 'distanz':
                 console.error("DISTANZ NOT YET IMPLEMENTED")
+                doAND = false
                 break
             default:
                 // do nothing
                 break
         }
-        additionalFilter += " AND "
+        if (doAND) additionalFilter += " AND "
     }
 
     additionalFilter = additionalFilter.substring(0,additionalFilter.length-5) // remove the last ' AND '
