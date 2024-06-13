@@ -363,7 +363,7 @@ async function updateArtist(profilname, profilbild, kurzbeschreibung, beschreibu
             `UPDATE artist SET
             preis = $1::text,
             kategorie = $2::text,
-            erfahrung = $3::text,
+            erfahrung = $3::text
             WHERE emailfk = $4::text`,
             [preis, kategorie, erfahrung, email]
         )
