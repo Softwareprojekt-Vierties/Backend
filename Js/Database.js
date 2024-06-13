@@ -632,7 +632,7 @@ async function getPlaylistContent(name) {
 }
 
 async function searchEvent(req,res){
-    console.log(req.body)
+    console.log("REQUEST",req.body)
 
     let query = "SELECT e.*, l.name AS locationname FROM event e JOIN location l ON e.locationid = l.id"
     let additionalFilter = ""
@@ -652,10 +652,6 @@ async function searchEvent(req,res){
                 param.push(`%${req.body[key]}%`)
                 break
             case 'datum':
-                if (req.body[key] === '') {
-                    doAND = false
-                    break
-                }
                 paramIndex++
                 additionalFilter += "e.datum = $"+paramIndex+"::date"
                 param.push(req.body[key])
@@ -669,19 +665,11 @@ async function searchEvent(req,res){
                 param.push((req.body[key])[1] == '' ? "23:59" : (req.body[key])[1])
                 break
             case 'eventgroesse':
-                if (req.body[key] === '') {
-                    doAND = false
-                    break
-                }
                 paramIndex++
                 additionalFilter += "e.eventgroesse >= $"+paramIndex+"::int"
                 param.push(req.body[key])
                 break
             case 'altersfreigabe':
-                if (req.body[key] === '') {
-                    doAND = false
-                    break
-                }
                 paramIndex++
                 additionalFilter += "e.altersfreigabe >= $"+paramIndex+"::int"
                 param.push(req.body[key])
@@ -708,7 +696,6 @@ async function searchEvent(req,res){
     if (paramIndex == 0) { // no additional params
         try {
             const result = await pool.query(query)
-            console.log(result)
             return res.send(result)
         } catch (err) {
             console.error(err)
@@ -721,8 +708,6 @@ async function searchEvent(req,res){
             query += " WHERE " + additionalFilter,
             param
         )
-        console.log(result)
-        console.log("ROWS",result.rows)
         return res.send(result)
     } catch (err) {
         console.error(err)
@@ -731,7 +716,7 @@ async function searchEvent(req,res){
 }
 
 async function searchLocaiton(req,res){
-    console.log(req.body)
+    console.log("REQUEST",req.body)
 
     let query = "SELECT * FROM location"
     let additionalFilter = ""
@@ -763,10 +748,6 @@ async function searchLocaiton(req,res){
                 param.push(req.body[key])
                 break
             case 'kapazitaet':
-                if (req.body[key] === '') {
-                    doAND = false
-                    break
-                }
                 paramIndex++
                 additionalFilter += "kapazitaet >= $"+paramIndex+"::int"
                 param.push(req.body[key])
@@ -813,7 +794,7 @@ async function searchLocaiton(req,res){
 
 // Needs to be testet
 async function searchCaterer(req,res){
-    console.log(req.body)
+    console.log("REQUEST",req.body)
 
     let query = "SELECT c.preis,c.kategorie,c.erfahrung,a.profilname,a.profilbild,a.kurzbeschreibung FROM caterer c JOIN app_user a ON c.emailfk = a.email"
     let additionalFilter = ""
@@ -888,7 +869,7 @@ async function searchCaterer(req,res){
 }
 // Needs to be testet
 async function searchArtist(req,res){
-    console.log(req.body)
+    console.log("REQUEST",req.body)
 
     let query = "SELECT a.preis,a.kategorie,a.erfahrung,ap.profilname,ap.profilbild,ap.kurzbeschreibung FROM artist a JOIN app_user ap ON a.emailfk = ap.email"
     let additionalFilter = ""
