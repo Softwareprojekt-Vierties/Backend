@@ -312,7 +312,7 @@ async function updateApp_user(profilname, profilbild, kurzbeschreibung, beschrei
         const result = await pool.query(
             `UPDATE app_user SET
             profilname = $1::text,
-            profilbild = $2::bytea,
+            profilbild = $2::text,
             kurzbeschreibung = $3::text,
             beschreibung = $4::text,
             region = $5::text
