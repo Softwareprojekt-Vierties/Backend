@@ -425,7 +425,7 @@ async function updateLocation(locationid, adresse, name, beschreibung, privat, k
             preis = $6::text,
             openair = $7::boolean,
             flaeche = $8::text,
-            bild = $9::bytea,
+            bild = $9::text,
             kapazitaet = $10::int
             WHERE id = $11::int`,
             [adresse, name, beschreibung, privat, kurzbeschreibung, preis, openair, flaeche, bild, kapazitaet, locationid]
