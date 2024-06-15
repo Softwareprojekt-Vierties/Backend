@@ -46,6 +46,7 @@ app.post('/testpost/:id', (req,res)=>{
 app.get("/getLocation/:id",database.getLocationById)
 
 app.get("/getArtistById/:id",database.getArtistByID)
+app.get("/getCatererById/:id",database.getCatererById)
 
 app.post('/login', cookieJwtAuth.isLogedIn,login);      // to log a user in
 
@@ -63,6 +64,50 @@ app.post("/updateArtist",(req,res)=>{
             if(result)
                 {
                     res.status(200).send("Updatet Artist")
+                }
+            else   {res.status(400).send("problem")}
+        })
+        
+    }
+    catch(err)
+    {
+        console.error(err)
+        res.send(400).send("big Problem")
+    }
+    
+})
+
+app.post("/updateCaterer",(req,res)=>{
+    console.log(req.body)
+    const {profilname, profilbild, kurzbeschreibung, beschreibung, region, email, preis, kategorie, erfahrung} = req.body
+    try
+    {
+        database.updateCaterer(profilname, profilbild, kurzbeschreibung, beschreibung, region, email, preis, kategorie, erfahrung).then(result =>{
+            if(result)
+                {
+                    res.status(200).send("Updatet Caterer")
+                }
+            else   {res.status(400).send("problem")}
+        })
+        
+    }
+    catch(err)
+    {
+        console.error(err)
+        res.send(400).send("big Problem")
+    }
+    
+})
+
+app.post("/updateLoacation",(req,res)=>{
+    console.log(req.body)
+    const {locationid, adresse, name, beschreibung, privat, kurzbeschreibung, preis, openair, flaeche, bild, kapazitaet} = req.body
+    try
+    {
+        database.updateLocation(locationid, adresse, name, beschreibung, privat, kurzbeschreibung, preis, openair, flaeche, bild, kapazitaet).then(result =>{
+            if(result)
+                {
+                    res.status(200).send("Updatet Loacation")
                 }
             else   {res.status(400).send("problem")}
         })

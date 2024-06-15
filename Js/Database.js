@@ -505,17 +505,19 @@ async function getLocationById(req,res){
     }
 }
 
-async function getCatererByName(name){
+async function getCatererById(req,res){
+    const id = req.params["id"]
     try {
+        
         const result = await pool.query(
-            "SELECT c.*,a.benutzername, a.profilname,a.profilbild,a.kurzbeschreibung,a.beschreibung,a.region FROM caterer c JOIN app_user a ON c.emailfk = a.email WHERE UPPER(a.benutzername) LIKE UPPER($1::text)",
-            [`%${name}%`]
+            "SELECT c.*,a.benutzername, a.profilname,a.profilbild,a.kurzbeschreibung,a.beschreibung,a.region FROM caterer c JOIN app_user a ON c.emailfk = a.email WHERE c.id = $1",
+            [id]
         )
         console.log(result)
-        return result
+        return res.status(200).send(result)
     } catch (err) {
         console.error(err)
-        return null
+        return res.status(400).send(null)
     }
 }
 
@@ -941,6 +943,6 @@ async function searchArtist(req,res){
 module.exports = {
     comparePassword,
     createEndUser, createArtist, createCaterer, createEvent, createLocation, createReviewEvent, createReviewUser, createReviewLocation, createServiceArtist, createLied, createGericht, createPlaylist, createPlaylistInhalt, createTicket, createServiceArtist,
-    getUserById, getUserByEmailandUsername , getStuffbyName , getLocationById, getCatererByName , getArtistByID, getAllTicketsFromUser, getArtistByEvent, getCatererByEvent, getPlaylistContent,
-    searchEvent, searchLocaiton,searchCaterer, searchArtist, updateArtist
+    getUserById, getUserByEmailandUsername , getStuffbyName , getLocationById,  getCatererById , getArtistByID, getAllTicketsFromUser, getArtistByEvent, getCatererByEvent, getPlaylistContent,
+    searchEvent, searchLocaiton,searchCaterer, searchArtist, updateArtist, updateCaterer, updateLocation
 };
