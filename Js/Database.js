@@ -781,22 +781,20 @@ async function searchLocaiton(req,res){
                 param.push(req.body[key])
                 break
             case 'kapazitaet':
-                paramIndex++
-                additionalFilter += "kapazitaet >= $"+paramIndex+"::int"
-                param.push(req.body[key])
+                paramIndex+=2
+                additionalFilter += "kapazitaet BETWEEN $"+(paramIndex-1)+"::int AND $"+paramIndex+"::int"
+                param.push(req.body[key][0],req.body[key][1])
                 break
             case 'distanz':
                 console.error("DISTANZ NOT YET IMPLEMENTED")
                 doAND = false
                 break
             case 'istfavorit':
-
                 paramIndex++
                 additionalFilter+="favorit_location.userid = $"+paramIndex+"::int"
                 param.push(user) 
                 break
             case 'istbesitzer':
-
                 paramIndex++
                 additionalFilter += "ownerid = $"+paramIndex+"::int"
                 param.push(user)   
@@ -817,7 +815,7 @@ async function searchLocaiton(req,res){
     additionalFilter = additionalFilter.substring(0,additionalFilter.length-5) // remove the last ' AND '
 
     paramIndex == 0 ? sqlstring = query + istfavorit : sqlstring = query + istfavorit + " WHERE " + additionalFilter
-
+   
     try {
         const result = await pool.query(sqlstring,param)
         for (let i=0;i<result.rowCount;i++)
