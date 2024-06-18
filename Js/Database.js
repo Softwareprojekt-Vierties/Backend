@@ -394,17 +394,25 @@ async function updateArtist(profilname, profilbild, kurzbeschreibung, beschreibu
             [preis, kategorie, erfahrung, email]
         )
         console.log(`artist UPDATED`)
-        return true
+        return {
+            success: true
+        }
     } catch (err) {
         console.error(`COULDN'T UPDATE artist`,err)
-        return false
+        return {
+            success: false,
+            error: err
+        }
     }
 }
 
 async function updateCaterer(profilname, profilbild, kurzbeschreibung, beschreibung, region, email, preis, kategorie, erfahrung) {
-    if (!updateApp_user(profilname, profilbild, kurzbeschreibung, beschreibung, region, email)) { // if failed
+    if (!await updateApp_user(profilname, profilbild, kurzbeschreibung, beschreibung, region, email)) { // if failed
         console.error(`CANNOT UPDATE caterer BECAUSE UPDATE app_user FAILED`)
-        return false
+        return {
+            success: false,
+            error: "UPDATE app_user FAILED"
+        }
     }
 
     try {
@@ -417,10 +425,15 @@ async function updateCaterer(profilname, profilbild, kurzbeschreibung, beschreib
             [preis, kategorie, erfahrung, email]
         )
         console.log(`caterer UPDATED`)
-        return true
+        return {
+            success: true
+        }
     } catch (err) {
         console.error(`COULDN'T UPDATE caterer`,err)
-        return false
+        return {
+            success: false,
+            error: err
+        }
     }
 }
 
@@ -429,14 +442,40 @@ async function updateEvent() {
     return false
 }
 
-async function updateGericht() {
-    console.error("UPDATE GERICHT NOT YET IMPLEMENTED")
-    return false
+async function updateGericht(id, name, beschreibung, bild) {
+    try {
+        const result = await pool.query(
+            `UPDATE gericht SET
+            name = $1::text,
+            beschreibung = $2::text,
+            bild = $3::text
+            WHERE id = $4::int`,
+            [name, beschreibung, bild, id]
+        )
+        console.error("gericht UPDATED")
+        return true
+    } catch (err) {
+        console.error("FAILED TO UPDATE gericht", err)
+        return false
+    }
 }
 
-async function updateLied() {
-    console.error("UPDATE LIED NOT YET IMPLEMENTED")
-    return false
+async function updateLied(id, name, laenge, erscheinung) {
+    try {
+        const result = await pool.query(
+            `UPDATE lied SET
+            name = $1::text,
+            laenge = $2::numeric,
+            erscheinung = $3::date
+            WHERE id = $4::int`,
+            [name, laenge, erscheinung, id]
+        )
+        console.error("lied UPDATED")
+        return true
+    } catch (err) {
+        console.error("FAILED TO UPDATE lied", err)
+        return false
+    }
 }
 
 async function updateLocation(locationid, adresse, name, beschreibung, privat, kurzbeschreibung, preis, openair, flaeche, bild, kapazitaet) {
@@ -535,30 +574,54 @@ async function getCatererById(req,res){
     const id = req.params["id"]
     try {
         
-        const result = await pool.query(
+        const cater = await pool.query(
             "SELECT c.*,a.benutzername, a.profilname,a.profilbild,a.kurzbeschreibung,a.beschreibung,a.region FROM caterer c JOIN app_user a ON c.emailfk = a.email WHERE c.id = $1",
             [id]
         )
-        console.log(result)
-        return res.status(200).send(result)
+        console.log(cater)
+
+        const gericht = await pool.query(
+            `SELECT g.id, g.name, g.beschreibung, g.bild
+            FROM gericht g
+            WHERE g.ownerid = $1::int`,
+            [id]
+        )
+        console.log(gericht)
+
+        return res.status(200).send({
+            caterer: cater,
+            gerichte: gericht
+        })
     } catch (err) {
         console.error(err)
-        return res.status(400).send(null)
+        return res.status(400).send(err)
     }
 }
 
 async function getArtistByID(req,res){
     const id = req.params["id"]
     try {
-        const result = await pool.query(
+        const art = await pool.query(
             "SELECT ar.*, a.benutzername, a.profilname,a.profilbild,a.kurzbeschreibung,a.beschreibung,a.region FROM artist ar JOIN app_user a ON ar.emailfk = a.email WHERE ar.id = $1",
             [id]
         )
-        console.log(result)
-        return res.status(200).send(result)
+        console.log(art)
+
+        const lied = await pool.query(
+            `SELECT l.id, l.name, l.laenge, l.erscheinung
+            FROM lied l
+            WHERE l.ownerid = $1::int`,
+            [id]
+        )
+        console.log(lied)
+
+        return res.status(200).send({
+            artist: art,
+            lieder: lied
+        })
     } catch (err) {
         console.error(err)
-        return res.status(400).send(null)
+        return res.status(400).send(err)
     }
 }
 
@@ -1048,5 +1111,6 @@ module.exports = {
     comparePassword,
     createEndUser, createArtist, createCaterer, createEvent, createLocation, createReviewEvent, createReviewUser, createReviewLocation, createServiceArtist, createLied, createGericht, createPlaylist, createPlaylistInhalt, createTicket, createServiceArtist,
     getUserById, getUserByEmailandUsername , getStuffbyName , getLocationById,  getCatererById , getArtistByID, getAllTicketsFromUser, getArtistByEvent, getCatererByEvent, getPlaylistContent,
-    searchEvent, searchLocaiton,searchCaterer, searchArtist, updateArtist, updateCaterer, updateLocation
+    searchEvent, searchLocaiton,searchCaterer, searchArtist, updateArtist, updateCaterer, updateLocation,
+    updateGericht, updateLied
 };
