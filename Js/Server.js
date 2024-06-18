@@ -14,6 +14,7 @@ const cors = require('cors')
 const corsOption= {
     Credential: true
 }
+const maxRequestBodySize = '10mb'
 //middleware
 app.use(cors(corsOption))
 app.use(express.json()); // requiert to parse JSON form requests 
@@ -23,6 +24,7 @@ app.use((req, res, next) => {
     res.set('X-Content-Type-Options', 'nosniff');
     next();
   });
+app.use(express.urlencoded({limit: maxRequestBodySize}));
 
 
 app.get('/test/:id', (req,res)=>{    // test get function
@@ -230,18 +232,36 @@ app.post('/createEvent', async (req,res)=> {
 
 app.post('/createCaterer', async (req,res)=> {
     console.log("REQUEST TO CREATE CATERER",req.body)
-    const {benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, adresse, preis, kategorie, erfahrung} = req.body
-    const result = await database.createCaterer(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, adresse + ", " + region, preis, kategorie, erfahrung)
-    if (result) res.status(200).send("CATERER CREATED")
-    else res.status(404).send("FAILED TO CREATE CATERER")
+    const {benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, adresse, preis, kategorie, erfahrung, gerichte} = req.body
+    const caterer = await database.createCaterer(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, adresse + ", " + region, preis, kategorie, erfahrung)
+
+    if (caterer.success && gerichte != null) {
+        console.log("RECIEVED GERICHTE", gerichte)
+        
+        for (let gericht of gerichte) {
+            await database.createGericht(caterer.id, gericht['dishName'], gericht['info1']+", "+gericht['info2'], gericht['imagePreview'])
+        }
+    }
+
+    if (caterer.success) res.status(200).send("CATERER CREATED "+ caterer.id)
+    else res.status(404).send("FAILED TO CREATE CATERER "+ caterer.error)
 })    // creates a new Caterer
 
 app.post('/createArtist', async (req,res)=> {
     console.log("REQUEST TO CREATE ARTIST",req.body)
-    const {benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, adresse, preis, kategorie, erfahrung} = req.body
-    const result = await database.createArtist(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, adresse + ", " + region, preis, kategorie, erfahrung)
-    if (result) res.status(200).send("ARTIST CREATED")
-    else res.status(404).send("FAILED TO CREATE ARTIST")
+    const {benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, adresse, preis, kategorie, erfahrung, songs} = req.body
+    const artist = await database.createArtist(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, adresse + ", " + region, preis, kategorie, erfahrung)
+    
+    if (artist.success && songs != null) {
+        console.log("RECIEVED LIEDER", songs)
+
+        for (let lied of songs) {
+            await database.createLied(artist.id, lied['songName'], lied['songLength'], lied['songYear'])
+        }
+    }
+    
+    if (artist.success) res.status(200).send("ARTIST CREATED "+ artist.id)
+    else res.status(404).send("FAILED TO CREATE ARTIST "+ artist.error)
 })    // creates a new Artist
 
 app.post('/createLocation', async (req,res)=> {

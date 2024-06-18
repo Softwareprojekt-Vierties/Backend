@@ -81,7 +81,10 @@ async function createAppUser(benutzername, profilname, email, password, profilbi
 // public
 async function createEndUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, alter, arten, lied, gericht, geschlecht){
     // create app_user first
-    await createAppUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region)
+    const app_user = await createAppUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region)
+
+    if (app_user == false) return false
+
     // create enduser afterwards
     try {
         const res = await pool.query(
@@ -100,38 +103,62 @@ async function createEndUser(benutzername, profilname, email, password, profilbi
 // public
 async function createArtist(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, preis, kategorie, erfahrung){
     // create app_user first
-    await createAppUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region)
+    const app_user = await createAppUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region)
     // create artist afterwards
+
+    if (app_user == false) return {
+        success: false,
+        error: "app_user CREATION FAILED"
+    }
+
     try {
         const res = await pool.query(
             "INSERT INTO artist (emailfk, preis, kategorie, erfahrung) " + 
-            "VALUES ($1::text, $2::text, $3::text, $4::text)",
+            "VALUES ($1::text, $2::text, $3::text, $4::text) RETURNING id",
             [email,preis,kategorie,erfahrung]
         )
         console.log("artist created")
-        return true
+        return {
+            success: true,
+            id: res.rows[0]['id']
+        }
     } catch (err) {
         console.error(err)
-        return false
+        return {
+            success: false,
+            error: err
+        }
     }
 }
 
 // public
 async function createCaterer(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, preis, kategorie, erfahrung){
     // create app_user first
-    await createAppUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region)
+    const app_user = await createAppUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region)
+    
+    if (app_user == false) return {
+        success: false,
+        error: "app_user CREATION FAILED"
+    }
+
     // create caterer afterwards
     try {
         const res = await pool.query(
             "INSERT INTO caterer (emailfk, preis, kategorie, erfahrung) " + 
-            "VALUES ($1::text, $2::text, $3::text, $4::text)",
+            "VALUES ($1::text, $2::text, $3::text, $4::text) RETURNING id",
             [email,preis,kategorie,erfahrung]
         )
-        console.log("Caterer created")
-        return true
+        console.log("CATERER ERSTELLT", res.rows[0]['id'])
+        return {
+            success: true, 
+            id: res.rows[0]['id']
+        }
     } catch (err) {
         console.error(err)
-        return false
+        return {
+            success: false,
+            error: err
+        }
     }
 }
 
@@ -234,11 +261,11 @@ async function createServiceArtist(eventid, artistid){
 async function createLied(ownerid,name,laenge,erscheinung){
     try {
         const res = await pool.query(
-            "INSERT INTO lied (ownerid, name, laenge, erscheinung) VALUES ($1::int, $2::text, $3::int, $4::date)",
+            "INSERT INTO lied (ownerid, name, laenge, erscheinung) VALUES ($1::int, $2::text, $3::numeric, $4::date)",
             [ownerid,name,laenge,erscheinung]
         )
         console.log("Lied created")
-        return ture
+        return true
     } catch(err) {
         console.error(err)
         return false
@@ -246,7 +273,7 @@ async function createLied(ownerid,name,laenge,erscheinung){
 }
 
 // public
-async function createGericht(ownerid=null,name,beschreibung,bild=null){
+async function createGericht(ownerid,name,beschreibung,bild=null){
     try {
         const result = await pool.query(
             "INSERT INTO gericht (ownerid,name,beschreibung,bild) VALUES ($1, $2::text, $3::text, $4)",
