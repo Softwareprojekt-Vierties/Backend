@@ -262,7 +262,7 @@ async function createServiceArtist(eventid, artistid){
 async function createLied(ownerid,name,laenge,erscheinung){
     try {
         const res = await pool.query(
-            "INSERT INTO lied (ownerid, name, laenge, erscheinung) VALUES ($1::int, $2::text, $3::int, $4::date)",
+            "INSERT INTO lied (ownerid, name, laenge, erscheinung) VALUES ($1::int, $2::text, $3::numeric, $4::date)",
             [ownerid,name,laenge,erscheinung]
         )
         console.log("Lied created")
