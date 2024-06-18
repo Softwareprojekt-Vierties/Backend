@@ -249,10 +249,19 @@ app.post('/createCaterer', async (req,res)=> {
 
 app.post('/createArtist', async (req,res)=> {
     console.log("REQUEST TO CREATE ARTIST",req.body)
-    const {benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, adresse, preis, kategorie, erfahrung} = req.body
-    const result = await database.createArtist(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, adresse + ", " + region, preis, kategorie, erfahrung)
-    if (result) res.status(200).send("ARTIST CREATED")
-    else res.status(404).send("FAILED TO CREATE ARTIST")
+    const {benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, adresse, preis, kategorie, erfahrung, lieder} = req.body
+    const artist = await database.createArtist(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, adresse + ", " + region, preis, kategorie, erfahrung)
+    
+    if (artist.success && lieder != null) {
+        console.log("RECIEVED LIEDER", lieder)
+
+        for (let lied of lieder) {
+            await database.createLied(artist.id, lied['songName'], lied['songLength'], lied['songYear'])
+        }
+    }
+    
+    if (artist.success) res.status(200).send("ARTIST CREATED "+ artist.id)
+    else res.status(404).send("FAILED TO CREATE ARTIST "+ artist.error)
 })    // creates a new Artist
 
 app.post('/createLocation', async (req,res)=> {

@@ -107,19 +107,28 @@ async function createArtist(benutzername, profilname, email, password, profilbil
     const app_user = await createAppUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region)
     // create artist afterwards
 
-    if (app_user == false) return false
+    if (app_user == false) return {
+        success: false,
+        error: "app_user CREATION FAILED"
+    }
 
     try {
         const res = await pool.query(
             "INSERT INTO artist (emailfk, preis, kategorie, erfahrung) " + 
-            "VALUES ($1::text, $2::text, $3::text, $4::text)",
+            "VALUES ($1::text, $2::text, $3::text, $4::text) RETURNING id",
             [email,preis,kategorie,erfahrung]
         )
         console.log("artist created")
-        return true
+        return {
+            success: true,
+            id: res.rows[0]['id']
+        }
     } catch (err) {
         console.error(err)
-        return false
+        return {
+            success: false,
+            error: err
+        }
     }
 }
 
