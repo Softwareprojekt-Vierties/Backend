@@ -125,14 +125,20 @@ async function createCaterer(benutzername, profilname, email, password, profilbi
     try {
         const res = await pool.query(
             "INSERT INTO caterer (emailfk, preis, kategorie, erfahrung) " + 
-            "VALUES ($1::text, $2::text, $3::text, $4::text)",
+            "VALUES ($1::text, $2::text, $3::text, $4::text) RETURNING id",
             [email,preis,kategorie,erfahrung]
         )
-        console.log("Caterer created")
-        return true
+        console.log("CATERER ERSTELLT", res.rows[0]['id'])
+        return {
+            success: true, 
+            id: res.rows[0]['id']
+        }
     } catch (err) {
         console.error(err)
-        return false
+        return {
+            success: false,
+            error: err
+        }
     }
 }
 
@@ -247,7 +253,7 @@ async function createLied(ownerid,name,laenge,erscheinung){
 }
 
 // public
-async function createGericht(ownerid=null,name,beschreibung,bild=null){
+async function createGericht(ownerid,name,beschreibung,bild=null){
     try {
         const result = await pool.query(
             "INSERT INTO gericht (ownerid,name,beschreibung,bild) VALUES ($1, $2::text, $3::text, $4)",
