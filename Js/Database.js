@@ -266,7 +266,7 @@ async function createLied(ownerid,name,laenge,erscheinung){
             [ownerid,name,laenge,erscheinung]
         )
         console.log("Lied created")
-        return ture
+        return true
     } catch(err) {
         console.error(err)
         return false
