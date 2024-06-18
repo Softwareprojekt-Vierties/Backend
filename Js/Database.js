@@ -1,5 +1,4 @@
 const { response } = require('express');
-const bcrypt = require('bcrypt');
 const {Pool} = require('pg');
 const cookieJwtAuth = require('./CookieJwtAuth')
 
@@ -720,13 +719,17 @@ async function searchEvent(req,res){
 
 async function searchLocaiton(req,res){
     console.log("REQUEST",req.body)
-
-    let query = "SELECT * FROM location"
+    // const user = cookieJwtAuth.getUser(req.headers["auth"])
+    const user = 45
+    let query = "SELECT location.*, favorit_location.userid as favorit FROM location"
     let additionalFilter = ""
+    let istfavorit = " LEFT OUTER JOIN favorit_location ON location.id = favorit_location.locationid"
     let param = []
+    let sqlstring=""
 
     let paramIndex = 0;
     let doAND
+    
     for (let key in req.body) {
         doAND = true
         switch (key) {
@@ -755,13 +758,26 @@ async function searchLocaiton(req,res){
                 additionalFilter += "kapazitaet >= $"+paramIndex+"::int"
                 param.push(req.body[key])
                 break
-            case 'bewertung':
-                console.error("BEWERTUNG NOT YET IMPLEMENTED")
-                doAND = false
-                break
             case 'distanz':
                 console.error("DISTANZ NOT YET IMPLEMENTED")
                 doAND = false
+                break
+            case 'istfavorit':
+
+                paramIndex++
+                additionalFilter+="favorit_location.userid = $"+paramIndex+"::int"
+                param.push(user) 
+                break
+            case 'istbesitzer':
+
+                paramIndex++
+                additionalFilter += "ownerid = $"+paramIndex+"::int"
+                param.push(user)   
+                break
+            case 'bewertung':
+                paramIndex++
+                additionalFilter+="sterne >= $"+paramIndex+"::int"
+                param.push(req.body[key])   
                 break
             default:
                 // do nothing
@@ -772,27 +788,35 @@ async function searchLocaiton(req,res){
     }
 
     additionalFilter = additionalFilter.substring(0,additionalFilter.length-5) // remove the last ' AND '
-    if (paramIndex == 0) { // no additional params
-        try {
-            const result = await pool.query(query)
-            return res.send(result)
-        } catch (err) {
-            console.error(err)
-            return res.status(400).send("Error while searching for an event")
-        }
-    }
 
-    // with additional params
+    paramIndex == 0 ? sqlstring = query + istfavorit : sqlstring = query + istfavorit + " WHERE " + additionalFilter
+
     try {
-        const result = await pool.query(
-            query += " WHERE " + additionalFilter,
-            param
-        )
+        const result = await pool.query(sqlstring,param)
+        for (let i=0;i<result.rowCount;i++)
+        {
+            //checks if the locataion is a user Favorit
+            if(Object.hasOwn(result.rows[i],"favorit")) {result.rows[i]["favorit"] == user ? result.rows[i]["favorit"] = true : result.rows[i]["favorit"] = false}
+        }
         return res.send(result)
     } catch (err) {
         console.error(err)
         return res.status(400).send("Error while searching for an event")
     }
+   
+
+    // with additional params
+    // try {
+        
+    //     const result = await pool.query(
+    //         query += istfavorit += " WHERE " + additionalFilter,
+    //         param
+    //     )
+    //     return res.send(result)
+    // } catch (err) {
+    //     console.error(err)
+    //     return res.status(400).send("Error while searching for an event")
+    // }
 }
 
 // Needs to be testet
@@ -877,7 +901,6 @@ async function searchArtist(req,res){
     let query = "SELECT a.preis,a.kategorie,a.erfahrung,ap.profilname,ap.profilbild,ap.kurzbeschreibung FROM artist a JOIN app_user ap ON a.emailfk = ap.email"
     let additionalFilter = ""
     let param = []
-
     let paramIndex = 0;
     let doAND = true
     for (let key in req.body) {
