@@ -82,7 +82,10 @@ async function createAppUser(benutzername, profilname, email, password, profilbi
 // public
 async function createEndUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, alter, arten, lied, gericht, geschlecht){
     // create app_user first
-    await createAppUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region)
+    const app_user = await createAppUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region)
+
+    if (app_user == false) return false
+
     // create enduser afterwards
     try {
         const res = await pool.query(
@@ -101,8 +104,11 @@ async function createEndUser(benutzername, profilname, email, password, profilbi
 // public
 async function createArtist(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, preis, kategorie, erfahrung){
     // create app_user first
-    await createAppUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region)
+    const app_user = await createAppUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region)
     // create artist afterwards
+
+    if (app_user == false) return false
+
     try {
         const res = await pool.query(
             "INSERT INTO artist (emailfk, preis, kategorie, erfahrung) " + 
@@ -120,7 +126,13 @@ async function createArtist(benutzername, profilname, email, password, profilbil
 // public
 async function createCaterer(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, preis, kategorie, erfahrung){
     // create app_user first
-    await createAppUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region)
+    const app_user = await createAppUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region)
+    
+    if (app_user == false) return {
+        success: false,
+        error: "app_user CREATION FAILED"
+    }
+
     // create caterer afterwards
     try {
         const res = await pool.query(

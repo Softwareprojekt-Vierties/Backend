@@ -14,6 +14,7 @@ const cors = require('cors')
 const corsOption= {
     Credential: true
 }
+const maxRequestBodySize = '10mb'
 //middleware
 app.use(cors(corsOption))
 app.use(express.json()); // requiert to parse JSON form requests 
@@ -23,6 +24,7 @@ app.use((req, res, next) => {
     res.set('X-Content-Type-Options', 'nosniff');
     next();
   });
+app.use(express.urlencoded({limit: maxRequestBodySize}));
 
 
 app.get('/test/:id', (req,res)=>{    // test get function
