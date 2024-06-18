@@ -232,16 +232,16 @@ app.post('/createCaterer', async (req,res)=> {
     console.log("REQUEST TO CREATE CATERER",req.body)
     const {benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, adresse, preis, kategorie, erfahrung, gerichte} = req.body
     const caterer = await database.createCaterer(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, adresse + ", " + region, preis, kategorie, erfahrung)
-    if (caterer.success) res.status(200).send("CATERER CREATED", caterer.id)
-    else res.status(404).send("FAILED TO CREATE CATERER", caterer.error)
+    if (caterer.success) res.status(200).send("CATERER CREATED "+ caterer.id)
+    else res.status(404).send("FAILED TO CREATE CATERER "+ caterer.error)
 
     if (caterer.success && gerichte != null) {
         console.log("RECIEVED GERICHTE", gerichte)
         
         for (let gericht in gerichte) {
             const versuch = database.createGericht(caterer.id, gericht.at(0), gericht.at(1).at(0)+", "+gericht.at(1).at(1), gericht.at(2))
-            if (versuch) res.status(200).send("GERICHT CREATED", gericht.at(0))
-            else res.status(400).send("FAILED TO CREATED GERICHT", gericht.at(0))
+            if (versuch) res.status(200).send("GERICHT CREATED "+ gericht.at(0))
+            else res.status(400).send("FAILED TO CREATED GERICHT "+ gericht.at(0))
         }
     }
 })    // creates a new Caterer
