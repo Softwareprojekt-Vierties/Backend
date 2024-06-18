@@ -239,7 +239,7 @@ app.post('/createCaterer', async (req,res)=> {
         console.log("RECIEVED GERICHTE", gerichte)
         
         for (let gericht in gerichte) {
-            const versuch = database.createGericht(caterer.id, gericht.at(0), gericht.at(1)+", "+gericht.at(2), gericht.at(3))
+            const versuch = database.createGericht(caterer.id, gericht.at(0), gericht.at(1).at(0)+", "+gericht.at(1).at(1), gericht.at(2))
             if (versuch) res.status(200).send("GERICHT CREATED", gericht.at(0))
             else res.status(400).send("FAILED TO CREATED GERICHT", gericht.at(0))
         }
