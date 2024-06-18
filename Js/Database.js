@@ -379,7 +379,7 @@ async function updateEndnutzer(profilname, profilbild, kurzbeschreibung, beschre
 }
 
 async function updateArtist(profilname, profilbild, kurzbeschreibung, beschreibung, region, email, preis, kategorie, erfahrung) {
-    if (!updateApp_user(profilname, profilbild, kurzbeschreibung, beschreibung, region, email)) { // if failed
+    if (false == await updateApp_user(profilname, profilbild, kurzbeschreibung, beschreibung, region, email)) { // if failed
         console.error(`CANNOT UPDATE artist BECAUSE UPDATE app_user FAILED`)
         return false
     }
@@ -407,7 +407,7 @@ async function updateArtist(profilname, profilbild, kurzbeschreibung, beschreibu
 }
 
 async function updateCaterer(profilname, profilbild, kurzbeschreibung, beschreibung, region, email, preis, kategorie, erfahrung) {
-    if (!await updateApp_user(profilname, profilbild, kurzbeschreibung, beschreibung, region, email)) { // if failed
+    if (false == await updateApp_user(profilname, profilbild, kurzbeschreibung, beschreibung, region, email)) { // if failed
         console.error(`CANNOT UPDATE caterer BECAUSE UPDATE app_user FAILED`)
         return {
             success: false,
