@@ -57,48 +57,52 @@ app.get("/MyPage",cookieJwtAuth.Auth, (req,res)=>{     // test function
     res.status(200).send("Welcome "+user.id);
 })
 
-app.post("/updateArtist",(req,res)=>{
-    console.log(req.body)
-    const {profilname, profilbild, kurzbeschreibung, beschreibung, region, email, preis, kategorie, erfahrung} = req.body
-    try
-    {
-        database.updateArtist(profilname, profilbild, kurzbeschreibung, beschreibung, region, email, preis, kategorie, erfahrung).then(result =>{
-            if(result)
-                {
-                    res.status(200).send("Updatet Artist")
-                }
-            else   {res.status(400).send("problem")}
-        })
+app.post("/updateArtist",async (req,res)=>{
+    console.log("REQUEST TO UPDATE ARTIST",req.body)
+    const {profilname, profilbild, kurzbeschreibung, beschreibung, region, email, preis, kategorie, erfahrung, songs} = req.body
+    try {
+        const resultArtist = await database.updateArtist(profilname, profilbild, kurzbeschreibung, beschreibung, region, email, preis, kategorie, erfahrung)
+        let message = ""
+
+        if (songs != null) {
+            for(let song of songs) {
+                const resultLied = await database.updateLied(song['id'], song['songName'], song['songLength'], song['songYear'])
+                if (resultLied) message.concat(", UPDATED lied", song['songName'])
+                else message.concat(", FAILED TO UPDATE lied", song['songName'])
+            }
+        }
         
+        if (resultArtist.success) res.send(200).send("UPDATED artist" + message)
+        else res.send(400).send("FAILED TO UPDATE artist! " + resultArtist.error + ", " + message)
     }
-    catch(err)
-    {
+    catch(err) {
         console.error(err)
-        res.send(400).send("big Problem")
+        res.send(500).send("Server error! " + err)
     }
-    
 })
 
-app.post("/updateCaterer",(req,res)=>{
-    console.log(req.body)
-    const {profilname, profilbild, kurzbeschreibung, beschreibung, region, email, preis, kategorie, erfahrung} = req.body
-    try
-    {
-        database.updateCaterer(profilname, profilbild, kurzbeschreibung, beschreibung, region, email, preis, kategorie, erfahrung).then(result =>{
-            if(result)
-                {
-                    res.status(200).send("Updatet Caterer")
-                }
-            else   {res.status(400).send("problem")}
-        })
-        
+app.post("/updateCaterer",async (req,res)=>{
+    console.log("REQUEST TO UPDATE CATETER",req.body)
+    const {profilname, profilbild, kurzbeschreibung, beschreibung, region, email, preis, kategorie, erfahrung, gerichte} = req.body
+    try {
+        const resultCaterer = await database.updateCaterer(profilname, profilbild, kurzbeschreibung, beschreibung, region, email, preis, kategorie, erfahrung)
+        let message = ""
+
+        if (gerichte != null) {
+            for(let gericht of gerichte) {
+                const resultGericht = await database.updateGericht(gericht['id'], gericht['dishName'], gericht['info1']+", "+gericht['info2'], gericht['imagePreview'])
+                if (resultGericht) message.concat(", UPDATED gericht", gericht['dishName'])
+                else message.concat(", FAILED TO UPDATE gericht", gericht['dishName'])
+            }
+        }
+
+        if (resultCaterer.success) res.send(200).send("UPDATED CATERER" + message)
+        else res.send(400).send("FAILED TO UPDATE caterer! " + resultCaterer.error + ", " + message)
     }
-    catch(err)
-    {
+    catch(err) {
         console.error(err)
-        res.send(400).send("big Problem")
+        res.send(500).send("Server error! " + err)
     }
-    
 })
 
 app.post("/updateLoacation",(req,res)=>{
