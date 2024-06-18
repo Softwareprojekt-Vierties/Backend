@@ -66,7 +66,7 @@ app.post("/updateArtist",async (req,res)=>{
 
         if (songs != null) {
             for(let song of songs) {
-                const resultLied = database.updateLied(song['id'], song['songName'], song['songLength'], song['songYear'])
+                const resultLied = await database.updateLied(song['id'], song['songName'], song['songLength'], song['songYear'])
                 if (resultLied) message.concat(", UPDATED lied", song['songName'])
                 else message.concat(", FAILED TO UPDATE lied", song['songName'])
             }
