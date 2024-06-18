@@ -239,7 +239,7 @@ app.post('/createCaterer', async (req,res)=> {
         console.log("RECIEVED GERICHTE", gerichte)
         
         for (let gericht of gerichte) {
-            await database.createGericht(caterer.id, gericht.at(0), gericht.at(1)+", "+gericht.at(2), gericht.at(3))
+            await database.createGericht(caterer.id, gericht[0], gericht[1]+", "+gericht[2], gericht[3])
         }
     }
 
