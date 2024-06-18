@@ -252,7 +252,7 @@ app.post('/createArtist', async (req,res)=> {
     const {benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, adresse, preis, kategorie, erfahrung, songs} = req.body
     const artist = await database.createArtist(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, adresse + ", " + region, preis, kategorie, erfahrung)
     
-    if (artist.success && lieder != null) {
+    if (artist.success && songs != null) {
         console.log("RECIEVED LIEDER", lieder)
 
         for (let lied of songs) {
