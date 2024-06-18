@@ -238,7 +238,7 @@ app.post('/createCaterer', async (req,res)=> {
     if (caterer.success && gerichte != null) {
         console.log("RECIEVED GERICHTE", gerichte)
         
-        for (let gericht in gerichte) {
+        for (let gericht of gerichte) {
             await database.createGericht(caterer.id, gericht.at(0), gericht.at(1)+", "+gericht.at(2), gericht.at(3))
         }
     }
