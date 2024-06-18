@@ -935,7 +935,7 @@ async function searchCaterer(req,res){
     console.log("REQUEST",req.body)
     // const user = cookieJwtAuth.getUser(req.headers["auth"])
     const user = 45
-    let query = "SELECT c.preis,c.kategorie,c.erfahrung,a.profilname,a.profilbild,a.kurzbeschreibung, fu.userid AS favorit FROM caterer c JOIN app_user a ON c.emailfk = a.email"
+    let query = "SELECT c.preis,c.kategorie,c.erfahrung,a.profilname as name,a.profilbild,a.kurzbeschreibung, fu.userid AS favorit FROM caterer c JOIN app_user a ON c.emailfk = a.email"
     let additionalFilter = ""
     let param = []
     let istfavorit = " LEFT OUTER JOIN favorit_user fu ON c.id = fu.catereid"
@@ -1023,7 +1023,7 @@ async function searchArtist(req,res){
     console.log("REQUEST",req.body)
     // const user = cookieJwtAuth.getUser(req.headers["auth"])
     const user = 45
-    let query = "SELECT a.preis,a.kategorie,a.erfahrung,ap.profilname,ap.profilbild,ap.kurzbeschreibung,fu.userid AS favorit FROM artist a JOIN app_user ap ON a.emailfk = ap.email"
+    let query = "SELECT a.preis,a.kategorie,a.erfahrung,ap.profilname as name,ap.profilbild,ap.kurzbeschreibung,fu.userid AS favorit FROM artist a JOIN app_user ap ON a.emailfk = ap.email"
     let additionalFilter = ""
     let istfavorit = " LEFT OUTER JOIN favorit_user fu ON a.id = fu.artistid"
     let param = []
