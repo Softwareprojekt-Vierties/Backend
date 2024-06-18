@@ -613,7 +613,7 @@ async function getArtistByID(req,res){
             WHERE l.ownerid = $1::int`,
             [id]
         )
-        console.log(lieder)
+        console.log(lied)
 
         return res.status(200).send({
             artist: art,
