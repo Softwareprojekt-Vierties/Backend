@@ -1414,6 +1414,61 @@ async function deleteReviewById(id, deleteBy) {
     }
 }
 
+/**
+* Deletes playlistinhalt from the DB using an id.
+*
+* @param {number} id - the id, dictates what should be deleted
+* @param {string} deleteBy - the origin of the id, should be one of the following:
+*
+* - 'playlistid' - deletes a playlistinhalt based on that the id is from a playlist
+* - 'liedid' - deletes a playlistinhalt based on that the id is from a lied
+* - anything else will results in a fail
+*
+* @returns {Object} A JSON containing the following:
+*
+* - boolean: sucess - If the deletion was successful or not
+* - any[]: data - The data returned from the deletion operation, can be null
+* - any: error - The error that occoured if something failed, only written if success = false
+*/
+async function deletePlaylistInhalt(id, deleteBy) {
+    try {
+        console.warn("TRYING TO DELETE A playlistinhalt OF", id, deleteBy)
+        let query
+
+        if (deleteBy.matchAll('playlistid')) {
+            query = `DELETE FROM playlistinhalt WHERE playlistid = $1::int RETURNING *`
+        } else if (deleteBy.matchAll('liedid')) {
+            query = `DELETE FROM playlistinhalt WHERE liedid = $1::int RETURNING *`
+        } else {
+            return {
+                sucess: false,
+                error: new Error("INVALID deleteBy: " + deleteBy)
+            }
+        }
+
+        const result = await pool.query(query, [id])
+        if (result.rows.length === 0) { // if nothing was found to be deleted
+            return {
+                success: true,
+                data: null
+            }
+        }
+        else {
+            return {
+                sucess: true,
+                data: result.rows
+            }
+        }
+    } catch (err) {
+        console.error("AN ERROR OCCURRED WHILE TRYING TO DELETE A playlistinhalt", err)
+        return {
+            success: false,
+            data: null,
+            error: err
+        }
+    }
+}
+
 module.exports = {
     comparePassword,
     createEndUser, createArtist, createCaterer, createEvent, createLocation, createReviewEvent, createReviewUser, createReviewLocation, createServiceArtist, createLied, createGericht, createPlaylist, createPlaylistInhalt, createTicket, createServiceArtist,
