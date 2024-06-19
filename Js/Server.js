@@ -72,12 +72,12 @@ app.post("/updateArtist",async (req,res)=>{
             }
         }
         
-        if (resultArtist.success) res.send(200).send("UPDATED artist" + message)
-        else res.send(400).send("FAILED TO UPDATE artist! " + resultArtist.error + ", " + message)
+        if (resultArtist.success) res.status(200).send("UPDATED artist" + message)
+        else res.status(400).send("FAILED TO UPDATE artist! " + resultArtist.error + ", " + message)
     }
     catch(err) {
         console.error(err)
-        res.send(500).send("Server error! " + err)
+        res.status(500).send("Server error! " + err)
     }
 })
 
@@ -96,12 +96,12 @@ app.post("/updateCaterer",async (req,res)=>{
             }
         }
 
-        if (resultCaterer.success) res.send(200).send("UPDATED CATERER" + message)
-        else res.send(400).send("FAILED TO UPDATE caterer! " + resultCaterer.error + ", " + message)
+        if (resultCaterer.success) res.status(200).send("UPDATED CATERER" + message)
+        else res.status(400).send("FAILED TO UPDATE caterer! " + resultCaterer.error + ", " + message)
     }
     catch(err) {
         console.error(err)
-        res.send(500).send("Server error! " + err)
+        res.status(500).send("Server error! " + err)
     }
 })
 
@@ -122,7 +122,7 @@ app.post("/updateLoacation",(req,res)=>{
     catch(err)
     {
         console.error(err)
-        res.send(400).send("big Problem")
+        res.status(400).send("big Problem")
     }
     
 })

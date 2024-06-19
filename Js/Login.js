@@ -7,6 +7,7 @@ module.exports = async(req, res) => {
     const {email, pass} = req.body;
     try
     {
+        console.log("LOGIN REQUEST WITH",req.body)
         const user = await Database.comparePassword(email,pass);
         console.log(user)
         if(user!=null)
