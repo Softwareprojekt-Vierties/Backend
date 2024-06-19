@@ -726,8 +726,7 @@ async function getPlaylistContent(name) {
 
 async function searchEvent(req,res){
     console.log("REQUEST",req.body)
-    // const user = cookieJwtAuth.getUser(req.headers["auth"])
-    const user = 45
+    const user = cookieJwtAuth.getUser(req.headers["auth"])
     let query = "SELECT e.*, l.name AS locationname,l.adresse as adresse, fe.userid as favorit FROM event e JOIN location l ON e.locationid = l.id"
     let additionalFilter = ""
     let param = []
@@ -833,8 +832,7 @@ async function searchEvent(req,res){
 
 async function searchLocaiton(req,res){
     console.log("REQUEST",req.body)
-    // const user = cookieJwtAuth.getUser(req.headers["auth"])
-    const user = 45
+    const user = cookieJwtAuth.getUser(req.headers["auth"])
     let query = "SELECT location.*, favorit_location.userid as favorit FROM location"
     let additionalFilter = ""
     let istfavorit = " LEFT OUTER JOIN favorit_location ON location.id = favorit_location.locationid"
@@ -931,11 +929,9 @@ async function searchLocaiton(req,res){
     // }
 }
 
-
 async function searchCaterer(req,res){
     console.log("REQUEST",req.body)
-    // const user = cookieJwtAuth.getUser(req.headers["auth"])
-    const user = 45
+    const user = cookieJwtAuth.getUser(req.headers["auth"])
     let query = "SELECT c.preis,c.kategorie,c.erfahrung,a.profilname as name,a.region,a.profilbild,a.kurzbeschreibung,a.sterne, fu.userid AS favorit FROM caterer c JOIN app_user a ON c.emailfk = a.email"
     let additionalFilter = ""
     let param = []
@@ -1022,8 +1018,7 @@ async function searchCaterer(req,res){
 
 async function searchArtist(req,res){
     console.log("REQUEST",req.body)
-    // const user = cookieJwtAuth.getUser(req.headers["auth"])
-    const user = 45
+    const user = cookieJwtAuth.getUser(req.headers["auth"])
     let query = "SELECT a.preis,a.kategorie,a.erfahrung,ap.region,ap.profilname as name,ap.sterne,ap.profilbild,ap.kurzbeschreibung,fu.userid AS favorit FROM artist a JOIN app_user ap ON a.emailfk = ap.email"
     let additionalFilter = ""
     let istfavorit = " LEFT OUTER JOIN favorit_user fu ON a.id = fu.artistid"
@@ -1110,8 +1105,7 @@ async function searchArtist(req,res){
 
 async function searchEndUser(req,res){
     console.log("REQUEST",req.body)
-    // const user = cookieJwtAuth.getUser(req.headers["auth"])
-    const user = 45
+    const user = cookieJwtAuth.getUser(req.headers["auth"])
     let query = "SELECT e.*,ap.profilname as name,ap.region,fu.userid AS favorit FROM endnutzer e JOIN app_user ap ON e.emailfk = ap.email"
     let additionalFilter = ""
     let istfavorit = " LEFT OUTER JOIN favorit_user fu ON e.id = fu.enduserid"

@@ -221,11 +221,11 @@ app.post('/checkAccount',async(req,res)=>{
     }
 })
 
-app.post('/searchEvent',database.searchEvent);  // searchs events with filter param
-app.post('/searchLoacation',database.searchLocaiton);  // searchs Locations with filter param
-app.post('/searchCaterer',database.searchCaterer);  // searchs Caterer with filter param
-app.post('/searchArtist',database.searchArtist);  // searchs Artist with filter param
-app.post('/searchEndnutzer',database.searchEndUser);  // searchs Endnutzer with filter param
+app.post('/searchEvent',cookieJwtAuth.Auth,database.searchEvent);  // searchs events with filter param
+app.post('/searchLoacation',cookieJwtAuth.Auth,database.searchLocaiton);  // searchs Locations with filter param
+app.post('/searchCaterer',cookieJwtAuth.Auth,database.searchCaterer);  // searchs Caterer with filter param
+app.post('/searchArtist',cookieJwtAuth.Auth,database.searchArtist);  // searchs Artist with filter param
+app.post('/searchEndnutzer',cookieJwtAuth.Auth,database.searchEndUser);  // searchs Endnutzer with filter param
 
 app.post('/createEvent', async (req,res)=> {
     console.log("REQUEST TO CREATE EVENT",req.body)
