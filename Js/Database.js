@@ -1822,7 +1822,7 @@ async function deleteAppUserById(id) {
         if (deleteBy.matchAll('id')) {
             query = `DELETE FROM endnutzer WHERE id = $1::int RETURNING *`
         } else if (deleteBy.matchAll('email')) {
-            query = `DELETE FROM endnutzer WHERE emailfk = $1::text RETURNING *`
+            query = `DELETE FROM endnutzer WHERE email = $1::text RETURNING *`
         } else {
             return {
                 sucess: false,
@@ -1955,6 +1955,61 @@ async function deleteCatererById(id, deleteBy) {
         }
     } catch (err) {
         console.error("AN ERROR OCCURRED WHILE TRYING TO DELETE A caterer", err)
+        return {
+            success: false,
+            data: null,
+            error: err
+        }
+    }
+}
+
+/**
+* Deletes an artist from the DB using an id.
+*
+* @param {any} id - the id, dictates what should be deleted
+* @param {string} deleteBy - the origin of the id, should be one of the following:
+*
+* - 'id' - deletes a SINGLE artist based on the id
+* - 'email' - deletes a SINGLE artist based on the email
+* - anything else will result in a fail
+*
+* @returns {Object} A JSON containing the following:
+*
+* - boolean: sucess - If the deletion was successful or not
+* - any[]: data - The data returned from the deletion operation, can be null
+* - any: error - The error that occoured if something failed, only written if success = false
+*/
+async function deleteArtistById(id, deleteBy) {
+    try {
+        console.warn("TRYING TO DELETE AN artist OF", id)
+        let query
+
+        if (deleteBy.matchAll('id')) {
+            query = `DELETE FROM artist WHERE id = $1::int RETURNING *`
+        } else if (deleteBy.matchAll('email')) {
+            query = `DELETE FROM artist WHERE emailfk = $1::text RETURNING *`
+        } else {
+            return {
+                sucess: false,
+                error: new Error("INVALID deleteBy: " + deleteBy)
+            }
+        }
+
+        const result = await pool.query(query, [id])
+        if (result.rows.length === 0) { // if nothing was found to be deleted
+            return {
+                success: true,
+                data: null
+            }
+        }
+        else {
+            return {
+                sucess: true,
+                data: result.rows
+            }
+        }
+    } catch (err) {
+        console.error("AN ERROR OCCURRED WHILE TRYING TO DELETE AN artist", err)
         return {
             success: false,
             data: null,
