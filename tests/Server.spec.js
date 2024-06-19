@@ -2,6 +2,7 @@ const request = require("supertest")
 const app = require("../Js/Server")
 const jwt = require("jsonwebtoken")
 const database = require("../Js/Database")
+const { text } = require("express")
 SECRET = "BruhnsmanIsTheBest"
 
 afterAll(done =>{
