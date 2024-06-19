@@ -1801,7 +1801,12 @@ async function deleteEventById(id, deleteBy) {
 /**
 * Deletes an app_user from the DB using an id.
 *
-* @param {number} id - the id of the app_user, dictates what should be deleted
+* @param {any} id - the id, dictates what should be deleted
+* @param {string} deleteBy - the origin of the id, should be one of the following:
+*
+* - 'id' - deletes a SINGLE app_user based on the id
+* - 'email' - deletes a SINGLE app_user based on the email
+* - anything else will result in a fail
 *
 * @returns {Object} A JSON containing the following:
 *
@@ -1812,7 +1817,18 @@ async function deleteEventById(id, deleteBy) {
 async function deleteAppUserById(id) {
     try {
         console.warn("TRYING TO DELETE AN app_user OF", id)
-        let query = `DELETE FROM app_user WHERE id = $1::int RETURNING *`
+        let query
+
+        if (deleteBy.matchAll('id')) {
+            query = `DELETE FROM endnutzer WHERE id = $1::int RETURNING *`
+        } else if (deleteBy.matchAll('email')) {
+            query = `DELETE FROM endnutzer WHERE emailfk = $1::text RETURNING *`
+        } else {
+            return {
+                sucess: false,
+                error: new Error("INVALID deleteBy: " + deleteBy)
+            }
+        }
 
         const result = await pool.query(query, [id])
         if (result.rows.length === 0) { // if nothing was found to be deleted
@@ -1840,7 +1856,12 @@ async function deleteAppUserById(id) {
 /**
 * Deletes an endnutzer from the DB using an id.
 *
-* @param {number} id - the id of the endnutzer, dictates what should be deleted
+* @param {any} id - the id, dictates what should be deleted
+* @param {string} deleteBy - the origin of the id, should be one of the following:
+*
+* - 'id' - deletes a SINGLE endnutzer based on the id
+* - 'email' - deletes a SINGLE endnutzer based on the email
+* - anything else will result in a fail
 *
 * @returns {Object} A JSON containing the following:
 *
@@ -1851,7 +1872,18 @@ async function deleteAppUserById(id) {
 async function deleteEndnutzerById(id) {
     try {
         console.warn("TRYING TO DELETE AN endnutzer OF", id)
-        let query = `DELETE FROM endnutzer WHERE id = $1::int RETURNING *`
+        let query
+
+        if (deleteBy.matchAll('id')) {
+            query = `DELETE FROM endnutzer WHERE id = $1::int RETURNING *`
+        } else if (deleteBy.matchAll('email')) {
+            query = `DELETE FROM endnutzer WHERE emailfk = $1::text RETURNING *`
+        } else {
+            return {
+                sucess: false,
+                error: new Error("INVALID deleteBy: " + deleteBy)
+            }
+        }
 
         const result = await pool.query(query, [id])
         if (result.rows.length === 0) { // if nothing was found to be deleted
@@ -1879,12 +1911,12 @@ async function deleteEndnutzerById(id) {
 /**
 * Deletes a caterer from the DB using an id.
 *
-* @param {number} id - the id, dictates what should be deleted
+* @param {any} id - the id, dictates what should be deleted
 * @param {string} deleteBy - the origin of the id, should be one of the following:
 *
 * - 'id' - deletes a SINGLE caterer based on the id
 * - 'email' - deletes a SINGLE caterer based on the email
-* - anything else will results in a fail
+* - anything else will result in a fail
 *
 * @returns {Object} A JSON containing the following:
 *
