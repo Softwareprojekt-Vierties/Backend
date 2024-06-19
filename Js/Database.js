@@ -1,7 +1,6 @@
 const { response } = require('express');
 const {Pool} = require('pg');
 const cookieJwtAuth = require('./CookieJwtAuth')
-const bcrypt = require('bcrypt');
 
 
 const pool = new Pool({
@@ -1114,7 +1113,7 @@ async function searchEndUser(req,res){
     const user = 45
     let query = "SELECT e.*,ap.region,fu.userid AS favorit FROM endnutzer e JOIN app_user ap ON e.emailfk = ap.email"
     let additionalFilter = ""
-    let istfavorit = " LEFT OUTER JOIN favorit_user fu ON a.id = fu.artistid"
+    let istfavorit = " LEFT OUTER JOIN favorit_user fu ON e.id = fu.enduserid"
     let param = []
     let paramIndex = 0;
     let sqlStirng=""
@@ -1142,7 +1141,7 @@ async function searchEndUser(req,res){
                 paramIndex++
                 additionalFilter += "e.alter >= $"+paramIndex+"::int"
                 param.push(req.body[key])
-                brea
+                break
             case 'istfavorit':
                 paramIndex++
                 additionalFilter+="fu.userid = $"+paramIndex+"::int"
@@ -1159,11 +1158,12 @@ async function searchEndUser(req,res){
         }
         if (doAND) additionalFilter += " AND "
     }
-
+    
     additionalFilter = additionalFilter.substring(0,additionalFilter.length-5) // remove the last ' AND '
     paramIndex == 0 ? sqlstring = query + istfavorit : sqlstring = query + istfavorit + " WHERE " + additionalFilter
-
+    
     try {
+        console.log(sqlstring)
         const result = await pool.query(sqlstring,param)
         for (let i=0;i<result.rowCount;i++)
         {
