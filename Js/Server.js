@@ -148,6 +148,7 @@ app.get('/playlist/:name', (req,res)=>{
     }
 })
 
+
 app.post('/testloc',async (req,res)=>{
     const {location1,location2,maxdis} = req.body
     try
@@ -162,15 +163,39 @@ app.post('/testloc',async (req,res)=>{
 
 })
 
-app.post('/event',(req,res)=>{
+app.post('/searchEvent',database.searchEvent);  // searchs events with filter param
+
+
+app.post('/createEvent',(req,res)=>{
     const {eventname,datum,uhrzeit,eventgroesse,preis,altersfreigabe,privat,kurzbeschreibung,beschreibung,bild,ownerid,locationid} = req.body
     database.createEvent(eventname,datum,uhrzeit,eventgroesse,preis,altersfreigabe,privat,kurzbeschreibung,beschreibung,bild,ownerid,locationid)
     res.status(200).send("event")
-})    // searchs events with filter param
+})    // creates a new events
 
-app.listen(port, (error) => {           // starts the server on the port
+app.post('/createCaterer',(req,res)=>{
+    const {benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, preis, kategorie, erfahrung} = req.body
+    database.createCaterer(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, preis, kategorie, erfahrung)
+    res.status(200).send("Caterer")
+})    // creates a new Caterer
+
+app.post('/createArtist',(req,res)=>{
+    const {benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, preis, kategorie, erfahrung} = req.body
+    database.createArtist(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, preis, kategorie, erfahrung)
+    res.status(200).send("Artist")
+})    // creates a new Artist
+
+app.post('/createLocation',(req,res)=>{
+    const {addresse, name, beschreibung, ownerID, privat, kurzbeschreibung, preis, kapazitaet, openair, flaeche} = req.body
+    database.createLocation(addresse, name, beschreibung, ownerID, privat, kurzbeschreibung, preis, kapazitaet, openair, flaeche)
+    res.status(200).send("Location")
+})    // creates a new Location
+
+const server = app.listen(port, (error) => {           // starts the server on the port
     if (error) {
         console.log("Error running the server");
     }
     console.log("Server is running on port", port);
 });
+
+// export things for test
+module.exports={app,server};

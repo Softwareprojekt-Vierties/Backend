@@ -1,6 +1,6 @@
-require('dotenv').config();
 const jwt = require('jsonwebtoken');
 const Database = require('./Database.js');
+SECRET = "BruhnsmanIsTheBest"
 
 
 module.exports = async(req, res) => {
@@ -10,7 +10,7 @@ module.exports = async(req, res) => {
         const user  = await Database.getUserByEmail(email,pass);
         if(user!=null)
         {
-            const token = jwt.sign(user,process.env.SECRET,{expiresIn: '3h'});
+            const token = jwt.sign(user,SECRET,{expiresIn: '3h'});
             return res.status(200).send(token);
         }
         else
