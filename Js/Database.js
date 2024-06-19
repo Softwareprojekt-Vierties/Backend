@@ -1112,7 +1112,7 @@ async function searchEndUser(req,res){
     console.log("REQUEST",req.body)
     // const user = cookieJwtAuth.getUser(req.headers["auth"])
     const user = 45
-    let query = "SELECT e.*,ap.region,fu.userid AS favorit FROM endnutzer e JOIN app_user ap ON e.emailfk = ap.email"
+    let query = "SELECT e.*,ap.profilname as name,ap.region,fu.userid AS favorit FROM endnutzer e JOIN app_user ap ON e.emailfk = ap.email"
     let additionalFilter = ""
     let istfavorit = " LEFT OUTER JOIN favorit_user fu ON e.id = fu.enduserid"
     let param = []
