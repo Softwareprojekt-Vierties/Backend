@@ -1,6 +1,7 @@
 const { response } = require('express');
 const {Pool} = require('pg');
 const cookieJwtAuth = require('./CookieJwtAuth')
+const bcrypt = require('bcrypt');
 
 
 const pool = new Pool({
