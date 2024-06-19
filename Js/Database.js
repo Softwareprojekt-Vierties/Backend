@@ -1430,7 +1430,7 @@ async function deleteReviewById(id, deleteBy) {
 * - any[]: data - The data returned from the deletion operation, can be null
 * - any: error - The error that occoured if something failed, only written if success = false
 */
-async function deletePlaylistInhalt(id, deleteBy) {
+async function deletePlaylistInhaltById(id, deleteBy) {
     try {
         console.warn("TRYING TO DELETE A playlistinhalt OF", id, deleteBy)
         let query
@@ -1445,6 +1445,45 @@ async function deletePlaylistInhalt(id, deleteBy) {
                 error: new Error("INVALID deleteBy: " + deleteBy)
             }
         }
+
+        const result = await pool.query(query, [id])
+        if (result.rows.length === 0) { // if nothing was found to be deleted
+            return {
+                success: true,
+                data: null
+            }
+        }
+        else {
+            return {
+                sucess: true,
+                data: result.rows
+            }
+        }
+    } catch (err) {
+        console.error("AN ERROR OCCURRED WHILE TRYING TO DELETE A playlistinhalt", err)
+        return {
+            success: false,
+            data: null,
+            error: err
+        }
+    }
+}
+
+/**
+* Deletes a playlist from the DB using an id.
+*
+* @param {number} id - the id from the artist in the artist table, dictates what should be deleted
+*
+* @returns {Object} A JSON containing the following:
+*
+* - boolean: sucess - If the deletion was successful or not
+* - any[]: data - The data returned from the deletion operation, can be null
+* - any: error - The error that occoured if something failed, only written if success = false
+*/
+async function deletePlaylistById(id) {
+    try {
+        console.warn("TRYING TO DELETE A playlist OF", id)
+        let query = `DELETE FROM playlist WHERE artistid = $1::int RETURNING *`
 
         const result = await pool.query(query, [id])
         if (result.rows.length === 0) { // if nothing was found to be deleted
