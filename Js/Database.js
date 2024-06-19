@@ -1,5 +1,7 @@
 const { response } = require('express');
 const {Pool} = require('pg');
+const cookieJwtAuth = require('./CookieJwtAuth')
+const bcrypt = require('bcrypt');
 
 
 const pool = new Pool({
@@ -15,425 +17,2006 @@ const pool = new Pool({
     allowExitOnIdle: false
 });
 
-// ------------------------- CREATE - QUERIES ------------------------- //
+async function comparePassword(email, password) {
+    try {
+        const SH = await pool.query(
+            "SELECT p.salt, p.hash FROM app_user a JOIN password p ON a.password = p.id WHERE email = $1::text",
+            [email]
+        )
 
+        const isMatch = await bcrypt.compare(password, SH.rows[0]['hash'])
+
+        if (isMatch) {
+            console.log('User authenticated!')
+            const user = await pool.query(
+                "SELECT * FROM app_user WHERE email = $1::text",
+                [email]
+            )
+            return user.rows[0]
+        }
+        console.error('Authentication failed.')
+        return null
+    } catch (err) {
+        console.error(err)
+        return null
+    }
+}
+
+// ------------------------- CREATE - QUERIES ------------------------- //
 // private
 async function createAppUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region){
-    await pool.query(
-        "INSERT INTO app_user (benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region) " + 
-        "VALUES ('" + benutzername + "','" + profilname + "','" + email + "','" + password + "','" + profilbild + "','" + kurzbeschreibung + "','" + beschreibung + "','" + region + "')", (err,res) =>{
-            if(err)
-            {
-                console.log(err);
-                return false;
-            } 
-            else 
-            {
-                console.log("app_user created");
-                return true;
-            }
-    });
+    let passwordID = undefined
+    try {
+        // first save the password
+        const salt = await bcrypt.genSalt(15)
+        passwordID = await pool.query(
+            `INSERT INTO password (salt, hash) VALUES ($1, $2) RETURNING id`,
+            [salt, await bcrypt.hash(password, salt)]
+        ).then(res => {return res.rows[0]})
+
+        console.log("PasswordID",passwordID)
+
+        if (passwordID === undefined) throw new Error("Password konnte nicht auf der Datenbank gespeichert werden!")
+        
+        // then create the app_user
+        const result = await pool.query(
+            "INSERT INTO app_user (benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region) VALUES ($1::text, $2::text, $3::text, $4::integer, $5, $6::text, $7::text, $8::text)",
+            [benutzername, profilname, email, passwordID['id'], profilbild, kurzbeschreibung, beschreibung, region])
+        console.log("app_user created")
+        return true;
+    } catch (err) {
+        // delete the password if creation of app_user failed
+        if (passwordID != undefined) {
+            await pool.query(
+                "DELETE FROM password WHERE id = $1::integer",
+                [passwordID['id']]
+            ).catch(err => {
+                console.error("Failed to remove password:",err)
+            })
+        }
+        console.error(err)
+        return false
+    }
 }
 
 // public
 async function createEndUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, alter, arten, lied, gericht, geschlecht){
-   
     // create app_user first
-    await createAppUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region).then(result =>{
-        // create endnutzer afterwards
-        while (result == null) {
-            // wait
-        }
-        pool.query(
-            "INSERT INTO endnutzer (emailfk, alter, arten, lied, gericht, geschlecht) " + 
-            "VALUES ('" + email + "','" + alter + "','" + arten + "','" + lied + "','" + gericht + "','" + geschlecht + "')", (err,res) =>{
-            if(err)
-            {
-                console.log(err);
-                return false;
-            } 
-            else 
-            {
-                console.log("enduser created");
-                return true;
-            }
-        });
-    })
+    const app_user = await createAppUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region)
+
+    if (app_user == false) return false
+
+    // create enduser afterwards
+    try {
+        const res = await pool.query(
+            "INSERT INTO endnutzer (emailfk, alter, arten, lied, gericht, geschlecht) VALUES ($1::text, $2::int, $3::text, $4::text, $5::text, $6::text)",
+            [email, alter, arten, lied, gericht, geschlecht]
+        )
+        console.log("enduser created")
+        return true
+    } catch (err) {
+        console.error(err)
+        return false
+    }
     
 }
 
 // public
 async function createArtist(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, preis, kategorie, erfahrung){
     // create app_user first
-    await createAppUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region).then(result =>{
-        // create artist afterwards
-        while (result == null) {
-            // wait
-        }
-        pool.query(
+    const app_user = await createAppUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region)
+    // create artist afterwards
+
+    if (app_user == false) return {
+        success: false,
+        error: "app_user CREATION FAILED"
+    }
+
+    try {
+        const res = await pool.query(
             "INSERT INTO artist (emailfk, preis, kategorie, erfahrung) " + 
-            "VALUES ('" + email + "','" + preis + "','" + kategorie + "','" + erfahrung + "')", (err,res) =>{
-                if(err)
-                    {
-                        console.log(err);
-                        return false;
-                    } 
-                    else 
-                    {
-                        console.log("artist created");
-                        return true;
-                    }
-        });
-    })
+            "VALUES ($1::text, $2::text, $3::text, $4::text) RETURNING id",
+            [email,preis,kategorie,erfahrung]
+        )
+        console.log("artist created")
+        return {
+            success: true,
+            id: res.rows[0]['id']
+        }
+    } catch (err) {
+        console.error(err)
+        return {
+            success: false,
+            error: err
+        }
+    }
 }
 
 // public
 async function createCaterer(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, preis, kategorie, erfahrung){
     // create app_user first
-    await createAppUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region).then(result => {
-        // create caterer afterwards
-        while (result == null) {
-            // wait
-        }
-        pool.query(
+    const app_user = await createAppUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region)
+    
+    if (app_user == false) return {
+        success: false,
+        error: "app_user CREATION FAILED"
+    }
+
+    // create caterer afterwards
+    try {
+        const res = await pool.query(
             "INSERT INTO caterer (emailfk, preis, kategorie, erfahrung) " + 
-            "VALUES ('" + email + "','" + preis + "','" + kategorie + "','" + erfahrung + "')", (err,res) =>{
-                if(err)
-                    {
-                        console.log(err);
-                        return false;
-                    } 
-                    else 
-                    {
-                        console.log("caterer created");
-                        return true;
-                    }
-        });
-    })
+            "VALUES ($1::text, $2::text, $3::text, $4::text) RETURNING id",
+            [email,preis,kategorie,erfahrung]
+        )
+        console.log("CATERER ERSTELLT", res.rows[0]['id'])
+        return {
+            success: true, 
+            id: res.rows[0]['id']
+        }
+    } catch (err) {
+        console.error(err)
+        return {
+            success: false,
+            error: err
+        }
+    }
 }
 
 // public
-async function createLocation(addresse, name, beschreibung, ownerID, privat, kurzbeschreibung, preis, kapazitaet, openair, flaeche){
-    await pool.query(
-        "INSERT INTO location (addresse, name, beschreibung, ownerid, privat, kurzbeschreibung, preis, kapazitaet, openair, flaeche) " + 
-        "VALUES ('" + addresse + "','" + name + "','" + beschreibung + "','" + ownerID + "','" + privat + "','" + kurzbeschreibung + "','" + preis + "','" + kapazitaet + "','" + openair + "','" + flaeche + "')", (err,res) =>{
-            if(err)
-                {
-                    console.log(err);
-                    return false;
-                } 
-                else 
-                {
-                    console.log("location created");
-                    return true;
-                }
-    });
+async function createLocation(adresse, name, beschreibung, ownerID, privat, kurzbeschreibung, preis, kapazitaet, openair, flaeche, bild){
+    try {   
+        const res = await pool.query(
+            "INSERT INTO location (adresse, name, beschreibung, ownerid, privat, kurzbeschreibung, preis, kapazitaet, openair, flaeche, bild) " + 
+            "VALUES ($1::text, $2::text, $3::text, $4::int, $5::bool, $6::text, $7::text, $8::int, $9::bool, $10::text, $11)",
+            [adresse, name, beschreibung, ownerID, privat, kurzbeschreibung, preis, kapazitaet, openair, flaeche, bild]
+        )
+        console.log("location Created")
+        return true
+    } catch(err) {
+        console.error(err)
+        return false
+    }
 }
 
 // public
 async function createReviewEvent(inhalt, sterne, ownerid, eventid){
-    await pool.query(
-        "INSERT INTO review (inhalt, sterne, ownerid, eventid, userid, locationid) " + 
-        "VALUES ('" + inhalt + "','" + sterne + "','" + ownerid + "','" + eventid + "','" + null + "','"  + null + "')", (err,res) =>{
-            if(err)
-                {
-                    console.log(err);
-                    return false;
-                } 
-                else 
-                {
-                    console.log("review for event created");
-                    return true;
-                }
-    });
+    try {
+        const res = await pool.query(
+            "INSERT INTO review (inhalt, sterne, ownerid, eventid, userid, locationid) " + 
+            "VALUES ($1::text,$2::int,$3::int,$4::int,$5,$6)", 
+            [inhalt,sterne,ownerid,eventid,null,null]
+        )
+        console.log("Review for Event Created")
+        return ture
+    } catch(err) {
+        console.error(err)
+        return false
+    }
 }
 
 // public
 async function createReviewUser(inhalt, sterne, ownerid, userid){
-    await pool.query(
-        "INSERT INTO review (inhalt, sterne, ownerid, eventid, userid, locationid) " + 
-        "VALUES ('" + inhalt + "','" + sterne + "','" + ownerid + "','" + null + "','" + userid + "','" + null + "')", (err,res) =>{
-            if(err)
-                {
-                    console.log(err);
-                    return false;
-                } 
-                else 
-                {
-                    console.log("review for user created");
-                    return true;
-                }
-    });
+    try {
+        const res = await pool.query(
+            "INSERT INTO review (inhalt, sterne, ownerid, eventid, userid, locationid) " + 
+            "VALUES ($1::text,$2::int,$3::int,$4,$5::int,$6)",
+            [inhalt,sterne,ownerid,null,userid,null]
+        )
+        console.log("Review for User Created")
+        return ture
+    } catch(err) {
+        console.error(err)
+        return false
+    }
 }
 
 // public
 async function createReviewLocation(inhalt, sterne, ownerid, locationid){
-    await pool.query(
-        "INSERT INTO review (inhalt, sterne, ownerid, eventid, userid, locationid) " + 
-        "VALUES ('" + inhalt + "','" + sterne + "','" + ownerid + "','" + null + "','" + null + "','" + locationid + "')", (err,res) =>{
-            if(err)
-                {
-                    console.log(err);
-                    return false;
-                } 
-                else 
-                {
-                    console.log("review for location created");
-                    return true;
-                }
-    });
+    try {
+        const res = await pool.query(
+            "INSERT INTO review (inhalt, sterne, ownerid, eventid, userid, locationid) " + 
+            "VALUES ($1::text,$2::int,$3::int,$4,$5,$6::int)",
+            [inhalt,sterne,ownerid,null,null,locationid]
+        )
+        console.log("Review for Location Created")
+        return ture
+    } catch(err) {
+        console.error(err)
+        return false
+    }
 }
 
 // public
 async function createEvent(name, datum, uhrzeit, eventgroesse, preis, altersfreigabe, privat, kurzbeschreibung, beschreibung, bild, ownerid, locationid){
-    await pool.query(
-        "INSERT INTO event (name, datum, uhrzeit, eventgroesse, freietickets, preis, altersfreigabe, privat, kurzbeschreibung, beschreibung, bild, ownerid, locationid) " + 
-        "VALUES ('" + name + "','" + datum + "','" + uhrzeit + "','" + eventgroesse + "','" + eventgroesse + "','" + preis + "','" + altersfreigabe +
-        "','" + privat + "','" + kurzbeschreibung + "','" + beschreibung + "','" + bild + "','" + ownerid + "','" + locationid + "')", (err,res) =>{
-            if(err)
-                {
-                    console.log(err);
-                    return false;
-                } 
-                else 
-                {
-                    console.log("event created");
-                    return true;
-                }
-    });
+    try {
+        const res = await pool.query(
+            "INSERT INTO event (name, datum, uhrzeit, eventgroesse, freietickets, preis, altersfreigabe, privat, kurzbeschreibung, beschreibung, bild, ownerid, locationid) " + 
+            "VALUES ($1::text, $2, $3::int, $4::int, $5::int, $6::int, $7::int, $8::bool, $9::text, $10::text, $11, $12::int, $13::int)",
+            [name,datum,uhrzeit,eventgroesse,eventgroesse,preis,altersfreigabe,privat,kurzbeschreibung,beschreibung,bild,ownerid,locationid]
+        )
+        console.log("Event Created")
+        return ture
+    } catch(err) {
+        console.error(err)
+        return false
+    }
 }
 
 // public 
 async function createServiceArtist(eventid, artistid){
-    await pool.query(
-        "INSERT INTO serviceartist (eventid, artistid) " + 
-        "VALUES ('" + eventid + "','" + artistid + "')", (err,res) =>{
-            if(err)
-                {
-                    console.log(err);
-                    return false;
-                } 
-                else 
-                {
-                    console.log("serviceartist created");
-                    return true;
-                }
-    });
+    try {
+        const res = await pool.query(
+            "INSERT INTO serviceartist (eventid, artistid) VALUES ($1::int,$2::int)",
+            [eventid,artistid]
+        )
+        console.log("Service Artist Created")
+        return ture
+    } catch(err) {
+        console.error(err)
+        return false
+    }
 }
 
 // public
-async function createLied(id,ownerid,name,laenge,erscheinung){
-    const serchString = "INSERT INTO lied (id,ownerid,name,laenge,erscheinung) VALUES ('"+id+"','"+ownerid+"','"+name+"','"+laenge+"','"+erscheinung+"')"
-    await pool.query(serchString, (err,res=>{
-        if(err)
-            {
-                console.log(err);
-                return false;
-            } 
-            else 
-            {
-                console.log("lied created");
-                return true;
-            }
-    }))
+async function createLied(ownerid,name,laenge,erscheinung){
+    try {
+        const res = await pool.query(
+            "INSERT INTO lied (ownerid, name, laenge, erscheinung) VALUES ($1::int, $2::text, $3::numeric, $4::date)",
+            [ownerid,name,laenge,erscheinung]
+        )
+        console.log("Lied created")
+        return true
+    } catch(err) {
+        console.error(err)
+        return false
+    }
 }
 
 // public
-async function createGericht(id,ownerid=null,name,beschreibung,bild=null){
-    const serchString = "INSERT INTO gericht (id,ownerid,name,beschreibung,bild) VALUES ('"+id+"','"+ownerid+"','"+name+"','"+beschreibung+"','"+bild+"')"
-    await pool.query(serchString, (err,res=>{
-        if(err)
-            {
-                console.log(err);
-                return false;
-            } 
-            else 
-            {
-                console.log("gericht created");
-                return true;
-            }
-    }))
+async function createGericht(ownerid,name,beschreibung,bild=null){
+    try {
+        const result = await pool.query(
+            "INSERT INTO gericht (ownerid,name,beschreibung,bild) VALUES ($1, $2::text, $3::text, $4)",
+            [ownerid, name, beschreibung, bild]
+        )
+        console.log("Gericht created")
+        return true
+    } catch (err) {
+        console.error(err)
+        return false
+    }
 }
 
 // public
-async function createPlaylist(id,name,artistid){
-    const serchString = "INSERT INTO playlist (id,name,artistid) VALUES ('"+id+"','"+name+"','"+artistid+"')"
-    await pool.query(serchString, (err,res=>{
-        if(err)
-            {
-                console.log(err);
-                return false;
-            } 
-            else 
-            {
-                console.log("playlist created");
-                return true;
-            }
-    }))
+async function createPlaylist(name,artistid){
+    try {
+        const result = await pool.query(
+            "INSERT INTO playlist (name, artistid) VALUES ($1::text, $2::int)",
+            [name, artistid]
+        )
+        console.log("Playlist created")
+        return true
+    } catch (err) {
+        console.error(err)
+        return false
+    }
 }
 
 // public
-async function createPlaylistInhalt(playlistid,liedid,id){
-    const serchString = "INSERT INTO playlistinhalt (id,playlistid,liedid) VALUES ('"+id+"','"+playlistid+"','"+liedid+"')"
-    await pool.query(serchString, (err,res=>{
-        if(err)
-            {
-                console.log(err);
-                return false;
-            } 
-            else 
-            {
-                console.log("playlistinhalt created");
-                return true;
-            }
-    }))
+async function createPlaylistInhalt(playlistid,liedid){
+    try {
+        const result = await pool.query(
+            "INSERT INTO playlistinhalt (playlistid,liedid) VALUES ($1::int, $2::int)",
+            [playlistid, liedid]
+        )
+        console.log("PlaylistInhalt created")
+        return true
+    } catch (err) {
+        console.error(err)
+        return false
+    }
 }
 
 // public
-async function createTicket(userid,eventid,id){
-    const serchString = "INSERT INTO tickets (id,userid,eventid) VALUES ('"+id+"','"+userid+"','"+eventid+"')"
-    await pool.query(serchString, (err,res=>{
-        if(err)
-            {
-                console.log(err);
-                return false;
-            } 
-            else 
-            {
-                console.log("ticket created");
-                return true;
-            }
-    }))
+async function createTicket(userid,eventid){
+    try {
+        const result = await pool.query(
+            "INSERT INTO tickets (userid,eventid) VALUES ($1::int, $2::int)",
+            [userid, eventid]
+        )
+        console.log("Ticked created")
+        return true
+    } catch (err) {
+        console.error(err)
+        return false
+    }
+}
+
+// ------------------------- UPDATE - QUERIES ------------------------- //
+async function updateApp_user(profilname, profilbild, kurzbeschreibung, beschreibung, region, email) {
+    try {
+        const result = await pool.query(
+            `UPDATE app_user SET
+            profilname = $1::text,
+            profilbild = $2::text,
+            kurzbeschreibung = $3::text,
+            beschreibung = $4::text,
+            region = $5::text
+            WHERE email = $6::text`,
+            [profilname, profilbild, kurzbeschreibung, beschreibung, region, email]
+        )
+        console.log(`app_user UPDATED`)
+        return true
+    } catch (err) {
+        console.error(`COULDN'T UPDATE app_user`,err)
+        return false
+    }
+}
+
+async function updateEndnutzer(profilname, profilbild, kurzbeschreibung, beschreibung, region, email, alter, arten, lied, gericht, geschlecht) {
+    if (!updateApp_user(profilname, profilbild, kurzbeschreibung, beschreibung, region, email)) { // if failed
+        console.error(`CANNOT UPDATE endnutzer BECAUSE UPDATE app_user FAILED`)
+        return false
+    }
+
+    try {
+        const result = await pool.query(
+            `UPDATE endnutzer SET
+            alter = $1::int,
+            arten = $2::text,
+            lied = $3::text,
+            gericht = $4::text,
+            geschlecht = $5::text
+            WHERE emailfk = $6::text`,
+            [alter, arten, lied, gericht, geschlecht, email]
+        )
+        console.log(`endnutzer UPDATED`)
+        return true
+    } catch (err) {
+        console.error(`COULDN'T UPDATE endnutzer`,err)
+        return false
+    }
+}
+
+async function updateArtist(profilname, profilbild, kurzbeschreibung, beschreibung, region, email, preis, kategorie, erfahrung) {
+    if (false == await updateApp_user(profilname, profilbild, kurzbeschreibung, beschreibung, region, email)) { // if failed
+        console.error(`CANNOT UPDATE artist BECAUSE UPDATE app_user FAILED`)
+        return false
+    }
+
+    try {
+        const result = await pool.query(
+            `UPDATE artist SET
+            preis = $1::text,
+            kategorie = $2::text,
+            erfahrung = $3::text
+            WHERE emailfk = $4::text`,
+            [preis, kategorie, erfahrung, email]
+        )
+        console.log(`artist UPDATED`)
+        return {
+            success: true
+        }
+    } catch (err) {
+        console.error(`COULDN'T UPDATE artist`,err)
+        return {
+            success: false,
+            error: err
+        }
+    }
+}
+
+async function updateCaterer(profilname, profilbild, kurzbeschreibung, beschreibung, region, email, preis, kategorie, erfahrung) {
+    if (false == await updateApp_user(profilname, profilbild, kurzbeschreibung, beschreibung, region, email)) { // if failed
+        console.error(`CANNOT UPDATE caterer BECAUSE UPDATE app_user FAILED`)
+        return {
+            success: false,
+            error: "UPDATE app_user FAILED"
+        }
+    }
+
+    try {
+        const result = await pool.query(
+            `UPDATE caterer SET
+            preis = $1::text,
+            kategorie = $2::text,
+            erfahrung = $3::text
+            WHERE emailfk = $4::text`,
+            [preis, kategorie, erfahrung, email]
+        )
+        console.log(`caterer UPDATED`)
+        return {
+            success: true
+        }
+    } catch (err) {
+        console.error(`COULDN'T UPDATE caterer`,err)
+        return {
+            success: false,
+            error: err
+        }
+    }
+}
+
+async function updateEvent() {
+    console.error("UPDATE EVENT NOT YET IMPLEMENTED")
+    return false
+}
+
+async function updateGericht(id, name, beschreibung, bild) {
+    try {
+        const result = await pool.query(
+            `UPDATE gericht SET
+            name = $1::text,
+            beschreibung = $2::text,
+            bild = $3::text
+            WHERE id = $4::int`,
+            [name, beschreibung, bild, id]
+        )
+        console.error("gericht UPDATED")
+        return true
+    } catch (err) {
+        console.error("FAILED TO UPDATE gericht", err)
+        return false
+    }
+}
+
+async function updateLied(id, name, laenge, erscheinung) {
+    try {
+        const result = await pool.query(
+            `UPDATE lied SET
+            name = $1::text,
+            laenge = $2::numeric,
+            erscheinung = $3::date
+            WHERE id = $4::int`,
+            [name, laenge, erscheinung, id]
+        )
+        console.error("lied UPDATED")
+        return true
+    } catch (err) {
+        console.error("FAILED TO UPDATE lied", err)
+        return false
+    }
+}
+
+async function updateLocation(locationid, adresse, name, beschreibung, privat, kurzbeschreibung, preis, openair, flaeche, bild, kapazitaet) {
+    try {
+        const result = await pool.query(
+            `UPDATE location SET
+            adresse = $1::text,
+            name = $2::text,
+            beschreibung = $3::text,
+            privat = $4::boolean,
+            kurzbeschreibung = $5::text,
+            preis = $6::text,
+            openair = $7::boolean,
+            flaeche = $8::text,
+            bild = $9::text,
+            kapazitaet = $10::int
+            WHERE id = $11::int`,
+            [adresse, name, beschreibung, privat, kurzbeschreibung, preis, openair, flaeche, bild, kapazitaet, locationid]
+        )
+        console.log(`location UPDATED`)
+        return true
+    } catch (err) {
+        console.error(`COULDN'T UPDATE location`,err)
+        return false
+    }
+}
+
+async function updatePassword(token, oldPassword, newPassword) {
+    try {
+        const cookie = cookieJwtAuth.getUser(token)
+
+        // create new hashed Password
+        const salt = await bcrypt.genSalt(15)
+        const newHash = await bcrypt.hash(newPassword, salt)
+
+        // compare given old password to the one stored on DB
+        const oldHash = await pool.query(
+            `SELECT hash FROM password WHERE id = $1::int`,
+            [cookie.rows[0]['password']]
+        )
+        const isMatch = await bcrypt.compare(oldPassword, oldHash.rows[0]['hash'])
+        // check
+        if (!isMatch) throw new Error("OLD PASSWORD DOES NOT MATCH WITH THE ONE SAVED ON THE DB")
+
+        // if check passed, update password
+        const result = await pool.query(
+            `UPDATE password SET
+            salt = $1::text,
+            hash = $2::text
+            WHERE id = $3::int`,
+            [salt, newHash, cookie.rows[0]['password']]
+        )
+        console.log(`password UPDATED`)
+        return true
+    } catch (err) {
+        console.error(`COULDN'T UPDATE password`,err)
+        return false
+    }
+}
+
+async function updatePlaylist() {
+    console.error("UPDATE PLAYLIST NOT YET IMPLEMENTED")
+    return false
 }
 
 // ------------------------- GET - QUERIES ------------------------- //
-
 async function getStuffbyName(req){
-    
-    const result = await pool.query("SELECT * FROM "+req.body["tabel"]+" WHERE UPPER(name) LIKE UPPER('%" + req.body["value"] + "%')")
-    return result;
+    try {
+        const result = await pool.query(
+            "SELECT * FROM $1::text WHERE UPPER(name) LIKE UPPER($2)",
+            [req.body["table"], req.body["value"]]
+        )
+        console.log(result)
+        return result
+    } catch (err) {
+        console.error(err)
+        return null
+    }
 }
 
-async function getCatererByName(name){
-    const result = await pool.query("SELECT c.*,a.benutzername, a.profilname,a.profilbild,a.kurzbeschreibung,a.beschreibung,a.region FROM caterer c JOIN app_user a ON c.emailfk = a.email WHERE UPPER(a.benutzername) LIKE UPPER('%"+name+"%')");
-    return result;
+async function getLocationById(req,res){
+    try {
+        const result = await pool.query(
+            "SELECT * FROM location WHERE id = $1::int",
+            [req.params["id"]]
+        )
+        console.log(req.params["id"])
+        return res.status(200).send(result)
+    } catch (err) {
+        console.error(err)
+        return res.status(400).send(null)
+    }
 }
 
-async function getArtistByName(name){
-    const result = await pool.query("SELECT ar.*, a.benutzername, a.profilname,a.profilbild,a.kurzbeschreibung,a.beschreibung,a.region FROM artist ar JOIN app_user a ON ar.emailfk = a.email WHERE UPPER(a.benutzername) LIKE UPPER('%"+name+"%')");
-    return result;
+async function getCatererById(req,res){
+    const id = req.params["id"]
+    try {
+        
+        const cater = await pool.query(
+            "SELECT c.*,a.benutzername, a.profilname,a.profilbild,a.kurzbeschreibung,a.beschreibung,a.region FROM caterer c JOIN app_user a ON c.emailfk = a.email WHERE c.id = $1",
+            [id]
+        )
+        console.log(cater)
+
+        const gericht = await pool.query(
+            `SELECT g.id, g.name, g.beschreibung, g.bild
+            FROM gericht g
+            WHERE g.ownerid = $1::int`,
+            [id]
+        )
+        console.log(gericht)
+
+        return res.status(200).send({
+            caterer: cater,
+            gerichte: gericht
+        })
+    } catch (err) {
+        console.error(err)
+        return res.status(400).send(err)
+    }
+}
+
+async function getArtistByID(req,res){
+    const id = req.params["id"]
+    try {
+        const art = await pool.query(
+            "SELECT ar.*, a.benutzername, a.profilname,a.profilbild,a.kurzbeschreibung,a.beschreibung,a.region FROM artist ar JOIN app_user a ON ar.emailfk = a.email WHERE ar.id = $1",
+            [id]
+        )
+        console.log(art)
+
+        const lied = await pool.query(
+            `SELECT l.id, l.name, l.laenge, l.erscheinung
+            FROM lied l
+            WHERE l.ownerid = $1::int`,
+            [id]
+        )
+        console.log(lied)
+
+        return res.status(200).send({
+            artist: art,
+            lieder: lied
+        })
+    } catch (err) {
+        console.error(err)
+        return res.status(400).send(err)
+    }
 }
 
 async function getUserById(id){
-    await pool.query('SELECT * FROM app_user WHERE id =' +id, (err,res) =>{
-        if(!err)
-        {
-            console.log(res.rows);
-            return res.rows;
-        }
-        else
-        {
-            console.log(err);
-            return null;
-        }
-    });
+    try {
+        const result = await pool.query(
+            "SELECT * FROM app_user WHERE id = $1::int",
+            [id]
+        )
+        console.log(result)
+        return result
+    } catch (err) {
+        console.error(err)
+        return null
+    }
 }
 
 async function getAllTicketsFromUser(userId){
-    const result = await pool.query("SELECT name FROM event  JOIN tickets ON tickets.eventid = event.id WHERE tickets.userid = '" +userId+"'");
-    return result
+    try {
+        const result = await pool.query(
+            "SELECT name FROM event  JOIN tickets ON tickets.eventid = event.id WHERE tickets.userid = $1::int",
+            [userId]
+        )
+        console.log(result)
+        return result
+    } catch (err) {
+        console.error(err)
+        return null
+    }
 }
 
-async function getUserByEmail(email,pass){
+async function getUserByEmailandUsername(email,benutzername){
     try {
-        const {rows} = await pool.query("SELECT * FROM app_user WHERE email = '" + email + "' AND password = '" + pass + "'");
-        return rows[0];
+        const result = await pool.query(
+            "SELECT * FROM app_user WHERE email = $1::text AND benutzername = $2::text",
+            [email, benutzername]
+        )
+        console.log(result)
+        return result
     } catch (err) {
-        console.log(err);
-        return null;
+        console.error(err)
+        return null
     }
-    
 }
+
+// async function getUserByEmail(email,pass){
+//     try {
+//         const result = await pool.query(
+//             "SELECT * FROM app_user WHERE email = $1::text AND password = $2::text",
+//             [email, pass]
+//         )
+//         console.log(result)
+//         return result
+//     } catch (err) {
+//         console.error(err)
+//         return null
+//     }
+// }
 
 async function getArtistByEvent(id){
-    const result = await pool.query("SELECT a.benutzername,a.profilbild FROM app_user a JOIN artist ar  ON ar.emailfk = a.email JOIN serviceartist sa ON sa.artistid = ar.id JOIN event e ON e.id = sa.eventid WHERE sa.eventid = '"+id+"'");
-    return result;
+    try {
+        const result = await pool.query(
+            "SELECT a.benutzername,a.profilbild FROM app_user a JOIN artist ar  ON ar.emailfk = a.email JOIN serviceartist sa ON sa.artistid = ar.id JOIN event e ON e.id = sa.eventid WHERE sa.eventid = $1::int",
+            [id]
+        )
+        console.log(result)
+        return result
+    } catch (err) {
+        console.error(err)
+        return null
+    }
 }
 
 async function getCatererByEvent(id){
-    const result = await pool.query("SELECT a.benutzername,a.profilbild FROM app_user a JOIN caterer cr  ON cr.emailfk = a.email JOIN servicecaterer sc ON sc.catererid = cr.id JOIN event e ON e.id = sc.eventid WHERE sc.eventid = '"+id+"'");
-    return result;
+    try {
+        const result = await pool.query(
+            "SELECT a.benutzername,a.profilbild FROM app_user a JOIN caterer cr  ON cr.emailfk = a.email JOIN servicecaterer sc ON sc.catererid = cr.id JOIN event e ON e.id = sc.eventid WHERE sc.eventid = $1::int",
+            [id]
+        )
+        console.log(result)
+        return result
+    } catch (err) {
+        console.error(err)
+        return null
+    }
 }
 
-async function getPlaylistContent(name){
-    const sqlstring = "SELECT p.name AS playlistname, l.name AS liedname FROM playlist p JOIN playlistinhalt pi ON p.id = pi.playlistid JOIN lied l ON pi.liedid = l.id WHERE UPPER(p.name) LIKE UPPER('%"+name+"%')"
-    const result = await pool.query(sqlstring);
-    console.log(result)
-    return result;
+async function getPlaylistContent(name) {
+    try {
+        const result = await pool.query(
+            "SELECT p.name AS playlistname, l.name AS liedname FROM playlist p JOIN playlistinhalt pi ON p.id = pi.playlistid JOIN lied l ON pi.liedid = l.id WHERE UPPER(p.name) LIKE UPPER($1)",
+            [`%${name}%`]
+        )
+        console.log(result)
+        return result
+    } catch (err) {
+        console.error(err)
+        return null
+    }
 }
 
 async function searchEvent(req,res){
-    let searchString = "SELECT e.* FROM event e";
-    let fileterOptions="";
-    let isOpenair =0;
-    for(let name in req.body)
-    {
-        if(!req.body[name]==""){
-            if(name.localeCompare("search")==0)
-            {
-                fileterOptions+= " UPPER(e.name) LIKE UPPER('%" + req.body[name] + "%')";
-            }
-            else if(name.localeCompare("openair")==0)
-            {
-                isOpenair = 1
-                fileterOptions+= " JOIN location l ON e.locationid = l.id WHERE l.openair = "+req.body[name] ;
-            }            
-            else
-            {
-                if(Array.isArray(req.body[name]))
-                {
-                    if(req.body[name][0]=="")
-                        {
-                            req.body[name][0]=0
-                            if(req.body[name][1]=="")
-                            {
-                                continue;
-                            }
-                        }
-                    if(req.body[name][1]=="")
-                    {
-                        req.body[name][1]=0;
-                    }
-                    fileterOptions+= " e."+name + " BETWEEN '"+ req.body[name][0] + "' AND '" + req.body[name][1]+"'";
-                }
-                else
-                {
-                    fileterOptions+= " e."+name + " = '" + req.body[name] + "'";
-                }
-                
-            }
-            fileterOptions += " AND"
+    console.log("REQUEST",req.body)
+    const user = cookieJwtAuth.getUser(req.headers["auth"])["id"]
+    let query = "SELECT e.*, l.name AS locationname,l.adresse as adresse, fe.userid as favorit FROM event e JOIN location l ON e.locationid = l.id"
+    let additionalFilter = ""
+    let param = []
+    let istfavorit = " LEFT OUTER JOIN favorit_event fe ON e.id = fe.eventid"
+    let ticktjoin = ""
+    let paramIndex = 0;
+    let doAND
+    for (let key in req.body) {
+        doAND = true
+        switch (key) {
+            case 'openair':
+                additionalFilter += "l.openair = true"
+                break
+            case 'search':
+                paramIndex++
+                additionalFilter += "UPPER(e.name) LIKE UPPER ($"+paramIndex+")"
+                param.push(`%${req.body[key]}%`)
+                break
+            case 'datum':
+                paramIndex++
+                additionalFilter += "e.datum = $"+paramIndex+"::date"
+                param.push(req.body[key])
+                break
+            case 'uhrzeit':
+                paramIndex++
+                additionalFilter += "e.uhrzeit BETWEEN $"+paramIndex+" AND "
+                param.push((req.body[key])[0] == '' ? "00:00" : (req.body[key])[0])
+                paramIndex++
+                additionalFilter += "$"+paramIndex+""
+                param.push((req.body[key])[1] == '' ? "23:59" : (req.body[key])[1])
+                break
+            case 'eventgroesse':
+                paramIndex++
+                additionalFilter += "e.eventgroesse >= $"+paramIndex+"::int"
+                param.push(req.body[key])
+                break
+            case 'altersfreigabe':
+                paramIndex++
+                additionalFilter += "e.altersfreigabe >= $"+paramIndex+"::int"
+                param.push(req.body[key])
+                break
+            case 'region':
+                paramIndex++
+                additionalFilter += "UPPER(l.adresse) LIKE UPPER ($"+paramIndex+")"
+                param.push(`%${req.body[key]}%`)
+                break
+            case 'distanz':
+                console.error("DISTANZ NOT YET IMPLEMENTED")
+                doAND = false
+                break
+            case 'istbesitzer':
+                paramIndex++
+                additionalFilter += "e.ownerid >= $"+paramIndex+"::int"
+                param.push(user)
+                break
+            case 'dauer':
+                paramIndex+=2
+                additionalFilter += "e.dauer BETWEEN $"+(paramIndex-1)+"::int AND $"+paramIndex+"::int"
+                param.push((req.body[key])[0] == '' ? "0" : (req.body[key])[0],
+                            (req.body[key])[1] == '' ? "1000" : (req.body[key])[1])
+                break
+            case 'hatticket':
+                paramIndex++
+                ticktjoin +=" JOIN tickets t ON e.id = t.eventid" 
+                additionalFilter += "t.userid = $"+paramIndex+"::int"
+                param.push(user)
+                break
+            case 'istfavorit':
+                paramIndex++
+                additionalFilter+="fe.userid = $"+paramIndex+"::int"
+                param.push(user) 
+                break
+            case 'preis':
+                paramIndex+=2
+                additionalFilter += "e.preis BETWEEN $"+(paramIndex-1)+"::text AND $"+paramIndex+"::text"
+                param.push((req.body[key])[0] == '' ? "0" : (req.body[key])[0],
+                        (req.body[key])[1] == '' ? "999999" : (req.body[key])[1])
+                break
+            default:
+                // do nothing
+                doAND = false
+                break
         }
-    }
-    fileterOptions = fileterOptions.substring(0,fileterOptions.length-3)
-    if(fileterOptions!=""&&isOpenair==0)
-    {
-        searchString+= " WHERE" + fileterOptions;
-    }
-    else if(isOpenair==1)
-    {
-        searchString+= fileterOptions;
+        if (doAND) additionalFilter += " AND "
     }
 
-    console.log(searchString)
-    let result = await pool.query(searchString)
-    const result2 = await pool.query("SELECT l.name,l.id FROM location l JOIN event e ON e.locationid = l.id")
-    result.rows  = result.rows.concat(result2.rows)
-    res.send(result)   
+    additionalFilter = additionalFilter.substring(0,additionalFilter.length-5) // remove the last ' AND '
+    paramIndex == 0 ? sqlstring = query + istfavorit : sqlstring = query + istfavorit + ticktjoin + " WHERE " + additionalFilter
+
+    try {
+        const result = await pool.query(sqlstring,param)
+        for (let i=0;i<result.rowCount;i++)
+        {
+            //checks if the Event is a users Favorit
+            if(Object.hasOwn(result.rows[i],"favorit")) {result.rows[i]["favorit"] == user ? result.rows[i]["favorit"] = true : result.rows[i]["favorit"] = false}
+        }
+        return res.send(result)
+    } catch (err) {
+        console.error(err)
+        return res.status(400).send("Error while searching for an Event")
+    }
+}
+
+async function searchLocaiton(req,res){
+    console.log("REQUEST",req.body)
+    const user = cookieJwtAuth.getUser(req.headers["auth"])["id"]
+    let query = "SELECT location.*, favorit_location.userid as favorit FROM location"
+    let additionalFilter = ""
+    let istfavorit = " LEFT OUTER JOIN favorit_location ON location.id = favorit_location.locationid"
+    let param = []
+    let sqlstring=""
+
+    let paramIndex = 0;
+    let doAND
+    
+    for (let key in req.body) {
+        doAND = true
+        switch (key) {
+            case 'openair':
+                paramIndex++
+                additionalFilter += "openair = $"+paramIndex+"::boolean"
+                param.push(req.body[key])
+                break
+            case 'search':
+                paramIndex++
+                additionalFilter += "UPPER(name) LIKE UPPER ($"+paramIndex+")"
+                param.push(`%${req.body[key]}%`)
+                break
+            case 'region':
+                paramIndex++
+                additionalFilter += "UPPER(adresse) LIKE UPPER ($"+paramIndex+")"
+                param.push(`%${req.body[key]}%`)
+                break
+            case 'preis':
+                paramIndex++
+                additionalFilter += "preis >= $"+paramIndex+"::text"
+                param.push(req.body[key])
+                break
+            case 'kapazitaet':
+                paramIndex+=2
+                additionalFilter += "kapazitaet BETWEEN $"+(paramIndex-1)+"::int AND $"+paramIndex+"::int"
+                param.push(req.body[key][0],req.body[key][1])
+                break
+            case 'distanz':
+                console.error("DISTANZ NOT YET IMPLEMENTED")
+                doAND = false
+                break
+            case 'istfavorit':
+                paramIndex++
+                additionalFilter+="favorit_location.userid = $"+paramIndex+"::int"
+                param.push(user) 
+                break
+            case 'istbesitzer':
+                paramIndex++
+                additionalFilter += "ownerid = $"+paramIndex+"::int"
+                param.push(user)   
+                break
+            case 'bewertung':
+                paramIndex++
+                additionalFilter+="sterne >= $"+paramIndex+"::int"
+                param.push(req.body[key])   
+                break
+            default:
+                // do nothing
+                doAND = false
+                break
+        }
+        if (doAND) additionalFilter += " AND "
+    }
+
+    additionalFilter = additionalFilter.substring(0,additionalFilter.length-5) // remove the last ' AND '
+
+    paramIndex == 0 ? sqlstring = query + istfavorit : sqlstring = query + istfavorit + " WHERE " + additionalFilter
+   
+    try {
+        const result = await pool.query(sqlstring,param)
+        for (let i=0;i<result.rowCount;i++)
+        {
+            //checks if the locataion is a user Favorit
+            if(Object.hasOwn(result.rows[i],"favorit")) {result.rows[i]["favorit"] == user ? result.rows[i]["favorit"] = true : result.rows[i]["favorit"] = false}
+        }
+        return res.send(result)
+    } catch (err) {
+        console.error(err)
+        return res.status(400).send("Error while searching for an location")
+    }
+   
+
+    // with additional params
+    // try {
+        
+    //     const result = await pool.query(
+    //         query += istfavorit += " WHERE " + additionalFilter,
+    //         param
+    //     )
+    //     return res.send(result)
+    // } catch (err) {
+    //     console.error(err)
+    //     return res.status(400).send("Error while searching for an event")
+    // }
+}
+
+async function searchCaterer(req,res){
+    console.log("REQUEST",req.body)
+    const user = cookieJwtAuth.getUser(req.headers["auth"])["id"]
+    let query = "SELECT c.preis,c.kategorie,c.erfahrung,a.profilname as name,a.region,a.profilbild,a.kurzbeschreibung,a.sterne, fu.userid AS favorit FROM caterer c JOIN app_user a ON c.emailfk = a.email"
+    let additionalFilter = ""
+    let param = []
+    let istfavorit = " LEFT OUTER JOIN favorit_user fu ON c.id = fu.catereid"
+    let paramIndex = 0;
+    let doAND
+    for (let key in req.body) {
+        doAND = true
+        switch (key) {
+            case 'openair':
+                //probelm
+                additionalFilter += "openair = $"+paramIndex+"::boolean"
+                param.push(req.body[key])
+                break
+            case 'profilname':
+                paramIndex++
+                additionalFilter += "UPPER(a.profilname) LIKE UPPER ($"+paramIndex+")"
+                param.push(`%${req.body[key]}%`)
+                break
+            case 'region':
+                paramIndex++
+                additionalFilter += "UPPER(a.region) LIKE UPPER ($"+paramIndex+")"
+                param.push(`%${req.body[key]}%`)
+                break
+            case 'preis':
+                paramIndex++
+                additionalFilter += "c.preis BETWEEN $"+(paramIndex-1)+"::text AND $"+paramIndex+"::text"
+                param.push((req.body[key])[0] == '' ? "0" : (req.body[key])[0],
+                        (req.body[key])[1] == '' ? "9999999" : (req.body[key])[1])
+                break
+            case 'erfahrung':
+                paramIndex++
+                additionalFilter += "c.erfahrung >= $"+paramIndex+"::text"
+                param.push(req.body[key])
+                break
+            case 'kategorie':
+                paramIndex++
+                additionalFilter += "UPPER(c.kategorie) LIKE UPPER ($"+paramIndex+")"
+                param.push(`%${req.body[key]}%`)
+                break
+            case 'istfavorit':
+                paramIndex++
+                additionalFilter+="fu.userid = $"+paramIndex+"::int"
+                param.push(user) 
+                break
+            default:
+                // do nothing
+                doAND = false
+                break
+        }
+        if (doAND) additionalFilter += " AND "
+    }
+
+    
+    additionalFilter = additionalFilter.substring(0,additionalFilter.length-5) // remove the last ' AND '
+    paramIndex == 0 ? sqlstring = query + istfavorit : sqlstring = query + istfavorit + " WHERE " + additionalFilter
+
+    try {
+        const result = await pool.query(sqlstring,param)
+        for (let i=0;i<result.rowCount;i++)
+        {
+            //checks if the Catere is a users Favorit
+            if(Object.hasOwn(result.rows[i],"favorit")) {result.rows[i]["favorit"] == user ? result.rows[i]["favorit"] = true : result.rows[i]["favorit"] = false}
+        }
+        return res.send(result)
+    } catch (err) {
+        console.error(err)
+        return res.status(400).send("Error while searching for an Caterer")
+    }
+
+    // // with additional params
+    // try {
+    //     const result = await pool.query(
+    //         query += " WHERE " + additionalFilter,
+    //         param
+            
+    //     )
+    //     return res.send(result)
+    // } catch (err) {
+    //     console.error(err)
+    //     return res.status(400).send("Error while searching for an event")
+    // }
+}
+
+async function searchArtist(req,res){
+    console.log("REQUEST",req.body)
+    const user = cookieJwtAuth.getUser(req.headers["auth"])["id"]
+    let query = "SELECT a.preis,a.kategorie,a.erfahrung,ap.region,ap.profilname as name,ap.sterne,ap.profilbild,ap.kurzbeschreibung,fu.userid AS favorit FROM artist a JOIN app_user ap ON a.emailfk = ap.email"
+    let additionalFilter = ""
+    let istfavorit = " LEFT OUTER JOIN favorit_user fu ON a.id = fu.artistid"
+    let param = []
+    let paramIndex = 0;
+    let sqlStirng=""
+    let doAND = true
+
+    for (let key in req.body) {
+        doAND = true
+        switch (key) {
+            case 'profilname':
+                paramIndex++
+                additionalFilter += "UPPER(ap.profilname) LIKE UPPER ($"+paramIndex+")"
+                param.push(`%${req.body[key]}%`)
+                break
+            case 'region':
+                paramIndex++
+                additionalFilter += "UPPER(ap.region) LIKE UPPER ($"+paramIndex+")"
+                param.push(`%${req.body[key]}%`)
+                break
+            case 'preis':
+                paramIndex+=2
+                additionalFilter += "a.preis BETWEEN $"+(paramIndex-1)+"::text AND $"+paramIndex+"::text"
+                param.push((req.body[key])[0] == '' ? "0" : (req.body[key])[0],
+                        (req.body[key])[1] == '' ? "9999999" : (req.body[key])[1])
+                break
+            case 'erfahrung':
+                paramIndex++
+                additionalFilter += "a.erfahrung >= $"+paramIndex+"::text"
+                param.push(req.body[key])
+                break
+            case 'kategorie':
+                paramIndex++
+                additionalFilter += "UPPER(a.kategorie) LIKE UPPER ($"+paramIndex+")"
+                param.push(`%${req.body[key]}%`)
+                break
+            case 'bewertung':
+                paramIndex++
+                additionalFilter += "a.sterne >= $"+paramIndex+"::int"
+                param.push(req.body[key])
+                break
+            case 'istfavorit':
+                paramIndex++
+                additionalFilter+="fu.userid = $"+paramIndex+"::int"
+                param.push(user) 
+                break
+            default:
+                // do nothing
+                doAND = false
+                break
+        }
+        if (doAND) additionalFilter += " AND "
+    }
+
+    additionalFilter = additionalFilter.substring(0,additionalFilter.length-5) // remove the last ' AND '
+    paramIndex == 0 ? sqlstring = query + istfavorit : sqlstring = query + istfavorit + " WHERE " + additionalFilter
+
+    try {
+        const result = await pool.query(sqlstring,param)
+        for (let i=0;i<result.rowCount;i++)
+        {
+            //checks if the Artist is a users Favorit
+            if(Object.hasOwn(result.rows[i],"favorit")) {result.rows[i]["favorit"] == user ? result.rows[i]["favorit"] = true : result.rows[i]["favorit"] = false}
+        }
+        return res.send(result)
+    } catch (err) {
+        console.error(err)
+        return res.status(400).send("Error while searching for an Artist")
+    }
+
+    // // with additional params
+    // try {
+    //     const result = await pool.query(
+    //         query += " WHERE " + additionalFilter,
+    //         param
+    //     )
+    //     return res.send(result)
+    // } catch (err) {
+    //     console.error(err)
+    //     return res.status(400).send("Error while searching for an event")
+    // }
+}
+
+async function searchEndUser(req,res){
+    console.log("REQUEST",req.body)
+    const user = cookieJwtAuth.getUser(req.headers["auth"])["id"]
+    let query = "SELECT e.*,ap.profilname as name,ap.region,fu.userid AS favorit FROM endnutzer e JOIN app_user ap ON e.emailfk = ap.email"
+    let additionalFilter = ""
+    let istfavorit = " LEFT OUTER JOIN favorit_user fu ON e.id = fu.enduserid"
+    let param = []
+    let paramIndex = 0;
+    let sqlStirng=""
+    let doAND = true
+
+    for (let key in req.body) {
+        doAND = true
+        switch (key) {
+            case 'search':
+                paramIndex++
+                additionalFilter += "UPPER(ap.profilname) LIKE UPPER ($"+paramIndex+")"
+                param.push(`%${req.body[key]}%`)
+                break
+            case 'region':
+                paramIndex++
+                additionalFilter += "UPPER(ap.region) LIKE UPPER ($"+paramIndex+")"
+                param.push(`%${req.body[key]}%`)
+                break
+            case 'geschelcht':
+                paramIndex++
+                additionalFilter += "UPPER(e.geschlecht) LIKE UPPER ($"+paramIndex+")"
+                param.push(`%${req.body[key]}%`)
+                break
+            case 'alter':
+                paramIndex++
+                additionalFilter += "e.alter >= $"+paramIndex+"::int"
+                param.push(req.body[key])
+                break
+            case 'istfavorit':
+                paramIndex++
+                additionalFilter+="fu.userid = $"+paramIndex+"::int"
+                param.push(user) 
+                break
+            case 'istfreund':
+               // to be implementet
+               doAND = false
+               break
+            default:
+                // do nothing
+                doAND = false
+                break
+        }
+        if (doAND) additionalFilter += " AND "
+    }
+    
+    additionalFilter = additionalFilter.substring(0,additionalFilter.length-5) // remove the last ' AND '
+    paramIndex == 0 ? sqlstring = query + istfavorit : sqlstring = query + istfavorit + " WHERE " + additionalFilter
+    
+    try {
+        console.log(sqlstring)
+        const result = await pool.query(sqlstring,param)
+        for (let i=0;i<result.rowCount;i++)
+        {
+            //checks if the Enduser is a users Favorit
+            if(Object.hasOwn(result.rows[i],"favorit")) {result.rows[i]["favorit"] == user ? result.rows[i]["favorit"] = true : result.rows[i]["favorit"] = false}
+        }
+        return res.send(result)
+    } catch (err) {
+        console.error(err)
+        return res.status(400).send("Error while searching for an enduser")
+    }
+
+    // // with additional params
+    // try {
+    //     const result = await pool.query(
+    //         query += " WHERE " + additionalFilter,
+    //         param
+    //     )
+    //     return res.send(result)
+    // } catch (err) {
+    //     console.error(err)
+    //     return res.status(400).send("Error while searching for an event")
+    // }
+}
+
+// ------------------------- DELETE - QUERIES ------------------------- //
+
+/**
+* Deletes a ticket from the DB using an id.
+*
+* @param {number} id - the id, dictates what should be deleted
+* @param {string} deleteBy - the origin of the id, should be one of the following:
+*
+* - 'id' - deletes a SINGLE ticket based on the id
+* - 'ownerid' - deletes ALL ticket based on that the id is from an owner
+* - 'eventid' - deletes ALL ticket based on that the id is from an event
+* - anything else will result in a fail
+* @returns {Object} A JSON containing the following:
+*
+* - boolean: sucess - If the deletion was successful or not
+* - any[]: data - The data returned from the deletion operation, can be null
+* - any: error - The error that occoured if something failed, only written if success = false
+*/
+async function deleteTicketsById(id, deleteBy) {
+    try {
+        console.warn("TRYING TO DELETE tickets OF", id, deleteBy)
+        let query
+
+        if (deleteBy.matchAll('id')) {
+            query = `DELETE FROM tickets WHERE id = $1::int RETURNING *`
+        } else if (deleteBy.matchAll('ownerid')) {
+            query = `DELETE FROM tickets WHERE ownerid = $1::int RETURNING *`
+        } else if (deleteBy.matchAll('eventid')) {
+            query = `DELETE FROM tickets WHERE eventid = $1::int RETURNING *`
+        } else {
+            return {
+                sucess: false,
+                error: new Error("INVALID deleteBy: " + deleteBy)
+            }
+        }
+
+        const result = await pool.query(query, [id])
+        if (result.rows.length === 0) { // if nothing was found to be deleted
+            return {
+                success: true,
+                data: null
+            }
+        }
+        else {
+            return {
+                sucess: true,
+                data: result.rows
+            }
+        }
+    } catch (err) {
+        console.error("AN ERROR OCCURRED WHILE TRYING TO DELETE A ticket", err)
+        return {
+            success: false,
+            data: null,
+            error: err
+        }
+    }
+}
+
+/**
+* Deletes servicecaterer from the DB using an id.
+*
+* @param {number} id - the id, dictates what should be deleted
+* @param {string} deleteBy - the origin of the id, should be one of the following:
+*
+* - 'id' - deletes a SINGLE servicecaterer based on the id
+* - 'catererid' - deletes ALL servicecaterer based on that the id is from a caterer
+* - 'eventid' - deletes ALL servicecaterer based on that the id is from an event
+* - anything else will result in a fail
+* @returns {Object} A JSON containing the following:
+*
+* - boolean: sucess - If the deletion was successful or not
+* - any[]: data - The data returned from the deletion operation, can be null
+* - any: error - The error that occoured if something failed, only written if success = false
+*/
+async function deleteServiceCatererById(id, deleteBy) {
+    try {
+        console.warn("TRYING TO DELETE servicecaterer OF", id, deleteBy)
+        let query
+
+        if (deleteBy.matchAll('id')) {
+            query = `DELETE FROM servicecaterer WHERE id = $1::int RETURNING *`
+        } else if (deleteBy.matchAll('catererid')) {
+            query = `DELETE FROM servicecaterer WHERE artistid = $1::int RETURNING *`
+        } else if (deleteBy.matchAll('eventid')) {
+            query = `DELETE FROM servicecaterer WHERE eventid = $1::int RETURNING *`
+        } else {
+            return {
+                sucess: false,
+                error: new Error("INVALID deleteBy: " + deleteBy)
+            }
+        }
+
+        const result = await pool.query(query, [id])
+        if (result.rows.length === 0) { // if nothing was found to be deleted
+            return {
+                success: true,
+                data: null
+            }
+        }
+        else {
+            return {
+                sucess: true,
+                data: result.rows
+            }
+        }
+    } catch (err) {
+        console.error("AN ERROR OCCURRED WHILE TRYING TO DELETE servicecaterer", err)
+        return {
+            success: false,
+            data: null,
+            error: err
+        }
+    }
+}
+
+/**
+* Deletes serviceartist from the DB using an id.
+*
+* @param {number} id - the id, dictates what should be deleted
+* @param {string} deleteBy - the origin of the id, should be one of the following:
+*
+* - 'id' - deletes a SINGLE serviceartist based on the id
+* - 'artistid' - deletes ALL serviceartist based on that the id is from an artist
+* - 'eventid' - deletes ALL serviceartist based on that the id is from an event
+* - anything else will result in a fail
+* @returns {Object} A JSON containing the following:
+*
+* - boolean: sucess - If the deletion was successful or not
+* - any[]: data - The data returned from the deletion operation, can be null
+* - any: error - The error that occoured if something failed, only written if success = false
+*/
+async function deleteServiceArtistById(id, deleteBy) {
+    try {
+        console.warn("TRYING TO DELETE serviceartist OF", id, deleteBy)
+        let query
+
+        if (deleteBy.matchAll('id')) {
+            query = `DELETE FROM serviceartist WHERE id = $1::int RETURNING *`
+        } else if (deleteBy.matchAll('artistid')) {
+            query = `DELETE FROM serviceartist WHERE artistid = $1::int RETURNING *`
+        } else if (deleteBy.matchAll('eventid')) {
+            query = `DELETE FROM serviceartist WHERE eventid = $1::int RETURNING *`
+        } else {
+            return {
+                sucess: false,
+                error: new Error("INVALID deleteBy: " + deleteBy)
+            }
+        }
+
+        const result = await pool.query(query, [id])
+        if (result.rows.length === 0) { // if nothing was found to be deleted
+            return {
+                success: true,
+                data: null
+            }
+        }
+        else {
+            return {
+                sucess: true,
+                data: result.rows
+            }
+        }
+    } catch (err) {
+        console.error("AN ERROR OCCURRED WHILE TRYING TO DELETE serviceartist", err)
+        return {
+            success: false,
+            data: null,
+            error: err
+        }
+    }
+}
+
+/**
+* Deletes a review from the DB using an id.
+*
+* @param {number} id - the id, dictates what should be deleted
+* @param {string} deleteBy - the origin of the id, should be one of the following:
+*
+* - 'id' - deletes a SINGLE review based on the id
+* - 'ownerid' - deletes ALL review based on that the id is from the owner
+* - 'eventid' - deletes ALL review based on that the id is from an event
+* - 'userid' - deletes ALL review based on that the id is from a user
+* - 'locationid' - deletes ALL review based on that the id is from a location
+* - anything else will result in a fail
+*
+* @returns {Object} A JSON containing the following:
+*
+* - boolean: sucess - If the deletion was successful or not
+* - any[]: data - The data returned from the deletion operation, can be null
+* - any: error - The error that occoured if something failed, only written if success = false
+*/
+async function deleteReviewById(id, deleteBy) {
+    try {
+        console.warn("TRYING TO DELETE A review OF", id, deleteBy)
+        let query
+
+        if (deleteBy.matchAll('id')) {
+            query = `DELETE FROM review WHERE id = $1::int RETURNING *`
+        } else if (deleteBy.matchAll('ownerid')) {
+            query = `DELETE FROM review WHERE ownerid = $1::int RETURNING *`
+        } else if (deleteBy.matchAll('eventid')) {
+            query = `DELETE FROM review WHERE eventid = $1::int RETURNING *`
+        } else if (deleteBy.matchAll('userid')) {
+            query = `DELETE FROM review WHERE userid = $1::int RETURNING *`
+        } else if (deleteBy.matchAll('locationid')) {
+            query = `DELETE FROM review WHERE locationid = $1::int RETURNING *`
+        } else {
+            return {
+                sucess: false,
+                error: new Error("INVALID deleteBy: " + deleteBy)
+            }
+        }
+
+        const result = await pool.query(query, [id])
+        if (result.rows.length === 0) { // if nothing was found to be deleted
+            return {
+                success: true,
+                data: null
+            }
+        }
+        else {
+            return {
+                sucess: true,
+                data: result.rows
+            }
+        }
+    } catch (err) {
+        console.error("AN ERROR OCCURRED WHILE TRYING TO DELETE A ticket", err)
+        return {
+            success: false,
+            data: null,
+            error: err
+        }
+    }
+}
+
+/**
+* Deletes playlistinhalt from the DB using an id.
+*
+* @param {number} id - the id, dictates what should be deleted
+* @param {string} deleteBy - the origin of the id, should be one of the following:
+*
+* - 'playlistid' - deletes ALL playlistinhalt based on that the id is from a playlist
+* - 'liedid' - deletes ALL playlistinhalt based on that the id is from a lied
+* - 'id' - deletes a SINGLE playlistinhalt based on the id
+* - anything else will result in a fail
+*
+* @returns {Object} A JSON containing the following:
+*
+* - boolean: sucess - If the deletion was successful or not
+* - any[]: data - The data returned from the deletion operation, can be null
+* - any: error - The error that occoured if something failed, only written if success = false
+*/
+async function deletePlaylistInhaltById(id, deleteBy) {
+    try {
+        console.warn("TRYING TO DELETE A playlistinhalt OF", id, deleteBy)
+        let query
+
+        if (deleteBy.matchAll('playlistid')) {
+            query = `DELETE FROM playlistinhalt WHERE playlistid = $1::int RETURNING *`
+        } else if (deleteBy.matchAll('liedid')) {
+            query = `DELETE FROM playlistinhalt WHERE liedid = $1::int RETURNING *`
+        } else if (deleteBy.matchAll('id')) {
+            query = `DELETE FROM playlistinhalt WHERE id = $1::int RETURNING *`
+        } else {
+            return {
+                sucess: false,
+                error: new Error("INVALID deleteBy: " + deleteBy)
+            }
+        }
+
+        const result = await pool.query(query, [id])
+        if (result.rows.length === 0) { // if nothing was found to be deleted
+            return {
+                success: true,
+                data: null
+            }
+        }
+        else {
+            return {
+                sucess: true,
+                data: result.rows
+            }
+        }
+    } catch (err) {
+        console.error("AN ERROR OCCURRED WHILE TRYING TO DELETE A playlistinhalt", err)
+        return {
+            success: false,
+            data: null,
+            error: err
+        }
+    }
+}
+
+/**
+* Deletes a playlist from the DB using an id.
+*
+* @param {number} id - the id, dictates what should be deleted
+* @param {number} deleteBy - the origin of the id, should be one of the following:
+*
+* - 'playlistid' - deletes a SINGLE playlist based on the id
+* - 'artistid' - deletes ALL playlist based on that the id is from the artist
+* - anything else will result in a fail
+*
+* @returns {Object} A JSON containing the following:
+*
+* - boolean: sucess - If the deletion was successful or not
+* - any[]: data - The data returned from the deletion operation, can be null
+* - any: error - The error that occoured if something failed, only written if success = false
+*/
+async function deletePlaylistById(id, deleteBy) {
+    try {
+        console.warn("TRYING TO DELETE A playlist OF", id, deleteBy)
+        let query
+
+        if (deleteBy.matchAll('locationid')) {
+            query = `DELETE FROM playlist WHERE id = $1::int RETURNING *`
+        } else if (deleteBy.matchAll('ownerid')) {
+            query = `DELETE FROM playlist WHERE artistid = $1::int RETURNING *`
+        } else {
+            return {
+                sucess: false,
+                error: new Error("INVALID deleteBy: " + deleteBy)
+            }
+        }
+
+        const result = await pool.query(query, [id])
+        if (result.rows.length === 0) { // if nothing was found to be deleted
+            return {
+                success: true,
+                data: null
+            }
+        }
+        else {
+            return {
+                sucess: true,
+                data: result.rows
+            }
+        }
+    } catch (err) {
+        console.error("AN ERROR OCCURRED WHILE TRYING TO DELETE A playlist", err)
+        return {
+            success: false,
+            data: null,
+            error: err
+        }
+    }
+}
+
+/**
+* Deletes a passwort from the DB using an id.
+*
+* @param {number} id - the id of the password, dictates what should be deleted
+*
+* @returns {Object} A JSON containing the following:
+*
+* - boolean: sucess - If the deletion was successful or not
+* - any[]: data - The data returned from the deletion operation, can be null
+* - any: error - The error that occoured if something failed, only written if success = false
+*/
+async function deletePasswordById(id) {
+    try {
+        console.warn("TRYING TO DELETE A password OF", id)
+        let query = `DELETE FROM playlist WHERE id = $1::int RETURNING *`
+
+        const result = await pool.query(query, [id])
+        if (result.rows.length === 0) { // if nothing was found to be deleted
+            return {
+                success: true,
+                data: null
+            }
+        }
+        else {
+            return {
+                sucess: true,
+                data: result.rows
+            }
+        }
+    } catch (err) {
+        console.error("AN ERROR OCCURRED WHILE TRYING TO DELETE A password", err)
+        return {
+            success: false,
+            data: null,
+            error: err
+        }
+    }
+}
+
+/**
+* Deletes a location from the DB using an id.
+*
+* @param {number} id - the id, dictates what should be deleted
+* @param {string} deleteBy - the origin of the id, should be one of the following:
+*
+* - 'locationid' - deletes a SINGLE location based on the id
+* - 'ownerid' - deletes ALL location based on that the id is from an owner
+* - anything else will result in a fail
+*
+* @returns {Object} A JSON containing the following:
+*
+* - boolean: sucess - If the deletion was successful or not
+* - any[]: data - The data returned from the deletion operation, can be null
+* - any: error - The error that occoured if something failed, only written if success = false
+*/
+async function deleteLocationById(id, deleteBy) {
+    try {
+        console.warn("TRYING TO DELETE A location OF", id, deleteBy)
+        let query
+
+        if (deleteBy.matchAll('locationid')) {
+            query = `DELETE FROM location WHERE id = $1::int RETURNING *`
+        } else if (deleteBy.matchAll('ownerid')) {
+            query = `DELETE FROM location WHERE ownerid = $1::int RETURNING *`
+        } else {
+            return {
+                sucess: false,
+                error: new Error("INVALID deleteBy: " + deleteBy)
+            }
+        }
+
+        const result = await pool.query(query, [id])
+        if (result.rows.length === 0) { // if nothing was found to be deleted
+            return {
+                success: true,
+                data: null
+            }
+        }
+        else {
+            return {
+                sucess: true,
+                data: result.rows
+            }
+        }
+    } catch (err) {
+        console.error("AN ERROR OCCURRED WHILE TRYING TO DELETE A location", err)
+        return {
+            success: false,
+            data: null,
+            error: err
+        }
+    }
+}
+
+/**
+* Deletes a lied from the DB using an id.
+*
+* @param {number} id - the id, dictates what should be deleted
+* @param {string} deleteBy - the origin of the id, should be one of the following:
+*
+* - 'liedid' - deletes a SINGLE lied based on the id
+* - 'ownerid' - deletes ALL lied based on that the id is from an owner
+* - anything else will result in a fail
+*
+* @returns {Object} A JSON containing the following:
+*
+* - boolean: sucess - If the deletion was successful or not
+* - any[]: data - The data returned from the deletion operation, can be null
+* - any: error - The error that occoured if something failed, only written if success = false
+*/
+async function deleteLiedById(id, deleteBy) {
+    try {
+        console.warn("TRYING TO DELETE A lied OF", id, deleteBy)
+        let query
+
+        if (deleteBy.matchAll('liedid')) {
+            query = `DELETE FROM lied WHERE id = $1::int RETURNING *`
+        } else if (deleteBy.matchAll('ownerid')) {
+            query = `DELETE FROM lied WHERE ownerid = $1::int RETURNING *`
+        } else {
+            return {
+                sucess: false,
+                error: new Error("INVALID deleteBy: " + deleteBy)
+            }
+        }
+
+        const result = await pool.query(query, [id])
+        if (result.rows.length === 0) { // if nothing was found to be deleted
+            return {
+                success: true,
+                data: null
+            }
+        }
+        else {
+            return {
+                sucess: true,
+                data: result.rows
+            }
+        }
+    } catch (err) {
+        console.error("AN ERROR OCCURRED WHILE TRYING TO DELETE A lied", err)
+        return {
+            success: false,
+            data: null,
+            error: err
+        }
+    }
+}
+
+/**
+* Deletes a gericht from the DB using an id.
+*
+* @param {number} id - the id, dictates what should be deleted
+* @param {string} deleteBy - the origin of the id, should be one of the following:
+*
+* - 'gerichtid' - deletes a SINGLE gericht based on the id
+* - 'ownerid' - deletes ALL gericht based on that the id is from an owner
+* - anything else will result in a fail
+*
+* @returns {Object} A JSON containing the following:
+*
+* - boolean: sucess - If the deletion was successful or not
+* - any[]: data - The data returned from the deletion operation, can be null
+* - any: error - The error that occoured if something failed, only written if success = false
+*/
+async function deleteGerichtById(id, deleteBy) {
+    try {
+        console.warn("TRYING TO DELETE A gericht OF", id, deleteBy)
+        let query
+
+        if (deleteBy.matchAll('gerichtid')) {
+            query = `DELETE FROM gericht WHERE id = $1::int RETURNING *`
+        } else if (deleteBy.matchAll('ownerid')) {
+            query = `DELETE FROM gericht WHERE ownerid = $1::int RETURNING *`
+        } else {
+            return {
+                sucess: false,
+                error: new Error("INVALID deleteBy: " + deleteBy)
+            }
+        }
+
+        const result = await pool.query(query, [id])
+        if (result.rows.length === 0) { // if nothing was found to be deleted
+            return {
+                success: true,
+                data: null
+            }
+        }
+        else {
+            return {
+                sucess: true,
+                data: result.rows
+            }
+        }
+    } catch (err) {
+        console.error("AN ERROR OCCURRED WHILE TRYING TO DELETE A gericht", err)
+        return {
+            success: false,
+            data: null,
+            error: err
+        }
+    }
+}
+
+/**
+* Deletes an event from the DB using an id.
+*
+* @param {number} id - the id, dictates what should be deleted
+* @param {string} deleteBy - the origin of the id, should be one of the following:
+*
+* - 'eventid' - deletes a SINGLE event based on the id
+* - 'ownerid' - deletes ALL event based on that the id is from an owner
+* - anything else will result in a fail
+*
+* @returns {Object} A JSON containing the following:
+*
+* - boolean: sucess - If the deletion was successful or not
+* - any[]: data - The data returned from the deletion operation, can be null
+* - any: error - The error that occoured if something failed, only written if success = false
+*/
+async function deleteEventById(id, deleteBy) {
+    try {
+        console.warn("TRYING TO DELETE AN event OF", id, deleteBy)
+        let query
+
+        if (deleteBy.matchAll('eventid')) {
+            query = `DELETE FROM event WHERE id = $1::int RETURNING *`
+        } else if (deleteBy.matchAll('ownerid')) {
+            query = `DELETE FROM event WHERE ownerid = $1::int RETURNING *`
+        } else {
+            return {
+                sucess: false,
+                error: new Error("INVALID deleteBy: " + deleteBy)
+            }
+        }
+
+        const result = await pool.query(query, [id])
+        if (result.rows.length === 0) { // if nothing was found to be deleted
+            return {
+                success: true,
+                data: null
+            }
+        }
+        else {
+            return {
+                sucess: true,
+                data: result.rows
+            }
+        }
+    } catch (err) {
+        console.error("AN ERROR OCCURRED WHILE TRYING TO DELETE AN event", err)
+        return {
+            success: false,
+            data: null,
+            error: err
+        }
+    }
+}
+
+/**
+* Deletes an app_user from the DB using an id.
+*
+* @param {any} id - the id, dictates what should be deleted
+* @param {string} deleteBy - the origin of the id, should be one of the following:
+*
+* - 'id' - deletes a SINGLE app_user based on the id
+* - 'email' - deletes a SINGLE app_user based on the email
+* - anything else will result in a fail
+*
+* @returns {Object} A JSON containing the following:
+*
+* - boolean: sucess - If the deletion was successful or not
+* - any[]: data - The data returned from the deletion operation, can be null
+* - any: error - The error that occoured if something failed, only written if success = false
+*/
+async function deleteAppUserById(id) {
+    try {
+        console.warn("TRYING TO DELETE AN app_user OF", id)
+        let query
+
+        if (deleteBy.matchAll('id')) {
+            query = `DELETE FROM endnutzer WHERE id = $1::int RETURNING *`
+        } else if (deleteBy.matchAll('email')) {
+            query = `DELETE FROM endnutzer WHERE email = $1::text RETURNING *`
+        } else {
+            return {
+                sucess: false,
+                error: new Error("INVALID deleteBy: " + deleteBy)
+            }
+        }
+
+        const result = await pool.query(query, [id])
+        if (result.rows.length === 0) { // if nothing was found to be deleted
+            return {
+                success: true,
+                data: null
+            }
+        }
+        else {
+            return {
+                sucess: true,
+                data: result.rows
+            }
+        }
+    } catch (err) {
+        console.error("AN ERROR OCCURRED WHILE TRYING TO DELETE AN app_user", err)
+        return {
+            success: false,
+            data: null,
+            error: err
+        }
+    }
+}
+
+/**
+* Deletes an endnutzer from the DB using an id.
+*
+* @param {any} id - the id, dictates what should be deleted
+* @param {string} deleteBy - the origin of the id, should be one of the following:
+*
+* - 'id' - deletes a SINGLE endnutzer based on the id
+* - 'email' - deletes a SINGLE endnutzer based on the email
+* - anything else will result in a fail
+*
+* @returns {Object} A JSON containing the following:
+*
+* - boolean: sucess - If the deletion was successful or not
+* - any[]: data - The data returned from the deletion operation, can be null
+* - any: error - The error that occoured if something failed, only written if success = false
+*/
+async function deleteEndnutzerById(id) {
+    try {
+        console.warn("TRYING TO DELETE AN endnutzer OF", id)
+        let query
+
+        if (deleteBy.matchAll('id')) {
+            query = `DELETE FROM endnutzer WHERE id = $1::int RETURNING *`
+        } else if (deleteBy.matchAll('email')) {
+            query = `DELETE FROM endnutzer WHERE emailfk = $1::text RETURNING *`
+        } else {
+            return {
+                sucess: false,
+                error: new Error("INVALID deleteBy: " + deleteBy)
+            }
+        }
+
+        const result = await pool.query(query, [id])
+        if (result.rows.length === 0) { // if nothing was found to be deleted
+            return {
+                success: true,
+                data: null
+            }
+        }
+        else {
+            return {
+                sucess: true,
+                data: result.rows
+            }
+        }
+    } catch (err) {
+        console.error("AN ERROR OCCURRED WHILE TRYING TO DELETE AN endnutzer", err)
+        return {
+            success: false,
+            data: null,
+            error: err
+        }
+    }
+}
+
+/**
+* Deletes a caterer from the DB using an id.
+*
+* @param {any} id - the id, dictates what should be deleted
+* @param {string} deleteBy - the origin of the id, should be one of the following:
+*
+* - 'id' - deletes a SINGLE caterer based on the id
+* - 'email' - deletes a SINGLE caterer based on the email
+* - anything else will result in a fail
+*
+* @returns {Object} A JSON containing the following:
+*
+* - boolean: sucess - If the deletion was successful or not
+* - any[]: data - The data returned from the deletion operation, can be null
+* - any: error - The error that occoured if something failed, only written if success = false
+*/
+async function deleteCatererById(id, deleteBy) {
+    try {
+        console.warn("TRYING TO DELETE A caterer OF", id)
+        let query
+
+        if (deleteBy.matchAll('id')) {
+            query = `DELETE FROM caterer WHERE id = $1::int RETURNING *`
+        } else if (deleteBy.matchAll('email')) {
+            query = `DELETE FROM caterer WHERE emailfk = $1::text RETURNING *`
+        } else {
+            return {
+                sucess: false,
+                error: new Error("INVALID deleteBy: " + deleteBy)
+            }
+        }
+
+        const result = await pool.query(query, [id])
+        if (result.rows.length === 0) { // if nothing was found to be deleted
+            return {
+                success: true,
+                data: null
+            }
+        }
+        else {
+            return {
+                sucess: true,
+                data: result.rows
+            }
+        }
+    } catch (err) {
+        console.error("AN ERROR OCCURRED WHILE TRYING TO DELETE A caterer", err)
+        return {
+            success: false,
+            data: null,
+            error: err
+        }
+    }
+}
+
+/**
+* Deletes an artist from the DB using an id.
+*
+* @param {any} id - the id, dictates what should be deleted
+* @param {string} deleteBy - the origin of the id, should be one of the following:
+*
+* - 'id' - deletes a SINGLE artist based on the id
+* - 'email' - deletes a SINGLE artist based on the email
+* - anything else will result in a fail
+*
+* @returns {Object} A JSON containing the following:
+*
+* - boolean: sucess - If the deletion was successful or not
+* - any[]: data - The data returned from the deletion operation, can be null
+* - any: error - The error that occoured if something failed, only written if success = false
+*/
+async function deleteArtistById(id, deleteBy) {
+    try {
+        console.warn("TRYING TO DELETE AN artist OF", id)
+        let query
+
+        if (deleteBy.matchAll('id')) {
+            query = `DELETE FROM artist WHERE id = $1::int RETURNING *`
+        } else if (deleteBy.matchAll('email')) {
+            query = `DELETE FROM artist WHERE emailfk = $1::text RETURNING *`
+        } else {
+            return {
+                sucess: false,
+                error: new Error("INVALID deleteBy: " + deleteBy)
+            }
+        }
+
+        const result = await pool.query(query, [id])
+        if (result.rows.length === 0) { // if nothing was found to be deleted
+            return {
+                success: true,
+                data: null
+            }
+        }
+        else {
+            return {
+                sucess: true,
+                data: result.rows
+            }
+        }
+    } catch (err) {
+        console.error("AN ERROR OCCURRED WHILE TRYING TO DELETE AN artist", err)
+        return {
+            success: false,
+            data: null,
+            error: err
+        }
+    }
 }
 
 module.exports = {
+    comparePassword,
     createEndUser, createArtist, createCaterer, createEvent, createLocation, createReviewEvent, createReviewUser, createReviewLocation, createServiceArtist, createLied, createGericht, createPlaylist, createPlaylistInhalt, createTicket, createServiceArtist,
-    getUserById, getUserByEmail, searchEvent, getStuffbyName, getCatererByName , getArtistByName, getAllTicketsFromUser, getArtistByEvent, getCatererByEvent, getPlaylistContent
+    getUserById, getUserByEmailandUsername , getStuffbyName , getLocationById,  getCatererById , getArtistByID, getAllTicketsFromUser, getArtistByEvent, getCatererByEvent, getPlaylistContent,
+    searchEvent, searchLocaiton,searchCaterer, searchArtist, searchEndUser, updateArtist, updateCaterer, updateLocation,
+    updateGericht, updateLied
 };
-

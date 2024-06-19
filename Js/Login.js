@@ -7,7 +7,9 @@ module.exports = async(req, res) => {
     const {email, pass} = req.body;
     try
     {
-        const user  = await Database.getUserByEmail(email,pass);
+        console.log("LOGIN REQUEST WITH",req.body)
+        const user = await Database.comparePassword(email,pass);
+        console.log(user)
         if(user!=null)
         {
             const token = jwt.sign(user,SECRET,{expiresIn: '3h'});
@@ -22,7 +24,7 @@ module.exports = async(req, res) => {
     }
     catch(err)
     {
-        console.log(err);
+        console.error(err);
         return res.status(400).send("User not found");
     }
     

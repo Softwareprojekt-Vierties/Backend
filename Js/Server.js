@@ -1,6 +1,9 @@
-
 const express = require("express"); // import express for REST API
 const cookieParser = require("cookie-parser"); // import cookie parser for cookies
+const multer = require('multer') 
+
+const storage = multer.memoryStorage()
+const upload = multer({ dest: 'uploads/' }); // Dateien werden im 'uploads' Verzeichnis gespeichert
 const app = express(); // create app used for the Server 
 const port = 5000; // connection port
 const login = require('./Login'); // import login.js file
@@ -12,6 +15,7 @@ const checkDistance = require('./CheckDistance')
 const corsOption= {
     Credential: true
 }
+const maxRequestBodySize = '10mb'
 //middleware
 app.use(cors(corsOption))
 app.use(express.json()); // requiert to parse JSON form requests 
@@ -21,6 +25,7 @@ app.use((req, res, next) => {
     res.set('X-Content-Type-Options', 'nosniff');
     next();
   });
+app.use(express.urlencoded({limit: maxRequestBodySize}));
 
 
 app.get('/test/:id', (req,res)=>{    // test get function
@@ -41,11 +46,86 @@ app.post('/testpost/:id', (req,res)=>{
     res.status(200).send("ur id is: "+id+" and ur body is: "+servus);
 });
 
+app.get("/getLocation/:id",database.getLocationById)
+
+app.get("/getArtistById/:id",database.getArtistByID)
+app.get("/getCatererById/:id",database.getCatererById)
+
 app.post('/login', cookieJwtAuth.isLogedIn,login);      // to log a user in
 
 app.get("/MyPage",cookieJwtAuth.Auth, (req,res)=>{     // test function
     const user = cookieJwtAuth.getUser(req);
     res.status(200).send("Welcome "+user.id);
+})
+
+app.post("/updateArtist",async (req,res)=>{
+    console.log("REQUEST TO UPDATE ARTIST",req.body)
+    const {profilname, profilbild, kurzbeschreibung, beschreibung, region, email, preis, kategorie, erfahrung, songs} = req.body
+    try {
+        const resultArtist = await database.updateArtist(profilname, profilbild, kurzbeschreibung, beschreibung, region, email, preis, kategorie, erfahrung)
+        let message = ""
+
+        if (songs != null) {
+            for(let song of songs) {
+                const resultLied = await database.updateLied(song['id'], song['songName'], song['songLength'], song['songYear'])
+                if (resultLied) message.concat(", UPDATED lied", song['songName'])
+                else message.concat(", FAILED TO UPDATE lied", song['songName'])
+            }
+        }
+        
+        if (resultArtist.success) res.status(200).send("UPDATED artist" + message)
+        else res.status(400).send("FAILED TO UPDATE artist! " + resultArtist.error + ", " + message)
+    }
+    catch(err) {
+        console.error(err)
+        res.status(500).send("Server error! " + err)
+    }
+})
+
+app.post("/updateCaterer",async (req,res)=>{
+    console.log("REQUEST TO UPDATE CATETER",req.body)
+    const {profilname, profilbild, kurzbeschreibung, beschreibung, region, email, preis, kategorie, erfahrung, gerichte} = req.body
+    try {
+        const resultCaterer = await database.updateCaterer(profilname, profilbild, kurzbeschreibung, beschreibung, region, email, preis, kategorie, erfahrung)
+        let message = ""
+
+        if (gerichte != null) {
+            for(let gericht of gerichte) {
+                const resultGericht = await database.updateGericht(gericht['id'], gericht['dishName'], gericht['info1']+", "+gericht['info2'], gericht['imagePreview'])
+                if (resultGericht) message.concat(", UPDATED gericht", gericht['dishName'])
+                else message.concat(", FAILED TO UPDATE gericht", gericht['dishName'])
+            }
+        }
+
+        if (resultCaterer.success) res.status(200).send("UPDATED CATERER" + message)
+        else res.status(400).send("FAILED TO UPDATE caterer! " + resultCaterer.error + ", " + message)
+    }
+    catch(err) {
+        console.error(err)
+        res.status(500).send("Server error! " + err)
+    }
+})
+
+app.post("/updateLoacation",(req,res)=>{
+    console.log(req.body)
+    const {locationid, adresse, name, beschreibung, privat, kurzbeschreibung, preis, openair, flaeche, bild, kapazitaet} = req.body
+    try
+    {
+        database.updateLocation(locationid, adresse, name, beschreibung, privat, kurzbeschreibung, preis, openair, flaeche, bild, kapazitaet).then(result =>{
+            if(result)
+                {
+                    res.status(200).send("Updatet Loacation")
+                }
+            else   {res.status(400).send("problem")}
+        })
+        
+    }
+    catch(err)
+    {
+        console.error(err)
+        res.status(400).send("big Problem")
+    }
+    
 })
 
 app.post('/register', registration);    // register a user
@@ -63,34 +143,6 @@ app.post('/testSearch', (req,res)=>{
         res.status(400).send(err)
     }
 });
-
-app.post('/search.caterer',(req,res) =>{
-    try
-    {
-        database.getCatererByName(req.body["name"]).then(result =>{
-            res.status(200).send(result);
-        });
-        
-    }
-    catch (err)
-    {
-        res.status(400).send(err)
-    }
-});
-
-app.post('/search.artist',(req,res) =>{
-    try
-    {
-        database.getArtistByName(req.body["name"]).then(result =>{
-            res.status(200).send(result);
-        });
-        
-    }
-    catch (err)
-    {
-        res.status(400).send(err)
-    }
-})
 
 app.get('/tickets/:id', (req,res)=>{
     try
@@ -149,6 +201,7 @@ app.get('/playlist/:name', (req,res)=>{
 })
 
 
+
 app.post('/testloc',async (req,res)=>{
     const {location1,location2,maxdis} = req.body
     try
@@ -167,27 +220,84 @@ app.post('/searchEvent',database.searchEvent);  // searchs events with filter pa
 
 
 app.post('/createEvent',(req,res)=>{
+
+app.post('/checkAccount',async(req,res)=>{
+    const {email, benutzername} = req.body;
+    try
+    {
+        const user  = await database.getUserByEmailandUsername(email,benutzername);
+        if(user.rowCount>0)
+        {
+            res.status(200).send("1");
+        }
+        else
+        {
+            res.status(400).send("0");
+            
+        }
+    }
+    catch(err)
+    {
+        console.log(err)
+        res.status(404).send("err")
+    }
+})
+
+app.post('/searchEvent',cookieJwtAuth.Auth,database.searchEvent);  // searchs events with filter param
+app.post('/searchLoacation',cookieJwtAuth.Auth,database.searchLocaiton);  // searchs Locations with filter param
+app.post('/searchCaterer',cookieJwtAuth.Auth,database.searchCaterer);  // searchs Caterer with filter param
+app.post('/searchArtist',cookieJwtAuth.Auth,database.searchArtist);  // searchs Artist with filter param
+app.post('/searchEndnutzer',cookieJwtAuth.Auth,database.searchEndUser);  // searchs Endnutzer with filter param
+
+app.post('/createEvent', async (req,res)=> {
+    console.log("REQUEST TO CREATE EVENT",req.body)
+
     const {eventname,datum,uhrzeit,eventgroesse,preis,altersfreigabe,privat,kurzbeschreibung,beschreibung,bild,ownerid,locationid} = req.body
-    database.createEvent(eventname,datum,uhrzeit,eventgroesse,preis,altersfreigabe,privat,kurzbeschreibung,beschreibung,bild,ownerid,locationid)
-    res.status(200).send("event")
+    const result = await database.createEvent(eventname,datum,uhrzeit,eventgroesse,preis,altersfreigabe,privat,kurzbeschreibung,beschreibung,bild,ownerid,locationid)
+    if (result) res.status(200).send("EVENT CREATED")
+    else res.status(404).send("FAILED TO CREATE EVENT")
 })    // creates a new events
 
-app.post('/createCaterer',(req,res)=>{
-    const {benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, preis, kategorie, erfahrung} = req.body
-    database.createCaterer(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, preis, kategorie, erfahrung)
-    res.status(200).send("Caterer")
+app.post('/createCaterer', async (req,res)=> {
+    console.log("REQUEST TO CREATE CATERER",req.body)
+    const {benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, adresse, preis, kategorie, erfahrung, gerichte} = req.body
+    const caterer = await database.createCaterer(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, adresse + ", " + region, preis, kategorie, erfahrung)
+
+    if (caterer.success && gerichte != null) {
+        console.log("RECIEVED GERICHTE", gerichte)
+        
+        for (let gericht of gerichte) {
+            await database.createGericht(caterer.id, gericht['dishName'], gericht['info1']+", "+gericht['info2'], gericht['imagePreview'])
+        }
+    }
+
+    if (caterer.success) res.status(200).send("CATERER CREATED "+ caterer.id)
+    else res.status(404).send("FAILED TO CREATE CATERER "+ caterer.error)
 })    // creates a new Caterer
 
-app.post('/createArtist',(req,res)=>{
-    const {benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, preis, kategorie, erfahrung} = req.body
-    database.createArtist(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, preis, kategorie, erfahrung)
-    res.status(200).send("Artist")
+app.post('/createArtist', async (req,res)=> {
+    console.log("REQUEST TO CREATE ARTIST",req.body)
+    const {benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, adresse, preis, kategorie, erfahrung, songs} = req.body
+    const artist = await database.createArtist(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, adresse + ", " + region, preis, kategorie, erfahrung)
+    
+    if (artist.success && songs != null) {
+        console.log("RECIEVED LIEDER", songs)
+
+        for (let lied of songs) {
+            await database.createLied(artist.id, lied['songName'], lied['songLength'], lied['songYear'])
+        }
+    }
+    
+    if (artist.success) res.status(200).send("ARTIST CREATED "+ artist.id)
+    else res.status(404).send("FAILED TO CREATE ARTIST "+ artist.error)
 })    // creates a new Artist
 
-app.post('/createLocation',(req,res)=>{
-    const {addresse, name, beschreibung, ownerID, privat, kurzbeschreibung, preis, kapazitaet, openair, flaeche} = req.body
-    database.createLocation(addresse, name, beschreibung, ownerID, privat, kurzbeschreibung, preis, kapazitaet, openair, flaeche)
-    res.status(200).send("Location")
+app.post('/createLocation', async (req,res)=> {
+    console.log("REQUEST TO CREATE LOCATION",req.body)
+    const {adresse, region, name, beschreibung, ownerID, kurzbeschreibung, preis, kapazitaet, openair, flaeche, bild} = req.body // frontend is missing field 'privat'
+    const result = await database.createLocation(adresse + ", " + region, name, beschreibung, ownerID, true, kurzbeschreibung, preis, kapazitaet, openair, flaeche, bild)
+    if (result) res.status(200).send("LOCATION CREATED")
+    else res.status(404).send("FAILED TO CREATE LOCATION")
 })    // creates a new Location
 
 const server = app.listen(port, (error) => {           // starts the server on the port

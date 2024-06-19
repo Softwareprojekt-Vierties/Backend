@@ -2,6 +2,7 @@ const request = require("supertest")
 const app = require("../Js/Server")
 const jwt = require("jsonwebtoken")
 const database = require("../Js/Database")
+const { text } = require("express")
 SECRET = "BruhnsmanIsTheBest"
 
 afterAll(done =>{
@@ -17,7 +18,7 @@ describe('POST /login',()=>{
                     };
 
         const fakeUser = {id: 1, email : message.body["email"], pass: message.body["pass"]}
-        jest.spyOn(database,'getUserByEmail').mockResolvedValue(fakeUser);
+        jest.spyOn(database,'comparePassword').mockResolvedValue(fakeUser);
         const token = jwt.sign(fakeUser,SECRET,{expiresIn: '3h'});
         try
         {
