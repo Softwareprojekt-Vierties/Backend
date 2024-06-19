@@ -1197,8 +1197,9 @@ async function searchEndUser(req,res){
 * @param {number} id - the id, dictates what should be deleted
 * @param {string} deleteBy - the origin of the id, should be one of the following:
 *
-* - 'ownerid' - deletes a ticket based on that the id is from an owner
-* - 'eventid' - deletes a ticket based on that the id is from an event
+* - 'id' - deletes a SINGLE ticket based on the id
+* - 'ownerid' - deletes ALL ticket based on that the id is from an owner
+* - 'eventid' - deletes ALL ticket based on that the id is from an event
 * - anything else will results in a fail
 * @returns {Object} A JSON containing the following:
 *
@@ -1211,7 +1212,9 @@ async function deleteTicketsById(id, deleteBy) {
         console.warn("TRYING TO DELETE tickets OF", id, deleteBy)
         let query
 
-        if (deleteBy.matchAll('ownerid')) {
+        if (deleteBy.matchAll('id')) {
+            query = `DELETE FROM tickets WHERE id = $1::int RETURNING *`
+        } else if (deleteBy.matchAll('ownerid')) {
             query = `DELETE FROM tickets WHERE ownerid = $1::int RETURNING *`
         } else if (deleteBy.matchAll('eventid')) {
             query = `DELETE FROM tickets WHERE eventid = $1::int RETURNING *`
@@ -1251,8 +1254,9 @@ async function deleteTicketsById(id, deleteBy) {
 * @param {number} id - the id, dictates what should be deleted
 * @param {string} deleteBy - the origin of the id, should be one of the following:
 *
-* - 'catererid' - deletes a servicecaterer based on that the id is from a caterer
-* - 'eventid' - deletes a servicecaterer based on that the id is from an event
+* - 'id' - deletes a SINGLE servicecaterer based on the id
+* - 'catererid' - deletes ALL servicecaterer based on that the id is from a caterer
+* - 'eventid' - deletes ALL servicecaterer based on that the id is from an event
 * - anything else will results in a fail
 * @returns {Object} A JSON containing the following:
 *
@@ -1265,7 +1269,9 @@ async function deleteServiceCatererById(id, deleteBy) {
         console.warn("TRYING TO DELETE servicecaterer OF", id, deleteBy)
         let query
 
-        if (deleteBy.matchAll('catererid')) {
+        if (deleteBy.matchAll('id')) {
+            query = `DELETE FROM servicecaterer WHERE id = $1::int RETURNING *`
+        } else if (deleteBy.matchAll('catererid')) {
             query = `DELETE FROM servicecaterer WHERE artistid = $1::int RETURNING *`
         } else if (deleteBy.matchAll('eventid')) {
             query = `DELETE FROM servicecaterer WHERE eventid = $1::int RETURNING *`
@@ -1305,8 +1311,9 @@ async function deleteServiceCatererById(id, deleteBy) {
 * @param {number} id - the id, dictates what should be deleted
 * @param {string} deleteBy - the origin of the id, should be one of the following:
 *
-* - 'artistid' - deletes a serviceartist based on that the id is from an artist
-* - 'eventid' - deletes a serviceartist based on that the id is from an event
+* - 'id' - deletes a SINGLE serviceartist based on the id
+* - 'artistid' - deletes ALL serviceartist based on that the id is from an artist
+* - 'eventid' - deletes ALL serviceartist based on that the id is from an event
 * - anything else will results in a fail
 * @returns {Object} A JSON containing the following:
 *
@@ -1319,7 +1326,9 @@ async function deleteServiceArtistById(id, deleteBy) {
         console.warn("TRYING TO DELETE serviceartist OF", id, deleteBy)
         let query
 
-        if (deleteBy.matchAll('artistid')) {
+        if (deleteBy.matchAll('id')) {
+            query = `DELETE FROM serviceartist WHERE id = $1::int RETURNING *`
+        } else if (deleteBy.matchAll('artistid')) {
             query = `DELETE FROM serviceartist WHERE artistid = $1::int RETURNING *`
         } else if (deleteBy.matchAll('eventid')) {
             query = `DELETE FROM serviceartist WHERE eventid = $1::int RETURNING *`
@@ -1359,10 +1368,11 @@ async function deleteServiceArtistById(id, deleteBy) {
 * @param {number} id - the id, dictates what should be deleted
 * @param {string} deleteBy - the origin of the id, should be one of the following:
 *
-* - 'ownerid' - deletes a review based on that the id is from the owner
-* - 'eventid' - deletes a review based on that the id is from an event
-* - 'userid' - deletes a review based on that the id is from a user
-* - 'locationid' - deletes a review based on that the id is from a location
+* - 'id' - deletes a SINGLE review based on the id
+* - 'ownerid' - deletes ALL review based on that the id is from the owner
+* - 'eventid' - deletes ALL review based on that the id is from an event
+* - 'userid' - deletes ALL review based on that the id is from a user
+* - 'locationid' - deletes ALL review based on that the id is from a location
 * - anything else will results in a fail
 *
 * @returns {Object} A JSON containing the following:
@@ -1376,7 +1386,9 @@ async function deleteReviewById(id, deleteBy) {
         console.warn("TRYING TO DELETE A review OF", id, deleteBy)
         let query
 
-        if (deleteBy.matchAll('ownerid')) {
+        if (deleteBy.matchAll('id')) {
+            query = `DELETE FROM review WHERE id = $1::int RETURNING *`
+        } else if (deleteBy.matchAll('ownerid')) {
             query = `DELETE FROM review WHERE ownerid = $1::int RETURNING *`
         } else if (deleteBy.matchAll('eventid')) {
             query = `DELETE FROM review WHERE eventid = $1::int RETURNING *`
@@ -1420,8 +1432,9 @@ async function deleteReviewById(id, deleteBy) {
 * @param {number} id - the id, dictates what should be deleted
 * @param {string} deleteBy - the origin of the id, should be one of the following:
 *
-* - 'playlistid' - deletes a playlistinhalt based on that the id is from a playlist
-* - 'liedid' - deletes a playlistinhalt based on that the id is from a lied
+* - 'playlistid' - deletes ALL playlistinhalt based on that the id is from a playlist
+* - 'liedid' - deletes ALL playlistinhalt based on that the id is from a lied
+* - 'id' - deletes a SINGLE playlistinhalt based on the id
 * - anything else will results in a fail
 *
 * @returns {Object} A JSON containing the following:
@@ -1439,6 +1452,8 @@ async function deletePlaylistInhaltById(id, deleteBy) {
             query = `DELETE FROM playlistinhalt WHERE playlistid = $1::int RETURNING *`
         } else if (deleteBy.matchAll('liedid')) {
             query = `DELETE FROM playlistinhalt WHERE liedid = $1::int RETURNING *`
+        } else if (deleteBy.matchAll('id')) {
+            query = `DELETE FROM playlistinhalt WHERE id = $1::int RETURNING *`
         } else {
             return {
                 sucess: false,
@@ -1472,7 +1487,12 @@ async function deletePlaylistInhaltById(id, deleteBy) {
 /**
 * Deletes a playlist from the DB using an id.
 *
-* @param {number} id - the id from the artist in the artist table, dictates what should be deleted
+* @param {number} id - the id, dictates what should be deleted
+* @param {number} deleteBy - the origin of the id, should be one of the following:
+*
+* - 'playlistid' - deletes a SINGLE playlist based on the id
+* - 'artistid' - deletes ALL playlist based on that the id is from the artist
+* - anything else will results in a fail
 *
 * @returns {Object} A JSON containing the following:
 *
@@ -1480,10 +1500,21 @@ async function deletePlaylistInhaltById(id, deleteBy) {
 * - any[]: data - The data returned from the deletion operation, can be null
 * - any: error - The error that occoured if something failed, only written if success = false
 */
-async function deletePlaylistById(id) {
+async function deletePlaylistById(id, deleteBy) {
     try {
-        console.warn("TRYING TO DELETE A playlist OF", id)
-        let query = `DELETE FROM playlist WHERE artistid = $1::int RETURNING *`
+        console.warn("TRYING TO DELETE A playlist OF", id, deleteBy)
+        let query
+
+        if (deleteBy.matchAll('locationid')) {
+            query = `DELETE FROM playlist WHERE id = $1::int RETURNING *`
+        } else if (deleteBy.matchAll('ownerid')) {
+            query = `DELETE FROM playlist WHERE artistid = $1::int RETURNING *`
+        } else {
+            return {
+                sucess: false,
+                error: new Error("INVALID deleteBy: " + deleteBy)
+            }
+        }
 
         const result = await pool.query(query, [id])
         if (result.rows.length === 0) { // if nothing was found to be deleted
@@ -1499,7 +1530,7 @@ async function deletePlaylistById(id) {
             }
         }
     } catch (err) {
-        console.error("AN ERROR OCCURRED WHILE TRYING TO DELETE A playlistinhalt", err)
+        console.error("AN ERROR OCCURRED WHILE TRYING TO DELETE A playlist", err)
         return {
             success: false,
             data: null,
@@ -1553,8 +1584,8 @@ async function deletePasswordById(id) {
 * @param {number} id - the id, dictates what should be deleted
 * @param {string} deleteBy - the origin of the id, should be one of the following:
 *
-* - 'locationid' - deletes a location based on the id
-* - 'ownerid' - deletes a location based on that the id is from an owner
+* - 'locationid' - deletes a SINGLE location based on the id
+* - 'ownerid' - deletes ALL location based on that the id is from an owner
 * - anything else will results in a fail
 *
 * @returns {Object} A JSON containing the following:
@@ -1608,8 +1639,8 @@ async function deleteLocationById(id, deleteBy) {
 * @param {number} id - the id, dictates what should be deleted
 * @param {string} deleteBy - the origin of the id, should be one of the following:
 *
-* - 'liedid' - deletes a lied based on the id
-* - 'ownerid' - deletes a lied based on that the id is from an owner
+* - 'liedid' - deletes a SINGLE lied based on the id
+* - 'ownerid' - deletes ALL lied based on that the id is from an owner
 * - anything else will results in a fail
 *
 * @returns {Object} A JSON containing the following:
@@ -1663,8 +1694,8 @@ async function deleteLiedById(id, deleteBy) {
 * @param {number} id - the id, dictates what should be deleted
 * @param {string} deleteBy - the origin of the id, should be one of the following:
 *
-* - 'gerichtid' - deletes a gericht based on the id
-* - 'ownerid' - deletes all gericht based on that the id is from an owner
+* - 'gerichtid' - deletes a SINGLE gericht based on the id
+* - 'ownerid' - deletes ALL gericht based on that the id is from an owner
 * - anything else will results in a fail
 *
 * @returns {Object} A JSON containing the following:
@@ -1718,8 +1749,8 @@ async function deleteGerichtById(id, deleteBy) {
 * @param {number} id - the id, dictates what should be deleted
 * @param {string} deleteBy - the origin of the id, should be one of the following:
 *
-* - 'eventid' - deletes an event based on the id
-* - 'ownerid' - deletes all event based on that the id is from an owner
+* - 'eventid' - deletes a SINGLE event based on the id
+* - 'ownerid' - deletes ALL event based on that the id is from an owner
 * - anything else will results in a fail
 *
 * @returns {Object} A JSON containing the following:
