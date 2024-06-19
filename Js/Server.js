@@ -149,9 +149,16 @@ app.get('/playlist/:name', (req,res)=>{
 })
 
 app.post('/testloc',async (req,res)=>{
-    const {location1,location2} = req.body
-    let good = await checkDistance(location1,location2,1)
-    res.send(good)  
+    const {location1,location2,maxdis} = req.body
+    try
+    {
+        const good = await checkDistance(location1,location2,maxdis)
+        res.send(good) 
+    }
+    catch(err)
+    {
+        res.send(err)
+    }
 
 })
 
