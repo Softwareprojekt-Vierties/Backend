@@ -1437,6 +1437,67 @@ async function deleteServiceArtistByEventId(eventid) {
     }
 }
 
+/**
+* Deletes a review from the DB using an id.
+*
+* @param {number} id - the id, dictates what should be deleted
+* @param {string} deleteBy - the origin of the id, should be one of the following:
+*
+* - 'ownerid' - deletes a review based on that the id is from the owner
+* - 'eventid' - deletes a review based on that the id is from an event
+* - 'userid' - deletes a review based on that the id is from a user
+* - 'locationid' - deletes a review based on that the id is from a location
+* - anything else will results in a fail
+*
+* @returns {Object} A JSON containing the following:
+*
+* - boolean: sucess - If the deletion was successful or not
+* - any[]: data - The data returned from the deletion operation, can be null
+* - any: error - The error that occoured if something failed, only written if success = false
+*/
+async function deleteReviewById(id, deleteBy) {
+    try {
+        console.warn("TRYING TO DELETE A review OF", id, deleteBy)
+        let query
+
+        if (deleteBy.matchAll('ownerid')) {
+            query = `DELETE FROM review WHERE ownerid = $1::int RETURNING *`
+        } else if (deleteBy.matchAll('eventid')) {
+            query = `DELETE FROM review WHERE eventid = $1::int RETURNING *`
+        } else if (deleteBy.matchAll('userid')) {
+            query = `DELETE FROM review WHERE userid = $1::int RETURNING *`
+        } else if (deleteBy.matchAll('locationid')) {
+            query = `DELETE FROM review WHERE locationid = $1::int RETURNING *`
+        } else {
+            return {
+                sucess: false,
+                error: new Error("INVALID deleteBy: " + deleteBy)
+            }
+        }
+
+        const result = await pool.query(query, [id])
+        if (result.rows.length === 0) { // if nothing was found to be deleted
+            return {
+                success: true,
+                data: null
+            }
+        }
+        else {
+            return {
+                sucess: true,
+                data: result.rows
+            }
+        }
+    } catch (err) {
+        console.error("AN ERROR OCCURRED WHILE TRYING TO DELETE A ticket", err)
+        return {
+            success: false,
+            data: null,
+            error: err
+        }
+    }
+}
+
 module.exports = {
     comparePassword,
     createEndUser, createArtist, createCaterer, createEvent, createLocation, createReviewEvent, createReviewUser, createReviewLocation, createServiceArtist, createLied, createGericht, createPlaylist, createPlaylistInhalt, createTicket, createServiceArtist,
