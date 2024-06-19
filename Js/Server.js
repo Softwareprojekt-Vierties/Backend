@@ -8,6 +8,7 @@ const cookieJwtAuth = require('./CookieJwtAuth'); // import CookieJwtAuth.js fil
 const registration = require('./Registration'); // import Registration.js file
 const database = require("./Database")
 const cors = require('cors')
+const checkDistance = require('./CheckDistance')
 const corsOption= {
     Credential: true
 }
@@ -147,7 +148,23 @@ app.get('/playlist/:name', (req,res)=>{
     }
 })
 
+
+app.post('/testloc',async (req,res)=>{
+    const {location1,location2,maxdis} = req.body
+    try
+    {
+        const good = await checkDistance(location1,location2,maxdis)
+        res.send(good) 
+    }
+    catch(err)
+    {
+        res.send(err)
+    }
+
+})
+
 app.post('/searchEvent',database.searchEvent);  // searchs events with filter param
+
 
 app.post('/createEvent',(req,res)=>{
     const {eventname,datum,uhrzeit,eventgroesse,preis,altersfreigabe,privat,kurzbeschreibung,beschreibung,bild,ownerid,locationid} = req.body
