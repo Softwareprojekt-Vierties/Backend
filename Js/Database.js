@@ -1192,65 +1192,37 @@ async function searchEndUser(req,res){
 // ------------------------- DELETE - QUERIES ------------------------- //
 
 /**
-* Deletes tickets from the DB using the id from the owner of the ticket.
+* Deletes a ticket from the DB using an id.
 *
-* @param {number} userid - the id of the owner of the ticket from app_user table
+* @param {number} id - the id, dictates what should be deleted
+* @param {string} deleteBy - the origin of the id, should be one of the following:
+*
+* - 'ownerid' - deletes a ticket based on that the id is from an owner
+* - 'eventid' - deletes a ticket based on that the id is from an event
+* - anything else will results in a fail
 * @returns {Object} A JSON containing the following:
 *
 * - boolean: sucess - If the deletion was successful or not
 * - any[]: data - The data returned from the deletion operation, can be null
 * - any: error - The error that occoured if something failed, only written if success = false
 */
-async function deleteTicketsByUserId(userid) {
+async function deleteTicketsById(id, deleteBy) {
     try {
-        console.warn("TRYING TO DELETE tickets OF", userid)
-        const result = await pool.query(
-            `DELETE FROM tickets
-            WHERE userid = $1::int
-            RETURNING *`,
-            [userid]
-        )
-        if (result.rows.length === 0) { // if nothing was found to be deleted
-            return {
-                success: true,
-                data: null
-            }
-        }
-        else {
-            return {
-                sucess: true,
-                data: result.rows
-            }
-        }
-    } catch (err) {
-        console.error("AN ERROR OCCURRED WHILE TRYING TO DELETE A ticket", err)
-        return {
-            success: false,
-            data: null,
-            error: err
-        }
-    }
-}
+        console.warn("TRYING TO DELETE tickets OF", id, deleteBy)
+        let query
 
-/**
-* Deletes tickets from the DB using the id from the event of the ticket.
-*
-* @param {number} eventid - the id of the event of the ticket from event table
-* @returns {Object} A JSON containing the following:
-*
-* - boolean: sucess - If the deletion was successful or not
-* - any[]: data - The data returned from the deletion operation, can be null
-* - any: error - The error that occoured if something failed, only written if success = false
-*/
-async function deleteTicketsByEventId(eventid) {
-    try {
-        console.warn("TRYING TO DELETE tickets OF", eventid)
-        const result = await pool.query(
-            `DELETE FROM tickets
-            WHERE eventid = $1::int
-            RETURNING *`,
-            [eventid]
-        )
+        if (deleteBy.matchAll('ownerid')) {
+            query = `DELETE FROM tickets WHERE ownerid = $1::int RETURNING *`
+        } else if (deleteBy.matchAll('eventid')) {
+            query = `DELETE FROM tickets WHERE eventid = $1::int RETURNING *`
+        } else {
+            return {
+                sucess: false,
+                error: new Error("INVALID deleteBy: " + deleteBy)
+            }
+        }
+
+        const result = await pool.query(query, [id])
         if (result.rows.length === 0) { // if nothing was found to be deleted
             return {
                 success: true,
@@ -1279,8 +1251,8 @@ async function deleteTicketsByEventId(eventid) {
 * @param {number} id - the id, dictates what should be deleted
 * @param {string} deleteBy - the origin of the id, should be one of the following:
 *
-* - 'catererid' - deletes a serviceartist based on that the id is from a caterer
-* - 'eventid' - deletes a serviceartist based on that the id is from an event
+* - 'catererid' - deletes a servicecaterer based on that the id is from a caterer
+* - 'eventid' - deletes a servicecaterer based on that the id is from an event
 * - anything else will results in a fail
 * @returns {Object} A JSON containing the following:
 *
@@ -1288,9 +1260,9 @@ async function deleteTicketsByEventId(eventid) {
 * - any[]: data - The data returned from the deletion operation, can be null
 * - any: error - The error that occoured if something failed, only written if success = false
 */
-async function deleteServiceCatererById(catererid, deleteBy) {
+async function deleteServiceCatererById(id, deleteBy) {
     try {
-        console.warn("TRYING TO DELETE servicecaterer OF", catererid, deleteBy)
+        console.warn("TRYING TO DELETE servicecaterer OF", id, deleteBy)
         let query
 
         if (deleteBy.matchAll('catererid')) {
