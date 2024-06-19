@@ -930,12 +930,12 @@ async function searchLocaiton(req,res){
     // }
 }
 
-// Needs to be testet
+
 async function searchCaterer(req,res){
     console.log("REQUEST",req.body)
     // const user = cookieJwtAuth.getUser(req.headers["auth"])
     const user = 45
-    let query = "SELECT c.preis,c.kategorie,c.erfahrung,a.profilname as name,a.profilbild,a.kurzbeschreibung, fu.userid AS favorit FROM caterer c JOIN app_user a ON c.emailfk = a.email"
+    let query = "SELECT c.preis,c.kategorie,c.erfahrung,a.profilname as name,a.region,a.profilbild,a.kurzbeschreibung,a.sterne, fu.userid AS favorit FROM caterer c JOIN app_user a ON c.emailfk = a.email"
     let additionalFilter = ""
     let param = []
     let istfavorit = " LEFT OUTER JOIN favorit_user fu ON c.id = fu.catereid"
@@ -1018,12 +1018,12 @@ async function searchCaterer(req,res){
     //     return res.status(400).send("Error while searching for an event")
     // }
 }
-// Needs to be testet
+
 async function searchArtist(req,res){
     console.log("REQUEST",req.body)
     // const user = cookieJwtAuth.getUser(req.headers["auth"])
     const user = 45
-    let query = "SELECT a.preis,a.kategorie,a.erfahrung,ap.profilname as name,ap.profilbild,ap.kurzbeschreibung,fu.userid AS favorit FROM artist a JOIN app_user ap ON a.emailfk = ap.email"
+    let query = "SELECT a.preis,a.kategorie,a.erfahrung,ap.region,ap.profilname as name,ap.sterne,ap.profilbild,ap.kurzbeschreibung,fu.userid AS favorit FROM artist a JOIN app_user ap ON a.emailfk = ap.email"
     let additionalFilter = ""
     let istfavorit = " LEFT OUTER JOIN favorit_user fu ON a.id = fu.artistid"
     let param = []
@@ -1107,10 +1107,91 @@ async function searchArtist(req,res){
     // }
 }
 
+async function searchEndUser(req,res){
+    console.log("REQUEST",req.body)
+    // const user = cookieJwtAuth.getUser(req.headers["auth"])
+    const user = 45
+    let query = "SELECT e.*,ap.region,fu.userid AS favorit FROM endnutzer e JOIN app_user ap ON e.emailfk = ap.email"
+    let additionalFilter = ""
+    let istfavorit = " LEFT OUTER JOIN favorit_user fu ON a.id = fu.artistid"
+    let param = []
+    let paramIndex = 0;
+    let sqlStirng=""
+    let doAND = true
+
+    for (let key in req.body) {
+        doAND = true
+        switch (key) {
+            case 'search':
+                paramIndex++
+                additionalFilter += "UPPER(ap.profilname) LIKE UPPER ($"+paramIndex+")"
+                param.push(`%${req.body[key]}%`)
+                break
+            case 'region':
+                paramIndex++
+                additionalFilter += "UPPER(ap.region) LIKE UPPER ($"+paramIndex+")"
+                param.push(`%${req.body[key]}%`)
+                break
+            case 'geschelcht':
+                paramIndex++
+                additionalFilter += "UPPER(e.geschlecht) LIKE UPPER ($"+paramIndex+")"
+                param.push(`%${req.body[key]}%`)
+                break
+            case 'alter':
+                paramIndex++
+                additionalFilter += "e.alter >= $"+paramIndex+"::int"
+                param.push(req.body[key])
+                brea
+            case 'istfavorit':
+                paramIndex++
+                additionalFilter+="fu.userid = $"+paramIndex+"::int"
+                param.push(user) 
+                break
+            case 'istfreund':
+               // to be implementet
+               doAND = false
+               break
+            default:
+                // do nothing
+                doAND = false
+                break
+        }
+        if (doAND) additionalFilter += " AND "
+    }
+
+    additionalFilter = additionalFilter.substring(0,additionalFilter.length-5) // remove the last ' AND '
+    paramIndex == 0 ? sqlstring = query + istfavorit : sqlstring = query + istfavorit + " WHERE " + additionalFilter
+
+    try {
+        const result = await pool.query(sqlstring,param)
+        for (let i=0;i<result.rowCount;i++)
+        {
+            //checks if the Enduser is a users Favorit
+            if(Object.hasOwn(result.rows[i],"favorit")) {result.rows[i]["favorit"] == user ? result.rows[i]["favorit"] = true : result.rows[i]["favorit"] = false}
+        }
+        return res.send(result)
+    } catch (err) {
+        console.error(err)
+        return res.status(400).send("Error while searching for an enduser")
+    }
+
+    // // with additional params
+    // try {
+    //     const result = await pool.query(
+    //         query += " WHERE " + additionalFilter,
+    //         param
+    //     )
+    //     return res.send(result)
+    // } catch (err) {
+    //     console.error(err)
+    //     return res.status(400).send("Error while searching for an event")
+    // }
+}
+
 module.exports = {
     comparePassword,
     createEndUser, createArtist, createCaterer, createEvent, createLocation, createReviewEvent, createReviewUser, createReviewLocation, createServiceArtist, createLied, createGericht, createPlaylist, createPlaylistInhalt, createTicket, createServiceArtist,
     getUserById, getUserByEmailandUsername , getStuffbyName , getLocationById,  getCatererById , getArtistByID, getAllTicketsFromUser, getArtistByEvent, getCatererByEvent, getPlaylistContent,
-    searchEvent, searchLocaiton,searchCaterer, searchArtist, updateArtist, updateCaterer, updateLocation,
+    searchEvent, searchLocaiton,searchCaterer, searchArtist, searchEndUser, updateArtist, updateCaterer, updateLocation,
     updateGericht, updateLied
 };

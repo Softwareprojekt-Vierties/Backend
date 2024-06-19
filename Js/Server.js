@@ -225,6 +225,7 @@ app.post('/searchEvent',database.searchEvent);  // searchs events with filter pa
 app.post('/searchLoacation',database.searchLocaiton);  // searchs Locations with filter param
 app.post('/searchCaterer',database.searchCaterer);  // searchs Caterer with filter param
 app.post('/searchArtist',database.searchArtist);  // searchs Artist with filter param
+app.post('/searchArtist',database.searchEndUser);  // searchs Artist with filter param
 
 app.post('/createEvent', async (req,res)=> {
     console.log("REQUEST TO CREATE EVENT",req.body)
