@@ -1547,6 +1547,61 @@ async function deletePasswordById(id) {
     }
 }
 
+/**
+* Deletes a location from the DB using an id.
+*
+* @param {number} id - the id, dictates what should be deleted
+* @param {string} deleteBy - the origin of the id, should be one of the following:
+*
+* - 'locationid' - deletes a location based on the id
+* - 'ownerid' - deletes a location based on that the id is from an owner
+* - anything else will results in a fail
+*
+* @returns {Object} A JSON containing the following:
+*
+* - boolean: sucess - If the deletion was successful or not
+* - any[]: data - The data returned from the deletion operation, can be null
+* - any: error - The error that occoured if something failed, only written if success = false
+*/
+async function deleteLocationById(id, deleteBy) {
+    try {
+        console.warn("TRYING TO DELETE A location OF", id, deleteBy)
+        let query
+
+        if (deleteBy.matchAll('locationid')) {
+            query = `DELETE FROM location WHERE id = $1::int RETURNING *`
+        } else if (deleteBy.matchAll('ownerid')) {
+            query = `DELETE FROM location WHERE ownerid = $1::int RETURNING *`
+        } else {
+            return {
+                sucess: false,
+                error: new Error("INVALID deleteBy: " + deleteBy)
+            }
+        }
+
+        const result = await pool.query(query, [id])
+        if (result.rows.length === 0) { // if nothing was found to be deleted
+            return {
+                success: true,
+                data: null
+            }
+        }
+        else {
+            return {
+                sucess: true,
+                data: result.rows
+            }
+        }
+    } catch (err) {
+        console.error("AN ERROR OCCURRED WHILE TRYING TO DELETE A location", err)
+        return {
+            success: false,
+            data: null,
+            error: err
+        }
+    }
+}
+
 module.exports = {
     comparePassword,
     createEndUser, createArtist, createCaterer, createEvent, createLocation, createReviewEvent, createReviewUser, createReviewLocation, createServiceArtist, createLied, createGericht, createPlaylist, createPlaylistInhalt, createTicket, createServiceArtist,
