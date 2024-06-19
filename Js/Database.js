@@ -1200,7 +1200,7 @@ async function searchEndUser(req,res){
 * - 'id' - deletes a SINGLE ticket based on the id
 * - 'ownerid' - deletes ALL ticket based on that the id is from an owner
 * - 'eventid' - deletes ALL ticket based on that the id is from an event
-* - anything else will results in a fail
+* - anything else will result in a fail
 * @returns {Object} A JSON containing the following:
 *
 * - boolean: sucess - If the deletion was successful or not
@@ -1257,7 +1257,7 @@ async function deleteTicketsById(id, deleteBy) {
 * - 'id' - deletes a SINGLE servicecaterer based on the id
 * - 'catererid' - deletes ALL servicecaterer based on that the id is from a caterer
 * - 'eventid' - deletes ALL servicecaterer based on that the id is from an event
-* - anything else will results in a fail
+* - anything else will result in a fail
 * @returns {Object} A JSON containing the following:
 *
 * - boolean: sucess - If the deletion was successful or not
@@ -1314,7 +1314,7 @@ async function deleteServiceCatererById(id, deleteBy) {
 * - 'id' - deletes a SINGLE serviceartist based on the id
 * - 'artistid' - deletes ALL serviceartist based on that the id is from an artist
 * - 'eventid' - deletes ALL serviceartist based on that the id is from an event
-* - anything else will results in a fail
+* - anything else will result in a fail
 * @returns {Object} A JSON containing the following:
 *
 * - boolean: sucess - If the deletion was successful or not
@@ -1373,7 +1373,7 @@ async function deleteServiceArtistById(id, deleteBy) {
 * - 'eventid' - deletes ALL review based on that the id is from an event
 * - 'userid' - deletes ALL review based on that the id is from a user
 * - 'locationid' - deletes ALL review based on that the id is from a location
-* - anything else will results in a fail
+* - anything else will result in a fail
 *
 * @returns {Object} A JSON containing the following:
 *
@@ -1435,7 +1435,7 @@ async function deleteReviewById(id, deleteBy) {
 * - 'playlistid' - deletes ALL playlistinhalt based on that the id is from a playlist
 * - 'liedid' - deletes ALL playlistinhalt based on that the id is from a lied
 * - 'id' - deletes a SINGLE playlistinhalt based on the id
-* - anything else will results in a fail
+* - anything else will result in a fail
 *
 * @returns {Object} A JSON containing the following:
 *
@@ -1492,7 +1492,7 @@ async function deletePlaylistInhaltById(id, deleteBy) {
 *
 * - 'playlistid' - deletes a SINGLE playlist based on the id
 * - 'artistid' - deletes ALL playlist based on that the id is from the artist
-* - anything else will results in a fail
+* - anything else will result in a fail
 *
 * @returns {Object} A JSON containing the following:
 *
@@ -1586,7 +1586,7 @@ async function deletePasswordById(id) {
 *
 * - 'locationid' - deletes a SINGLE location based on the id
 * - 'ownerid' - deletes ALL location based on that the id is from an owner
-* - anything else will results in a fail
+* - anything else will result in a fail
 *
 * @returns {Object} A JSON containing the following:
 *
@@ -1641,7 +1641,7 @@ async function deleteLocationById(id, deleteBy) {
 *
 * - 'liedid' - deletes a SINGLE lied based on the id
 * - 'ownerid' - deletes ALL lied based on that the id is from an owner
-* - anything else will results in a fail
+* - anything else will result in a fail
 *
 * @returns {Object} A JSON containing the following:
 *
@@ -1696,7 +1696,7 @@ async function deleteLiedById(id, deleteBy) {
 *
 * - 'gerichtid' - deletes a SINGLE gericht based on the id
 * - 'ownerid' - deletes ALL gericht based on that the id is from an owner
-* - anything else will results in a fail
+* - anything else will result in a fail
 *
 * @returns {Object} A JSON containing the following:
 *
@@ -1751,7 +1751,7 @@ async function deleteGerichtById(id, deleteBy) {
 *
 * - 'eventid' - deletes a SINGLE event based on the id
 * - 'ownerid' - deletes ALL event based on that the id is from an owner
-* - anything else will results in a fail
+* - anything else will result in a fail
 *
 * @returns {Object} A JSON containing the following:
 *
