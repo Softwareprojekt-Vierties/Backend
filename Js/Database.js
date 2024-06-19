@@ -1274,65 +1274,37 @@ async function deleteTicketsByEventId(eventid) {
 }
 
 /**
-* Deletes servicecaterer from the DB using the id from the caterer of the service.
+* Deletes servicecaterer from the DB using an id.
 *
-* @param {number} catererid - the id of the caterer of the service from caterer table
+* @param {number} id - the id, dictates what should be deleted
+* @param {string} deleteBy - the origin of the id, should be one of the following:
+*
+* - 'catererid' - deletes a serviceartist based on that the id is from a caterer
+* - 'eventid' - deletes a serviceartist based on that the id is from an event
+* - anything else will results in a fail
 * @returns {Object} A JSON containing the following:
 *
 * - boolean: sucess - If the deletion was successful or not
 * - any[]: data - The data returned from the deletion operation, can be null
 * - any: error - The error that occoured if something failed, only written if success = false
 */
-async function deleteServiceCatererByCatererId(catererid) {
+async function deleteServiceCatererById(catererid, deleteBy) {
     try {
-        console.warn("TRYING TO DELETE servicecaterer OF", catererid)
-        const result = await pool.query(
-            `DELETE FROM servicecaterer
-            WHERE catererid = $1::int
-            RETURNING *`,
-            [catererid]
-        )
-        if (result.rows.length === 0) { // if nothing was found to be deleted
-            return {
-                success: true,
-                data: null
-            }
-        }
-        else {
-            return {
-                sucess: true,
-                data: result.rows
-            }
-        }
-    } catch (err) {
-        console.error("AN ERROR OCCURRED WHILE TRYING TO DELETE A ticket", err)
-        return {
-            success: false,
-            data: null,
-            error: err
-        }
-    }
-}
+        console.warn("TRYING TO DELETE servicecaterer OF", catererid, deleteBy)
+        let query
 
-/**
-* Deletes servicecaterer from the DB using the id from the event of the service.
-*
-* @param {number} eventid - the id of the event of the ticket from event table
-* @returns {Object} A JSON containing the following:
-*
-* - boolean: sucess - If the deletion was successful or not
-* - any[]: data - The data returned from the deletion operation, can be null
-* - any: error - The error that occoured if something failed, only written if success = false
-*/
-async function deleteServiceCatererByEventId(eventid) {
-    try {
-        console.warn("TRYING TO DELETE servicecaterer OF", eventid)
-        const result = await pool.query(
-            `DELETE FROM servicecaterer
-            WHERE eventid = $1::int
-            RETURNING *`,
-            [eventid]
-        )
+        if (deleteBy.matchAll('catererid')) {
+            query = `DELETE FROM servicecaterer WHERE artistid = $1::int RETURNING *`
+        } else if (deleteBy.matchAll('eventid')) {
+            query = `DELETE FROM servicecaterer WHERE eventid = $1::int RETURNING *`
+        } else {
+            return {
+                sucess: false,
+                error: new Error("INVALID deleteBy: " + deleteBy)
+            }
+        }
+
+        const result = await pool.query(query, [id])
         if (result.rows.length === 0) { // if nothing was found to be deleted
             return {
                 success: true,
@@ -1346,7 +1318,7 @@ async function deleteServiceCatererByEventId(eventid) {
             }
         }
     } catch (err) {
-        console.error("AN ERROR OCCURRED WHILE TRYING TO DELETE A ticket", err)
+        console.error("AN ERROR OCCURRED WHILE TRYING TO DELETE servicecaterer", err)
         return {
             success: false,
             data: null,
