@@ -1798,6 +1798,45 @@ async function deleteEventById(id, deleteBy) {
     }
 }
 
+/**
+* Deletes an app_user from the DB using an id.
+*
+* @param {number} id - the id of the app_user, dictates what should be deleted
+*
+* @returns {Object} A JSON containing the following:
+*
+* - boolean: sucess - If the deletion was successful or not
+* - any[]: data - The data returned from the deletion operation, can be null
+* - any: error - The error that occoured if something failed, only written if success = false
+*/
+async function deleteAppUserById(id) {
+    try {
+        console.warn("TRYING TO DELETE AN app_user OF", id)
+        let query = `DELETE FROM app_user WHERE id = $1::int RETURNING *`
+
+        const result = await pool.query(query, [id])
+        if (result.rows.length === 0) { // if nothing was found to be deleted
+            return {
+                success: true,
+                data: null
+            }
+        }
+        else {
+            return {
+                sucess: true,
+                data: result.rows
+            }
+        }
+    } catch (err) {
+        console.error("AN ERROR OCCURRED WHILE TRYING TO DELETE AN app_user", err)
+        return {
+            success: false,
+            data: null,
+            error: err
+        }
+    }
+}
+
 module.exports = {
     comparePassword,
     createEndUser, createArtist, createCaterer, createEvent, createLocation, createReviewEvent, createReviewUser, createReviewLocation, createServiceArtist, createLied, createGericht, createPlaylist, createPlaylistInhalt, createTicket, createServiceArtist,
