@@ -2,6 +2,8 @@ const { response } = require('express');
 const {Pool} = require('pg');
 const cookieJwtAuth = require('./CookieJwtAuth')
 const bcrypt = require('bcrypt');
+const checkDistance = require('./CheckDistance');
+const CheckDistance = require('./CheckDistance');
 
 
 const pool = new Pool({
@@ -774,7 +776,6 @@ async function searchEvent(req,res){
                 param.push(`%${req.body[key]}%`)
                 break
             case 'distanz':
-                console.error("DISTANZ NOT YET IMPLEMENTED")
                 doAND = false
                 break
             case 'istbesitzer':
@@ -822,6 +823,23 @@ async function searchEvent(req,res){
         {
             //checks if the Event is a users Favorit
             if(Object.hasOwn(result.rows[i],"favorit")) {result.rows[i]["favorit"] == user ? result.rows[i]["favorit"] = true : result.rows[i]["favorit"] = false}
+        }
+        if(Object.hasOwn(req.body,"distanz"))
+        {
+            const {standort,distanz} = req.body
+            let row = result.rows
+            for (let i=0;i<result.rowCount;i++)
+            {
+                if(row[i]["adresse"] == null)
+                {
+                
+                    result.rows[i]["distanz"] = false 
+                    continue
+                }
+                
+                let isokay = await checkDistance(standort,row[i]["adresse"],distanz)
+                isokay ? result.rows[i]["distanz"] = true : result.rows[i]["distanz"] = false
+            } 
         }
         return res.send(result)
     } catch (err) {
@@ -871,7 +889,7 @@ async function searchLocaiton(req,res){
                 param.push(req.body[key][0],req.body[key][1])
                 break
             case 'distanz':
-                console.error("DISTANZ NOT YET IMPLEMENTED")
+
                 doAND = false
                 break
             case 'istfavorit':
@@ -908,6 +926,23 @@ async function searchLocaiton(req,res){
             //checks if the locataion is a user Favorit
             if(Object.hasOwn(result.rows[i],"favorit")) {result.rows[i]["favorit"] == user ? result.rows[i]["favorit"] = true : result.rows[i]["favorit"] = false}
         }
+        if(Object.hasOwn(req.body,"distanz"))
+            {
+                const {standort,distanz} = req.body
+                let row = result.rows
+                for (let i=0;i<result.rowCount;i++)
+                {
+                    if(row[i]["adresse"] == null)
+                    {
+                    
+                        result.rows[i]["distanz"] = false 
+                        continue
+                    }
+                    
+                    let isokay = await checkDistance(standort,row[i]["adresse"],distanz)
+                    isokay ? result.rows[i]["distanz"] = true : result.rows[i]["distanz"] = false
+                } 
+            }
         return res.send(result)
     } catch (err) {
         console.error(err)
@@ -996,6 +1031,23 @@ async function searchCaterer(req,res){
             //checks if the Catere is a users Favorit
             if(Object.hasOwn(result.rows[i],"favorit")) {result.rows[i]["favorit"] == user ? result.rows[i]["favorit"] = true : result.rows[i]["favorit"] = false}
         }
+        if(Object.hasOwn(req.body,"distanz"))
+            {
+                const {standort,distanz} = req.body
+                let row = result.rows
+                for (let i=0;i<result.rowCount;i++)
+                {
+                    if(row[i]["region"] == null)
+                    {
+                    
+                        result.rows[i]["distanz"] = false 
+                        continue
+                    }
+                    
+                    let isokay = await checkDistance(standort,row[i]["region"],distanz)
+                    isokay ? result.rows[i]["distanz"] = true : result.rows[i]["distanz"] = false
+                } 
+            }
         return res.send(result)
     } catch (err) {
         console.error(err)
@@ -1084,6 +1136,23 @@ async function searchArtist(req,res){
             //checks if the Artist is a users Favorit
             if(Object.hasOwn(result.rows[i],"favorit")) {result.rows[i]["favorit"] == user ? result.rows[i]["favorit"] = true : result.rows[i]["favorit"] = false}
         }
+        if(Object.hasOwn(req.body,"distanz"))
+            {
+                const {standort,distanz} = req.body
+                let row = result.rows
+                for (let i=0;i<result.rowCount;i++)
+                {
+                    if(row[i]["region"] == null)
+                    {
+                    
+                        result.rows[i]["distanz"] = false 
+                        continue
+                    }
+                    
+                    let isokay = await checkDistance(standort,row[i]["region"],distanz)
+                    isokay ? result.rows[i]["distanz"] = true : result.rows[i]["distanz"] = false
+                } 
+            }
         return res.send(result)
     } catch (err) {
         console.error(err)
@@ -1165,6 +1234,23 @@ async function searchEndUser(req,res){
             //checks if the Enduser is a users Favorit
             if(Object.hasOwn(result.rows[i],"favorit")) {result.rows[i]["favorit"] == user ? result.rows[i]["favorit"] = true : result.rows[i]["favorit"] = false}
         }
+        if(Object.hasOwn(req.body,"distanz"))
+            {
+                const {standort,distanz} = req.body
+                let row = result.rows
+                for (let i=0;i<result.rowCount;i++)
+                {
+                    if(row[i]["region"] == null)
+                    {
+                    
+                        result.rows[i]["distanz"] = false 
+                        continue
+                    }
+                    
+                    let isokay = await checkDistance(standort,row[i]["region"],distanz)
+                    isokay ? result.rows[i]["distanz"] = true : result.rows[i]["distanz"] = false
+                } 
+            }
         return res.send(result)
     } catch (err) {
         console.error(err)

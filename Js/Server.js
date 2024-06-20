@@ -218,9 +218,6 @@ app.post('/testloc',async (req,res)=>{
 
 app.post('/searchEvent',database.searchEvent);  // searchs events with filter param
 
-
-app.post('/createEvent',(req,res)=>{
-
 app.post('/checkAccount',async(req,res)=>{
     const {email, benutzername} = req.body;
     try
@@ -308,4 +305,4 @@ const server = app.listen(port, (error) => {           // starts the server on t
 });
 
 // export things for test
-module.exports={app,server};
+module.exports={app,server}
