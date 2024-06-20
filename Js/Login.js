@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const Database = require('./Database.js');
+const { comparePassword } = require('./Database/Database.js');
 SECRET = "BruhnsmanIsTheBest"
 
 
@@ -8,7 +8,7 @@ module.exports = async(req, res) => {
     try
     {
         console.log("LOGIN REQUEST WITH",req.body)
-        const user = await Database.comparePassword(email,pass);
+        const user = await comparePassword(email,pass);
         console.log(user)
         if(user!=null)
         {

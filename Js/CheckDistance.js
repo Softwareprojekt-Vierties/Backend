@@ -18,25 +18,6 @@ module.exports = async(location1,location2,maxdistance) =>{
             {
                 return false
             }
-            
-            // const distanceData = await getDistance(location1Coords,location2Coords,apiKey)
-            // if(distanceData)
-            // {
-            //     console.log(distanceData["routes"][0]["summary"]["distance"]/1000)
-            //     const distance = distanceData["routes"][0]["summary"]["distance"]/1000; // Convert to kilometers
-            //     console.log(maxdistance+" , "+distance)
-            //     if(distance > maxdistance)
-            //     {
-            //         console.log("hallo")
-            //         return "1"
-            //     }
-            //     else
-            //     {
-            //         console.log("hakllo")
-            //         return "0"
-            //     }
-            // }
-            // return "42"
         }
     }
     catch(err)

@@ -1,4 +1,4 @@
-const { pool } = require('../Database.js')
+const { pool } = require('./Database.js')
 const bcrypt = require('bcrypt');
 
 // private

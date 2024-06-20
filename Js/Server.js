@@ -1,23 +1,24 @@
 const express = require("express"); // import express for REST API
 const cookieParser = require("cookie-parser"); // import cookie parser for cookies
-const multer = require('multer') 
-
-const storage = multer.memoryStorage()
-const upload = multer({ dest: 'uploads/' }); // Dateien werden im 'uploads' Verzeichnis gespeichert
-const app = express(); // create app used for the Server 
-const port = 5000; // connection port
 const login = require('./Login'); // import login.js file
 const cookieJwtAuth = require('./CookieJwtAuth'); // import CookieJwtAuth.js file
 const registration = require('./Registration'); // import Registration.js file
-const database = require("./Database.js")
-const CreateQueries = require("./Database/CreateQueries")
-const DeleteQueries = require("./Database/DeleteQueries.js")
 const cors = require('cors')
 const checkDistance = require('./CheckDistance')
+
+// DATABASE RELATED
+const CreateQueries = require("./Database/CreateQueries")
+const DeleteQueries = require("./Database/DeleteQueries.js")
+const UpdateQueries = require("./Database/UpdateQueries.js")
+const GetQueries = require("./Database/GetQueries.js")
+
+const app = express(); // create app used for the Server 
+const port = 5000; // connection port
 const corsOption= {
     Credential: true
 }
 const maxRequestBodySize = '10mb'
+
 //middleware
 app.use(cors(corsOption))
 app.use(express.json()); // requiert to parse JSON form requests 
@@ -48,10 +49,10 @@ app.post('/testpost/:id', (req,res)=>{
     res.status(200).send("ur id is: "+id+" and ur body is: "+servus);
 });
 
-app.get("/getLocation/:id",database.getLocationById)
+app.get("/getLocation/:id",GetQueries.getLocationById)
 
-app.get("/getArtistById/:id",database.getArtistByID)
-app.get("/getCatererById/:id",database.getCatererById)
+app.get("/getArtistById/:id",GetQueries.getArtistByID)
+app.get("/getCatererById/:id",GetQueries.getCatererById)
 
 app.post('/login', cookieJwtAuth.isLogedIn,login);      // to log a user in
 
@@ -64,12 +65,12 @@ app.post("/updateArtist",async (req,res)=>{
     console.log("REQUEST TO UPDATE ARTIST",req.body)
     const {profilname, profilbild, kurzbeschreibung, beschreibung, region, email, preis, kategorie, erfahrung, songs} = req.body
     try {
-        const resultArtist = await database.updateArtist(profilname, profilbild, kurzbeschreibung, beschreibung, region, email, preis, kategorie, erfahrung)
+        const resultArtist = await UpdateQueries.updateArtist(profilname, profilbild, kurzbeschreibung, beschreibung, region, email, preis, kategorie, erfahrung)
         let message = ""
 
         if (songs != null) {
             for(let song of songs) {
-                const resultLied = await database.updateLied(song['id'], song['songName'], song['songLength'], song['songYear'])
+                const resultLied = await UpdateQueries.updateLied(song['id'], song['songName'], song['songLength'], song['songYear'])
                 if (resultLied) message.concat(", UPDATED lied", song['songName'])
                 else message.concat(", FAILED TO UPDATE lied", song['songName'])
             }
@@ -88,12 +89,12 @@ app.post("/updateCaterer",async (req,res)=>{
     console.log("REQUEST TO UPDATE CATETER",req.body)
     const {profilname, profilbild, kurzbeschreibung, beschreibung, region, email, preis, kategorie, erfahrung, gerichte} = req.body
     try {
-        const resultCaterer = await database.updateCaterer(profilname, profilbild, kurzbeschreibung, beschreibung, region, email, preis, kategorie, erfahrung)
+        const resultCaterer = await UpdateQueries.updateCaterer(profilname, profilbild, kurzbeschreibung, beschreibung, region, email, preis, kategorie, erfahrung)
         let message = ""
 
         if (gerichte != null) {
             for(let gericht of gerichte) {
-                const resultGericht = await database.updateGericht(gericht['id'], gericht['dishName'], gericht['info1']+", "+gericht['info2'], gericht['imagePreview'])
+                const resultGericht = await UpdateQueries.updateGericht(gericht['id'], gericht['dishName'], gericht['info1']+", "+gericht['info2'], gericht['imagePreview'])
                 if (resultGericht) message.concat(", UPDATED gericht", gericht['dishName'])
                 else message.concat(", FAILED TO UPDATE gericht", gericht['dishName'])
             }
@@ -113,7 +114,7 @@ app.post("/updateLoacation",(req,res)=>{
     const {locationid, adresse, name, beschreibung, privat, kurzbeschreibung, preis, openair, flaeche, bild, kapazitaet} = req.body
     try
     {
-        database.updateLocation(locationid, adresse, name, beschreibung, privat, kurzbeschreibung, preis, openair, flaeche, bild, kapazitaet).then(result =>{
+        UpdateQueries.updateLocation(locationid, adresse, name, beschreibung, privat, kurzbeschreibung, preis, openair, flaeche, bild, kapazitaet).then(result =>{
             if(result)
                 {
                     res.status(200).send("Updatet Loacation")
@@ -135,7 +136,7 @@ app.post('/register', registration);    // register a user
 app.post('/testSearch', (req,res)=>{
     try
     {
-        database.getStuffbyName(req).then(result =>{
+        GetQueries.getStuffbyName(req).then(result =>{
             res.status(200).send(result);
         });
         
@@ -149,7 +150,7 @@ app.post('/testSearch', (req,res)=>{
 app.get('/tickets/:id', (req,res)=>{
     try
     {       
-        database.getAllTicketsFromUser(req.params["id"]).then(result =>{
+        GetQueries.getAllTicketsFromUser(req.params["id"]).then(result =>{
             res.status(200).send(result);
         });
         
@@ -163,7 +164,7 @@ app.get('/tickets/:id', (req,res)=>{
 app.get('/event/artist/:id', (req,res)=>{
     try
     {       
-        database.getArtistByEvent(req.params["id"]).then(result =>{
+        GetQueries.getArtistByEvent(req.params["id"]).then(result =>{
             res.status(200).send(result);
         });
         
@@ -177,7 +178,7 @@ app.get('/event/artist/:id', (req,res)=>{
 app.get('/event/caterer/:id', (req,res)=>{
     try
     {       
-        database.getCatererByEvent(req.params["id"]).then(result =>{
+        GetQueries.getCatererByEvent(req.params["id"]).then(result =>{
             res.status(200).send(result);
         });
         
@@ -191,7 +192,7 @@ app.get('/event/caterer/:id', (req,res)=>{
 app.get('/playlist/:name', (req,res)=>{
     try
     {       
-        database.getPlaylistContent(req.params["name"]).then(result =>{
+        GetQueries.getPlaylistContent(req.params["name"]).then(result =>{
             res.status(200).send(result);
         });
         
@@ -218,13 +219,13 @@ app.post('/testloc',async (req,res)=>{
 
 })
 
-app.post('/searchEvent',database.searchEvent);  // searchs events with filter param
+app.post('/searchEvent',GetQueries.searchEvent);  // searchs events with filter param
 
 app.post('/checkAccount',async(req,res)=>{
     const {email, benutzername} = req.body;
     try
     {
-        const user  = await database.getUserByEmailandUsername(email,benutzername);
+        const user  = await GetQueries.getUserByEmailandUsername(email,benutzername);
         if(user.rowCount>0)
         {
             res.status(200).send("1");
@@ -242,11 +243,11 @@ app.post('/checkAccount',async(req,res)=>{
     }
 })
 
-app.post('/searchEvent',cookieJwtAuth.Auth,database.searchEvent);  // searchs events with filter param
-app.post('/searchLoacation',cookieJwtAuth.Auth,database.searchLocaiton);  // searchs Locations with filter param
-app.post('/searchCaterer',cookieJwtAuth.Auth,database.searchCaterer);  // searchs Caterer with filter param
-app.post('/searchArtist',cookieJwtAuth.Auth,database.searchArtist);  // searchs Artist with filter param
-app.post('/searchEndnutzer',cookieJwtAuth.Auth,database.searchEndUser);  // searchs Endnutzer with filter param
+app.post('/searchEvent',cookieJwtAuth.Auth,GetQueries.searchEvent);  // searchs events with filter param
+app.post('/searchLoacation',cookieJwtAuth.Auth,GetQueries.searchLocaiton);  // searchs Locations with filter param
+app.post('/searchCaterer',cookieJwtAuth.Auth,GetQueries.searchCaterer);  // searchs Caterer with filter param
+app.post('/searchArtist',cookieJwtAuth.Auth,GetQueries.searchArtist);  // searchs Artist with filter param
+app.post('/searchEndnutzer',cookieJwtAuth.Auth,GetQueries.searchEndUser);  // searchs Endnutzer with filter param
 
 app.post('/createEvent', async (req,res)=> {
     console.log("REQUEST TO CREATE EVENT",req.body)

@@ -1,4 +1,4 @@
-const { pool } = require('../Database.js')
+const { pool } = require('./Database.js')
 
 /**
 * Deletes a ticket from the DB using an id.
