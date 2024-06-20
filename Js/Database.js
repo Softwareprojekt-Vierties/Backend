@@ -3,8 +3,6 @@ const {Pool} = require('pg');
 const cookieJwtAuth = require('./CookieJwtAuth')
 const bcrypt = require('bcrypt');
 const checkDistance = require('./CheckDistance');
-const CheckDistance = require('./CheckDistance');
-
 
 const pool = new Pool({
     host: 'dpg-cp2a9l6n7f5s73fe0sv0-a.frankfurt-postgres.render.com',
@@ -948,20 +946,6 @@ async function searchLocaiton(req,res){
         console.error(err)
         return res.status(400).send("Error while searching for an location")
     }
-   
-
-    // with additional params
-    // try {
-        
-    //     const result = await pool.query(
-    //         query += istfavorit += " WHERE " + additionalFilter,
-    //         param
-    //     )
-    //     return res.send(result)
-    // } catch (err) {
-    //     console.error(err)
-    //     return res.status(400).send("Error while searching for an event")
-    // }
 }
 
 async function searchCaterer(req,res){
@@ -1053,19 +1037,6 @@ async function searchCaterer(req,res){
         console.error(err)
         return res.status(400).send("Error while searching for an Caterer")
     }
-
-    // // with additional params
-    // try {
-    //     const result = await pool.query(
-    //         query += " WHERE " + additionalFilter,
-    //         param
-            
-    //     )
-    //     return res.send(result)
-    // } catch (err) {
-    //     console.error(err)
-    //     return res.status(400).send("Error while searching for an event")
-    // }
 }
 
 async function searchArtist(req,res){
@@ -1158,18 +1129,6 @@ async function searchArtist(req,res){
         console.error(err)
         return res.status(400).send("Error while searching for an Artist")
     }
-
-    // // with additional params
-    // try {
-    //     const result = await pool.query(
-    //         query += " WHERE " + additionalFilter,
-    //         param
-    //     )
-    //     return res.send(result)
-    // } catch (err) {
-    //     console.error(err)
-    //     return res.status(400).send("Error while searching for an event")
-    // }
 }
 
 async function searchEndUser(req,res){
@@ -1256,18 +1215,6 @@ async function searchEndUser(req,res){
         console.error(err)
         return res.status(400).send("Error while searching for an enduser")
     }
-
-    // // with additional params
-    // try {
-    //     const result = await pool.query(
-    //         query += " WHERE " + additionalFilter,
-    //         param
-    //     )
-    //     return res.send(result)
-    // } catch (err) {
-    //     console.error(err)
-    //     return res.status(400).send("Error while searching for an event")
-    // }
 }
 
 // ------------------------- DELETE - QUERIES ------------------------- //
@@ -2101,8 +2048,13 @@ async function deleteArtistById(id, deleteBy) {
 
 module.exports = {
     comparePassword,
+    // CREATES
     createEndUser, createArtist, createCaterer, createEvent, createLocation, createReviewEvent, createReviewUser, createReviewLocation, createServiceArtist, createLied, createGericht, createPlaylist, createPlaylistInhalt, createTicket, createServiceArtist,
+    // GETS 
     getUserById, getUserByEmailandUsername , getStuffbyName , getLocationById,  getCatererById , getArtistByID, getAllTicketsFromUser, getArtistByEvent, getCatererByEvent, getPlaylistContent,
-    searchEvent, searchLocaiton,searchCaterer, searchArtist, searchEndUser, updateArtist, updateCaterer, updateLocation,
-    updateGericht, updateLied
+    // SEARCHES
+    searchEvent, searchLocaiton,searchCaterer, searchArtist, searchEndUser, 
+    // UPDATES
+    updateArtist, updateCaterer, updateLocation, updateGericht, updateLied
+    // DELETIONS
 };
