@@ -11,6 +11,7 @@ const cookieJwtAuth = require('./CookieJwtAuth'); // import CookieJwtAuth.js fil
 const registration = require('./Registration'); // import Registration.js file
 const database = require("./Database.js")
 const CreateQueries = require("./Database/CreateQueries")
+const DeleteQueries = require("./Database/DeleteQueries.js")
 const cors = require('cors')
 const checkDistance = require('./CheckDistance')
 const corsOption= {
