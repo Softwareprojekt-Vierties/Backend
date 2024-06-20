@@ -1,7 +1,8 @@
 const request = require("supertest")
 const app = require("../Js/Server")
 const jwt = require("jsonwebtoken")
-const database = require("../Js/Database")
+const database = require("../Js/Database.js")
+const CreateQueries = require("../Js/Database/CreateQueries.js")
 const { text } = require("express")
 SECRET = "BruhnsmanIsTheBest"
 
@@ -44,7 +45,7 @@ describe('POST /register',()=>{
                         }
                     };
 
-        jest.spyOn(database,'createEndUser').mockResolvedValue(true);
+        jest.spyOn(CreateQueries,'createEndUser').mockResolvedValue(true);
         try
         {
             const res = await request(app.app).post('/register').send(message);

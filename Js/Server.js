@@ -9,7 +9,8 @@ const port = 5000; // connection port
 const login = require('./Login'); // import login.js file
 const cookieJwtAuth = require('./CookieJwtAuth'); // import CookieJwtAuth.js file
 const registration = require('./Registration'); // import Registration.js file
-const database = require("./Database")
+const database = require("./Database.js")
+const CreateQueries = require("./Database/CreateQueries")
 const cors = require('cors')
 const checkDistance = require('./CheckDistance')
 const corsOption= {
@@ -250,7 +251,7 @@ app.post('/createEvent', async (req,res)=> {
     console.log("REQUEST TO CREATE EVENT",req.body)
 
     const {eventname,datum,uhrzeit,eventgroesse,preis,altersfreigabe,privat,kurzbeschreibung,beschreibung,bild,ownerid,locationid} = req.body
-    const result = await database.createEvent(eventname,datum,uhrzeit,eventgroesse,preis,altersfreigabe,privat,kurzbeschreibung,beschreibung,bild,ownerid,locationid)
+    const result = await CreateQueries.createEvent(eventname,datum,uhrzeit,eventgroesse,preis,altersfreigabe,privat,kurzbeschreibung,beschreibung,bild,ownerid,locationid)
     if (result) res.status(200).send("EVENT CREATED")
     else res.status(404).send("FAILED TO CREATE EVENT")
 })    // creates a new events
@@ -258,13 +259,13 @@ app.post('/createEvent', async (req,res)=> {
 app.post('/createCaterer', async (req,res)=> {
     console.log("REQUEST TO CREATE CATERER",req.body)
     const {benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, adresse, preis, kategorie, erfahrung, gerichte} = req.body
-    const caterer = await database.createCaterer(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, adresse + ", " + region, preis, kategorie, erfahrung)
+    const caterer = await CreateQueries.createCaterer(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, adresse + ", " + region, preis, kategorie, erfahrung)
 
     if (caterer.success && gerichte != null) {
         console.log("RECIEVED GERICHTE", gerichte)
         
         for (let gericht of gerichte) {
-            await database.createGericht(caterer.id, gericht['dishName'], gericht['info1']+", "+gericht['info2'], gericht['imagePreview'])
+            await CreateQueries.createGericht(caterer.id, gericht['dishName'], gericht['info1']+", "+gericht['info2'], gericht['imagePreview'])
         }
     }
 
@@ -275,13 +276,13 @@ app.post('/createCaterer', async (req,res)=> {
 app.post('/createArtist', async (req,res)=> {
     console.log("REQUEST TO CREATE ARTIST",req.body)
     const {benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, adresse, preis, kategorie, erfahrung, songs} = req.body
-    const artist = await database.createArtist(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, adresse + ", " + region, preis, kategorie, erfahrung)
+    const artist = await CreateQueries.createArtist(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, adresse + ", " + region, preis, kategorie, erfahrung)
     
     if (artist.success && songs != null) {
         console.log("RECIEVED LIEDER", songs)
 
         for (let lied of songs) {
-            await database.createLied(artist.id, lied['songName'], lied['songLength'], lied['songYear'])
+            await CreateQueries.createLied(artist.id, lied['songName'], lied['songLength'], lied['songYear'])
         }
     }
     
@@ -292,7 +293,7 @@ app.post('/createArtist', async (req,res)=> {
 app.post('/createLocation', async (req,res)=> {
     console.log("REQUEST TO CREATE LOCATION",req.body)
     const {adresse, region, name, beschreibung, ownerID, kurzbeschreibung, preis, kapazitaet, openair, flaeche, bild} = req.body // frontend is missing field 'privat'
-    const result = await database.createLocation(adresse + ", " + region, name, beschreibung, ownerID, true, kurzbeschreibung, preis, kapazitaet, openair, flaeche, bild)
+    const result = await CreateQueries.createLocation(adresse + ", " + region, name, beschreibung, ownerID, true, kurzbeschreibung, preis, kapazitaet, openair, flaeche, bild)
     if (result) res.status(200).send("LOCATION CREATED")
     else res.status(404).send("FAILED TO CREATE LOCATION")
 })    // creates a new Location
