@@ -14,6 +14,15 @@ const pool = new Pool({
     allowExitOnIdle: false
 });
 
+/**
+ * Compares a given password with the hashed password on the database.
+ * @param {!string} email - the email of the app_user
+ * @param {!string} password - the given password
+ * @returns {!Object} 
+ * - success: [true if successful, false otherwise]
+ * - user: the information of the user
+ * - error: [the error, if one occured]
+ */
 async function comparePassword(email, password) {
     try {
         const SH = await pool.query(
@@ -29,13 +38,25 @@ async function comparePassword(email, password) {
                 "SELECT * FROM app_user WHERE email = $1::text",
                 [email]
             )
-            return user.rows[0]
+            return {
+                success: true,
+                user: user.rows[0],
+                error: null
+            }
         }
         console.error('Authentication failed.')
-        return null
+        return {
+            success: true,
+            user: null,
+            error: null
+        }
     } catch (err) {
-        console.error(err)
-        return null
+        console.error("FAILED TO COMPARE PASSWORDS",err)
+        return {
+            success: false,
+            user: null,
+            error: err
+        }
     }
 }
 

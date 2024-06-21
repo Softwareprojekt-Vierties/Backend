@@ -10,7 +10,7 @@ const { pool } = require('./Database.js')
 * - 'ownerid' - deletes ALL ticket based on that the id is from an owner
 * - 'eventid' - deletes ALL ticket based on that the id is from an event
 * - anything else will result in a fail
-* @returns {Object} A JSON containing the following:
+* @returns {Object} An object containing the following:
 *
 * - boolean: sucess - If the deletion was successful or not
 * - any[]: data - The data returned from the deletion operation, can be null
@@ -67,7 +67,7 @@ async function deleteTicketsById(id, deleteBy) {
 * - 'catererid' - deletes ALL servicecaterer based on that the id is from a caterer
 * - 'eventid' - deletes ALL servicecaterer based on that the id is from an event
 * - anything else will result in a fail
-* @returns {Object} A JSON containing the following:
+* @returns {Object} An object containing the following:
 *
 * - boolean: sucess - If the deletion was successful or not
 * - any[]: data - The data returned from the deletion operation, can be null
@@ -124,7 +124,7 @@ async function deleteServiceCatererById(id, deleteBy) {
 * - 'artistid' - deletes ALL serviceartist based on that the id is from an artist
 * - 'eventid' - deletes ALL serviceartist based on that the id is from an event
 * - anything else will result in a fail
-* @returns {Object} A JSON containing the following:
+* @returns {Object} An object containing the following:
 *
 * - boolean: sucess - If the deletion was successful or not
 * - any[]: data - The data returned from the deletion operation, can be null
@@ -184,7 +184,7 @@ async function deleteServiceArtistById(id, deleteBy) {
 * - 'locationid' - deletes ALL review based on that the id is from a location
 * - anything else will result in a fail
 *
-* @returns {Object} A JSON containing the following:
+* @returns {Object} An object containing the following:
 *
 * - boolean: sucess - If the deletion was successful or not
 * - any[]: data - The data returned from the deletion operation, can be null
@@ -246,7 +246,7 @@ async function deleteReviewById(id, deleteBy) {
 * - 'id' - deletes a SINGLE playlistinhalt based on the id
 * - anything else will result in a fail
 *
-* @returns {Object} A JSON containing the following:
+* @returns {Object} An object containing the following:
 *
 * - boolean: sucess - If the deletion was successful or not
 * - any[]: data - The data returned from the deletion operation, can be null
@@ -303,7 +303,7 @@ async function deletePlaylistInhaltById(id, deleteBy) {
 * - 'artistid' - deletes ALL playlist based on that the id is from the artist
 * - anything else will result in a fail
 *
-* @returns {Object} A JSON containing the following:
+* @returns {Object} An object containing the following:
 *
 * - boolean: sucess - If the deletion was successful or not
 * - any[]: data - The data returned from the deletion operation, can be null
@@ -353,7 +353,7 @@ async function deletePlaylistById(id, deleteBy) {
 *
 * @param {number} id - the id of the password, dictates what should be deleted
 *
-* @returns {Object} A JSON containing the following:
+* @returns {Object} An object containing the following:
 *
 * - boolean: sucess - If the deletion was successful or not
 * - any[]: data - The data returned from the deletion operation, can be null
@@ -397,7 +397,7 @@ async function deletePasswordById(id) {
 * - 'ownerid' - deletes ALL location based on that the id is from an owner
 * - anything else will result in a fail
 *
-* @returns {Object} A JSON containing the following:
+* @returns {Object} An object containing the following:
 *
 * - boolean: sucess - If the deletion was successful or not
 * - any[]: data - The data returned from the deletion operation, can be null
@@ -452,7 +452,7 @@ async function deleteLocationById(id, deleteBy) {
 * - 'ownerid' - deletes ALL lied based on that the id is from an owner
 * - anything else will result in a fail
 *
-* @returns {Object} A JSON containing the following:
+* @returns {Object} An object containing the following:
 *
 * - boolean: sucess - If the deletion was successful or not
 * - any[]: data - The data returned from the deletion operation, can be null
@@ -507,7 +507,7 @@ async function deleteLiedById(id, deleteBy) {
 * - 'ownerid' - deletes ALL gericht based on that the id is from an owner
 * - anything else will result in a fail
 *
-* @returns {Object} A JSON containing the following:
+* @returns {Object} An object containing the following:
 *
 * - boolean: sucess - If the deletion was successful or not
 * - any[]: data - The data returned from the deletion operation, can be null
@@ -562,7 +562,7 @@ async function deleteGerichtById(id, deleteBy) {
 * - 'ownerid' - deletes ALL event based on that the id is from an owner
 * - anything else will result in a fail
 *
-* @returns {Object} A JSON containing the following:
+* @returns {Object} An object containing the following:
 *
 * - boolean: sucess - If the deletion was successful or not
 * - any[]: data - The data returned from the deletion operation, can be null
@@ -617,7 +617,7 @@ async function deleteEventById(id, deleteBy) {
 * - 'email' - deletes a SINGLE app_user based on the email
 * - anything else will result in a fail
 *
-* @returns {Object} A JSON containing the following:
+* @returns {Object} An object containing the following:
 *
 * - boolean: sucess - If the deletion was successful or not
 * - any[]: data - The data returned from the deletion operation, can be null
@@ -672,7 +672,7 @@ async function deleteAppUserById(id) {
 * - 'email' - deletes a SINGLE endnutzer based on the email
 * - anything else will result in a fail
 *
-* @returns {Object} A JSON containing the following:
+* @returns {Object} An object containing the following:
 *
 * - boolean: sucess - If the deletion was successful or not
 * - any[]: data - The data returned from the deletion operation, can be null
@@ -727,7 +727,7 @@ async function deleteEndnutzerById(id) {
 * - 'email' - deletes a SINGLE caterer based on the email
 * - anything else will result in a fail
 *
-* @returns {Object} A JSON containing the following:
+* @returns {Object} An object containing the following:
 *
 * - boolean: sucess - If the deletion was successful or not
 * - any[]: data - The data returned from the deletion operation, can be null
@@ -782,7 +782,7 @@ async function deleteCatererById(id, deleteBy) {
 * - 'email' - deletes a SINGLE artist based on the email
 * - anything else will result in a fail
 *
-* @returns {Object} A JSON containing the following:
+* @returns {Object} An object containing the following:
 *
 * - boolean: sucess - If the deletion was successful or not
 * - any[]: data - The data returned from the deletion operation, can be null

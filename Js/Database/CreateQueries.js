@@ -12,7 +12,7 @@ const DeleteQueries = require('./DeleteQueries.js')
  * @param {string} kurzbeschreibung 
  * @param {string} beschreibung 
  * @param {string} region
- * @returns {!JSON} 
+ * @returns {!Object} 
  * - success: [true if successful, false otherwise]
  * - error: [the error, if one occured]
  */
@@ -63,7 +63,7 @@ async function createAppUser(benutzername, profilname, email, password, profilbi
  * @param {string} lied 
  * @param {string} gericht 
  * @param {string} geschlecht 
- * @returns {!JSON} 
+ * @returns {!Object} 
  * - success: [true if successful, false otherwise]
  * - error: [the error, if one occured]
  */
@@ -110,7 +110,7 @@ async function createEndUser(benutzername, profilname, email, password, profilbi
  * @param {!string} preis - must not be null
  * @param {string} kategorie 
  * @param {string} erfahrung 
- * @returns {!JSON} 
+ * @returns {!Object} 
  * - success: [true if successful, false otherwise]
  * - id: [id of the created artist, null if creation failed]
  * - error: [the error, if one occured]
@@ -161,7 +161,7 @@ async function createArtist(benutzername, profilname, email, password, profilbil
  * @param {!string} preis - must not be null
  * @param {string} kategorie 
  * @param {string} erfahrung 
- * @returns {!JSON}
+ * @returns {!Object}
  * - success: [true if successful, false otherwise]
  * - id: [id of the created artist, null if creation failed]
  * - error: [the error, if one occured]
@@ -212,7 +212,7 @@ async function createCaterer(benutzername, profilname, email, password, profilbi
  * @param {!boolean} openair - must not be null
  * @param {!string} flaeche - must not be null
  * @param {string} bild 
- * @returns {!JSON}
+ * @returns {!Object}
  * - success: [true if successful, false otherwise]
  * - id: [id of the created location, null if creation failed]
  * - error: [the error, if one occured]
@@ -251,7 +251,7 @@ async function createLocation(adresse, name, beschreibung, ownerID, privat, kurz
  * - 'event'
  * - 'location'
  * - 'user'
- * @returns {!JSON}
+ * @returns {!Object}
  * - success: [true if successful, false otherwise]
  * - error: [the error, if one occured]
  */
@@ -301,7 +301,7 @@ async function createReview(inhalt, sterne, ownerid, id, intention) {
  * @param {string} bild - event picture
  * @param {!number} ownerid - id of app_user who hosts the event
  * @param {!number} locationid - id of location where it is hosted
- * @returns {!JSON}
+ * @returns {!Object}
  * - success: [true if successful, false otherwise]
  * - id: [id of the created event, null if creation failed]
  * - error: [the error, if one occured]
@@ -333,7 +333,7 @@ async function createEvent(name, datum, uhrzeit, eventgroesse, preis, altersfrei
  * Creates a serviceartist on the database.
  * @param {!number} eventid 
  * @param {!number} artistid 
- * @returns {!JSON} 
+ * @returns {!Object} 
  * - success: [true if successful, false otherwise]
  * - error: [the error, if one occured]
  */
@@ -361,7 +361,7 @@ async function createServiceArtist(eventid, artistid){
  * Creates a servicecaterer on the database.
  * @param {!number} eventid 
  * @param {!number} catererid 
- * @returns {!JSON} 
+ * @returns {!Object} 
  * - success: [true if successful, false otherwise]
  * - error: [the error, if one occured]
  */
@@ -391,7 +391,7 @@ async function createServiceCaterer(eventid, catererid){
  * @param {!string} name - name of the lied
  * @param {!number} laenge - length in minutes
  * @param {!string} erscheinung - date in YYYY-MM-DD
- * @returns {!JSON}
+ * @returns {!Object}
  * - success: [true if successful, false otherwise]
  * - error: [the error, if one occured]
  */
@@ -421,7 +421,7 @@ async function createLied(ownerid,name,laenge,erscheinung){
  * @param {!string} name 
  * @param {!string} beschreibung 
  * @param {string} bild 
- * @returns {!JSON}
+ * @returns {!Object}
  * - success: [true if successful, false otherwise]
  * - error: [the error, if one occured]
  */
@@ -449,7 +449,7 @@ async function createGericht(ownerid,name,beschreibung,bild=null){
  * Creates a playlist on the database.
  * @param {!string} name 
  * @param {!number} artistid
- * @returns {!JSON} 
+ * @returns {!Object} 
  * - success: [true if successful, false otherwise]
  * - error: [the error, if one occured]
  */
@@ -477,7 +477,7 @@ async function createPlaylist(name,artistid){
  * Creates a playlistinhalt on the database.
  * @param {!number} playlistid
  * @param {!number} liedid 
- * @returns {!JSON} 
+ * @returns {!Object} 
  * - success: [true if successful, false otherwise]
  * - error: [the error, if one occured]
  */
@@ -505,7 +505,7 @@ async function createPlaylistInhalt(playlistid,liedid){
  * Creates a ticket on the database.
  * @param {!number} userid 
  * @param {!number} eventid 
- * @returns {!JSON} 
+ * @returns {!Object} 
  * - success: [true if successful, false otherwise]
  * - error: [the error, if one occured]
  */
