@@ -252,7 +252,7 @@ app.post('/createEvent', async (req,res)=> {
 
     const {eventname,datum,uhrzeit,eventgroesse,preis,altersfreigabe,privat,kurzbeschreibung,beschreibung,bild,ownerid,locationid} = req.body
     const result = await CreateQueries.createEvent(eventname,datum,uhrzeit,eventgroesse,preis,altersfreigabe,privat,kurzbeschreibung,beschreibung,bild,ownerid,locationid)
-    if (result) res.status(200).send("EVENT CREATED")
+    if (result.success) res.status(200).send("EVENT CREATED")
     else res.status(404).send("FAILED TO CREATE EVENT")
 })    // creates a new events
 
@@ -294,7 +294,7 @@ app.post('/createLocation', async (req,res)=> {
     console.log("REQUEST TO CREATE LOCATION",req.body)
     const {adresse, region, name, beschreibung, ownerID, kurzbeschreibung, preis, kapazitaet, openair, flaeche, bild} = req.body // frontend is missing field 'privat'
     const result = await CreateQueries.createLocation(adresse + ", " + region, name, beschreibung, ownerID, true, kurzbeschreibung, preis, kapazitaet, openair, flaeche, bild)
-    if (result) res.status(200).send("LOCATION CREATED")
+    if (result.success) res.status(200).send("LOCATION CREATED")
     else res.status(404).send("FAILED TO CREATE LOCATION")
 })    // creates a new Location
 
