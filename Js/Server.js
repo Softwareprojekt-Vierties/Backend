@@ -52,6 +52,11 @@ app.get("/getLocation/:id",GetQueries.getLocationById)
 app.get("/getArtistById/:id",GetQueries.getArtistByID)
 app.get("/getCatererById/:id",GetQueries.getCatererById)
 
+app.get("/getLocationReview/:id",GetQueries.getLocationReviewById)
+app.get("/getEventReview/:id",GetQueries.getEventReviewById)
+app.get("/getPersonReviewById/:id",GetQueries.getPersonReviewById)
+
+
 app.post('/login', cookieJwtAuth.isLogedIn,login);      // to log a user in
 
 app.get("/MyPage",cookieJwtAuth.Auth, (req,res)=>{     // test function

@@ -169,6 +169,48 @@ async function getPlaylistContent(name) {
     }
 }
 
+async function getLocationReviewById(req,res){
+    try {
+        const result = await pool.query(
+            "SELECT r.inhalt,r.sterne,a.profielnamen FROM review r JOIN app_user a ON r.ownerid = a.id WHERE r.locationid = $1::int",
+            [req.params["id"]]
+        )
+        console.log(req.params["id"])
+        return res.status(200).send(result)
+    } catch (err) {
+        console.error(err)
+        return res.status(400).send(null)
+    }
+}
+
+async function getEventReviewById(req,res){
+    try {
+        const result = await pool.query(
+            "SELECT r.inhalt,r.sterne,a.profielnamen FROM review r JOIN app_user a ON r.ownerid = a.id WHERE r.eventid = $1::int",
+            [req.params["id"]]
+        )
+        console.log(req.params["id"])
+        return res.status(200).send(result)
+    } catch (err) {
+        console.error(err)
+        return res.status(400).send(null)
+    }
+}
+
+async function getPersonReviewById(req,res){
+    try {
+        const result = await pool.query(
+            "SELECT r.inhalt,r.sterne,a.profielnamen FROM review r JOIN app_user a ON r.ownerid = a.id WHERE r.userid = $1::int",
+            [req.params["id"]]
+        )
+        console.log(req.params["id"])
+        return res.status(200).send(result)
+    } catch (err) {
+        console.error(err)
+        return res.status(400).send(null)
+    }
+}
+
 async function searchEvent(req,res){
     console.log("REQUEST",req.body)
     const user = cookieJwtAuth.getUser(req.headers["auth"])["id"]
@@ -674,6 +716,9 @@ module.exports = {
     getArtistByEvent, 
     getCatererByEvent, 
     getPlaylistContent,
+    getLocationReviewById,
+    getEventReviewById,
+    getPersonReviewById,
     // SEARCHES
     searchEvent, 
     searchLocaiton,
