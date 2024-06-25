@@ -172,7 +172,7 @@ async function getPlaylistContent(name) {
 async function getLocationReviewById(req,res){
     try {
         const result = await pool.query(
-            "SELECT r.inhalt,r.sterne,a.profielnamen FROM review r JOIN app_user a ON r.ownerid = a.id WHERE r.locationid = $1::int",
+            "SELECT r.inhalt,r.sterne,a.profilname FROM review r JOIN app_user a ON r.ownerid = a.id WHERE r.locationid = $1::int",
             [req.params["id"]]
         )
         console.log(req.params["id"])
@@ -186,7 +186,7 @@ async function getLocationReviewById(req,res){
 async function getEventReviewById(req,res){
     try {
         const result = await pool.query(
-            "SELECT r.inhalt,r.sterne,a.profielnamen FROM review r JOIN app_user a ON r.ownerid = a.id WHERE r.eventid = $1::int",
+            "SELECT r.inhalt,r.sterne,a.profilname FROM review r JOIN app_user a ON r.ownerid = a.id WHERE r.eventid = $1::int",
             [req.params["id"]]
         )
         console.log(req.params["id"])
@@ -200,7 +200,7 @@ async function getEventReviewById(req,res){
 async function getPersonReviewById(req,res){
     try {
         const result = await pool.query(
-            "SELECT r.inhalt,r.sterne,a.profielnamen FROM review r JOIN app_user a ON r.ownerid = a.id WHERE r.userid = $1::int",
+            "SELECT r.inhalt,r.sterne,a.profilname FROM review r JOIN app_user a ON r.ownerid = a.id WHERE r.userid = $1::int",
             [req.params["id"]]
         )
         console.log(req.params["id"])
