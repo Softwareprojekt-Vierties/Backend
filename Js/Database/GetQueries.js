@@ -48,9 +48,16 @@ async function getCatererById(req,res){
         )
         console.log(gericht)
 
+        const event = await pool.query(
+            `SELECT e* FROM event e JOIN servicecaterer sc ON sc.eventid = e.id 
+            WHERE sc.catererid = $1::int`,
+            [id]
+        )
+
         return res.status(200).send({
             caterer: cater,
-            gerichte: gericht
+            gerichte: gericht,
+            events : event
         })
     } catch (err) {
         console.error(err)
@@ -75,9 +82,17 @@ async function getArtistByID(req,res){
         )
         console.log(lied)
 
+        const event = await pool.query(
+            `SELECT e* FROM event e JOIN serviceartist sa ON sa.eventid = e.id 
+            WHERE sa.artistid = $1::int`,
+            [id]
+        )
+        console.log(event)
+
         return res.status(200).send({
             artist: art,
-            lieder: lied
+            lieder: lied,
+            events : event
         })
     } catch (err) {
         console.error(err)
