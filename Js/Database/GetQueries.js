@@ -130,7 +130,7 @@ async function getUserByEmailandUsername(email,benutzername){
 async function getArtistByEvent(id){
     try {
         const result = await pool.query(
-            "SELECT a.benutzername,a.profilbild FROM app_user a JOIN artist ar  ON ar.emailfk = a.email JOIN serviceartist sa ON sa.artistid = ar.id JOIN event e ON e.id = sa.eventid WHERE sa.eventid = $1::int",
+            "SELECT a.id,a.benutzername,a.profilbild FROM app_user a JOIN artist ar  ON ar.emailfk = a.email JOIN serviceartist sa ON sa.artistid = ar.id JOIN event e ON e.id = sa.eventid WHERE sa.eventid = $1::int",
             [id]
         )
         console.log(result)
@@ -144,7 +144,7 @@ async function getArtistByEvent(id){
 async function getCatererByEvent(id){
     try {
         const result = await pool.query(
-            "SELECT a.benutzername,a.profilbild FROM app_user a JOIN caterer cr  ON cr.emailfk = a.email JOIN servicecaterer sc ON sc.catererid = cr.id JOIN event e ON e.id = sc.eventid WHERE sc.eventid = $1::int",
+            "SELECT a.id,a.benutzername,a.profilbild FROM app_user a JOIN caterer cr  ON cr.emailfk = a.email JOIN servicecaterer sc ON sc.catererid = cr.id JOIN event e ON e.id = sc.eventid WHERE sc.eventid = $1::int",
             [id]
         )
         console.log(result)
@@ -201,34 +201,6 @@ async function getPersonReviewById(req,res){
     try {
         const result = await pool.query(
             "SELECT r.inhalt,r.sterne,a.profilname FROM review r JOIN app_user a ON r.ownerid = a.id WHERE r.userid = $1::int",
-            [req.params["id"]]
-        )
-        console.log(req.params["id"])
-        return res.status(200).send(result)
-    } catch (err) {
-        console.error(err)
-        return res.status(400).send(null)
-    }
-}
-
-async function getArtistReviewById(req,res){
-    try {
-        const result = await pool.query(
-            "SELECT r.inhalt,r.sterne,a.profilname FROM Artist ast JOIN app_user a ON ast.emailfk = a.email JOIN review r ON r.userid = a.id WHERE ast.id = $1::int",
-            [req.params["id"]]
-        )
-        console.log(req.params["id"])
-        return res.status(200).send(result)
-    } catch (err) {
-        console.error(err)
-        return res.status(400).send(null)
-    }
-}
-
-async function getCatererReviewById(req,res){
-    try {
-        const result = await pool.query(
-            "SELECT r.inhalt,r.sterne,a.profilname FROM Caterer c JOIN app_user a ON c.emailfk = a.email JOIN review r ON r.userid = a.id WHERE c.id = $1::int",
             [req.params["id"]]
         )
         console.log(req.params["id"])
@@ -747,8 +719,6 @@ module.exports = {
     getLocationReviewById,
     getEventReviewById,
     getPersonReviewById,
-    getCatererReviewById,
-    getArtistReviewById,
     // SEARCHES
     searchEvent, 
     searchLocaiton,
