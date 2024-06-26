@@ -55,6 +55,8 @@ app.get("/getCatererById/:id",GetQueries.getCatererById)
 app.get("/getLocationReview/:id",GetQueries.getLocationReviewById)
 app.get("/getEventReview/:id",GetQueries.getEventReviewById)
 app.get("/getPersonReviewById/:id",GetQueries.getPersonReviewById)
+app.get("/getArtistReviewById/:id",GetQueries.getArtistReviewById)
+app.get("/getCatererReviewById/:id",GetQueries.getCatererReviewById)
 
 
 app.post('/login', cookieJwtAuth.isLogedIn,login);      // to log a user in

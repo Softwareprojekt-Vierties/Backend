@@ -211,6 +211,34 @@ async function getPersonReviewById(req,res){
     }
 }
 
+async function getArtistReviewById(req,res){
+    try {
+        const result = await pool.query(
+            "SELECT r.inhalt,r.sterne,a.profilname FROM Artist ast JOIN app_user a ON ast.emailfk = a.email JOIN review r ON r.userid = a.id WHERE ast.id = $1::int",
+            [req.params["id"]]
+        )
+        console.log(req.params["id"])
+        return res.status(200).send(result)
+    } catch (err) {
+        console.error(err)
+        return res.status(400).send(null)
+    }
+}
+
+async function getCatererReviewById(req,res){
+    try {
+        const result = await pool.query(
+            "SELECT r.inhalt,r.sterne,a.profilname FROM Caterer c JOIN app_user a ON c.emailfk = a.email JOIN review r ON r.userid = a.id WHERE c.id = $1::int",
+            [req.params["id"]]
+        )
+        console.log(req.params["id"])
+        return res.status(200).send(result)
+    } catch (err) {
+        console.error(err)
+        return res.status(400).send(null)
+    }
+}
+
 async function searchEvent(req,res){
     console.log("REQUEST",req.body)
     const user = cookieJwtAuth.getUser(req.headers["auth"])["id"]
@@ -719,6 +747,8 @@ module.exports = {
     getLocationReviewById,
     getEventReviewById,
     getPersonReviewById,
+    getCatererReviewById,
+    getArtistReviewById,
     // SEARCHES
     searchEvent, 
     searchLocaiton,
