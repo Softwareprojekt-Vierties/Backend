@@ -35,7 +35,7 @@ async function getCatererById(req,res){
     try {
         
         const cater = await pool.query(
-            "SELECT c.*,a.benutzername, a.profilname,a.profilbild,a.kurzbeschreibung,a.beschreibung,a.region,a-sterne FROM caterer c JOIN app_user a ON c.emailfk = a.email WHERE c.id = $1",
+            "SELECT c.*,a.id as userid,a.benutzername, a.profilname,a.profilbild,a.kurzbeschreibung,a.beschreibung,a.region,a-sterne FROM caterer c JOIN app_user a ON c.emailfk = a.email WHERE c.id = $1",
             [id]
         )
         console.log(cater)
@@ -62,7 +62,7 @@ async function getArtistByID(req,res){
     const id = req.params["id"]
     try {
         const art = await pool.query(
-            "SELECT ar.*, a.benutzername, a.profilname,a.profilbild,a.kurzbeschreibung,a.beschreibung,a.region,a.sterne FROM artist ar JOIN app_user a ON ar.emailfk = a.email WHERE ar.id = $1",
+            "SELECT ar.*, a.id as userid,a.benutzername, a.profilname,a.profilbild,a.kurzbeschreibung,a.beschreibung,a.region,a.sterne FROM artist ar JOIN app_user a ON ar.emailfk = a.email WHERE ar.id = $1",
             [id]
         )
         console.log(art)
@@ -130,7 +130,7 @@ async function getUserByEmailandUsername(email,benutzername){
 async function getArtistByEvent(id){
     try {
         const result = await pool.query(
-            "SELECT a.id,a.benutzername,a.profilbild FROM app_user a JOIN artist ar  ON ar.emailfk = a.email JOIN serviceartist sa ON sa.artistid = ar.id JOIN event e ON e.id = sa.eventid WHERE sa.eventid = $1::int",
+            "SELECT a.benutzername,a.profilbild FROM app_user a JOIN artist ar  ON ar.emailfk = a.email JOIN serviceartist sa ON sa.artistid = ar.id JOIN event e ON e.id = sa.eventid WHERE sa.eventid = $1::int",
             [id]
         )
         console.log(result)
@@ -144,7 +144,7 @@ async function getArtistByEvent(id){
 async function getCatererByEvent(id){
     try {
         const result = await pool.query(
-            "SELECT a.id,a.benutzername,a.profilbild FROM app_user a JOIN caterer cr  ON cr.emailfk = a.email JOIN servicecaterer sc ON sc.catererid = cr.id JOIN event e ON e.id = sc.eventid WHERE sc.eventid = $1::int",
+            "SELECT a.benutzername,a.profilbild FROM app_user a JOIN caterer cr  ON cr.emailfk = a.email JOIN servicecaterer sc ON sc.catererid = cr.id JOIN event e ON e.id = sc.eventid WHERE sc.eventid = $1::int",
             [id]
         )
         console.log(result)
