@@ -48,11 +48,13 @@ async function getCatererById(req,res){
         )
         console.log(gericht)
 
+        
         const event = await pool.query(
-            `SELECT e* FROM event e JOIN servicecaterer sc ON sc.eventid = e.id 
+            `SELECT e.*, l.adresse FROM event e JOIN servicecaterer sc ON sc.eventid = e.id JOIN location l ON e.locationid = l.id
             WHERE sc.catererid = $1::int`,
             [id]
         )
+        console.log(event)
 
         return res.status(200).send({
             caterer: cater,
@@ -83,7 +85,7 @@ async function getArtistByID(req,res){
         console.log(lied)
 
         const event = await pool.query(
-            `SELECT e.* FROM event e JOIN serviceartist sa ON sa.eventid = e.id 
+            `SELECT e.*, l.adresse FROM event e JOIN serviceartist sa ON sa.eventid = e.id JOIN location l ON e.locationid = l.id
             WHERE sa.artistid = $1::int`,
             [id]
         )
