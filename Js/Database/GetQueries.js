@@ -83,7 +83,7 @@ async function getArtistByID(req,res){
         console.log(lied)
 
         const event = await pool.query(
-            `SELECT e* FROM event e JOIN serviceartist sa ON sa.eventid = e.id 
+            `SELECT e.* FROM event e JOIN serviceartist sa ON sa.eventid = e.id 
             WHERE sa.artistid = $1::int`,
             [id]
         )
