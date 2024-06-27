@@ -35,7 +35,7 @@ async function getCatererById(req,res){
     try {
         
         const cater = await pool.query(
-            "SELECT c.*,a.id as userid,a.benutzername, a.profilname,a.profilbild,a.kurzbeschreibung,a.beschreibung,a.region,a-sterne FROM caterer c JOIN app_user a ON c.emailfk = a.email WHERE c.id = $1",
+            "SELECT c.*,a.id as userid,a.benutzername, a.profilname,a.profilbild,a.kurzbeschreibung,a.beschreibung,a.region,a.sterne FROM caterer c JOIN app_user a ON c.emailfk = a.email WHERE c.id = $1",
             [id]
         )
         console.log(cater)
