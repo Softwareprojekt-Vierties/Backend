@@ -34,7 +34,7 @@ async function getEventById(req,res){
     try {
         const id = req.params["id"]
         const event = await pool.query(
-            "SELECT e.*,l.adresse,l.name FROM event e JOIN location l ON e.locationid = l.id WHERE e.id = $1::int",
+            "SELECT e.*,l.adresse,l.name as loacationname FROM event e JOIN location l ON e.locationid = l.id WHERE e.id = $1::int",
             [id]
         )
         const artist = await getArtistByEvent(req.params["id"])
