@@ -164,33 +164,7 @@ app.get('/tickets/:id', (req,res)=>{
     }
 });
 
-app.get('/event/artist/:id', (req,res)=>{
-    try
-    {       
-        GetQueries.getArtistByEvent(req.params["id"]).then(result =>{
-            res.status(200).send(result);
-        });
-        
-    }
-    catch (err)
-    {
-        res.status(400).send(err)
-    }
-});
-
-app.get('/event/caterer/:id', (req,res)=>{
-    try
-    {       
-        GetQueries.getCatererByEvent(req.params["id"]).then(result =>{
-            res.status(200).send(result);
-        });
-        
-    }
-    catch (err)
-    {
-        res.status(400).send(err)
-    }
-})
+app.get('/getEventById/:id', GetQueries.getEventById);
 
 app.get('/playlist/:name', (req,res)=>{
     try

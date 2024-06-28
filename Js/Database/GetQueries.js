@@ -30,6 +30,28 @@ async function getLocationById(req,res){
     }
 }
 
+async function getEventById(req,res){
+    try {
+        const id = req.params["id"]
+        const event = await pool.query(
+            "SELECT e.*,l.adresse FROM event e JOIN location l ON e.locationid = l.id WHERE e.id = $1::int",
+            [id]
+        )
+        const artist = await getArtistByEvent(req.params["id"])
+        const caterer = await getCatererByEvent(req.params["id"])
+        return res.status(200).send({
+            event: event,
+            artists: artist,
+            caterers : caterer
+        })
+        console.log(id)
+        return res.status(200).send(result)
+    } catch (err) {
+        console.error(err)
+        return res.status(400).send(null)
+    }
+}
+
 async function getCatererById(req,res){
     const id = req.params["id"]
     try {
@@ -147,7 +169,7 @@ async function getUserByEmailandUsername(email,benutzername){
 async function getArtistByEvent(id){
     try {
         const result = await pool.query(
-            "SELECT a.benutzername,a.profilbild FROM app_user a JOIN artist ar  ON ar.emailfk = a.email JOIN serviceartist sa ON sa.artistid = ar.id JOIN event e ON e.id = sa.eventid WHERE sa.eventid = $1::int",
+            "SELECT ar.*,a.benutzername, a.profilname,a.profilbild,a.kurzbeschreibung,a.beschreibung,a.region,a.sterne FROM artist ar JOIN app_user a ON ar.emailfk = a.email JOIN serviceartist sa ON sa.artistid = ar.id JOIN event e ON e.id = sa.eventid WHERE sa.eventid = $1::int",
             [id]
         )
         console.log(result)
@@ -161,9 +183,10 @@ async function getArtistByEvent(id){
 async function getCatererByEvent(id){
     try {
         const result = await pool.query(
-            "SELECT a.benutzername,a.profilbild FROM app_user a JOIN caterer cr  ON cr.emailfk = a.email JOIN servicecaterer sc ON sc.catererid = cr.id JOIN event e ON e.id = sc.eventid WHERE sc.eventid = $1::int",
+            "SELECT c.*,a.benutzername, a.profilname,a.profilbild,a.kurzbeschreibung,a.beschreibung,a.region,a.sterne FROM caterer c JOIN app_user a ON c.emailfk = a.email JOIN servicecaterer sc ON sc.catererid = c.id JOIN event e ON e.id = sc.eventid WHERE sc.eventid = $1::int",
             [id]
         )
+        
         console.log(result)
         return result
     } catch (err) {
@@ -736,6 +759,7 @@ module.exports = {
     getLocationReviewById,
     getEventReviewById,
     getPersonReviewById,
+    getEventById,
     // SEARCHES
     searchEvent, 
     searchLocaiton,
