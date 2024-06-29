@@ -752,21 +752,48 @@ async function getMails(req, res) {
                 mail.anfrage AS anfragetyp,
                 app_user.email AS senderemail, 
                 app_user.profilname AS sendername,
-                event.name AS eventname,
-                event.datum,
-                event.uhrzeit,
-                event.dauer,
-                location.name AS locationname,
-                location.adresse AS locationadresse,
-                location.openair AS locationopenair,
-                location.flaeche AS locationflaeche,
-                location.kapazitaet as locationkapazitaet,
+                CASE 
+                    WHEN mail.eventid IS NOT NULL THEN event.name
+                    ELSE NULL
+                END AS eventname,
+                CASE 
+                    WHEN mail.eventid IS NOT NULL THEN event.datum
+                    ELSE NULL
+                END AS datum,
+                CASE 
+                    WHEN mail.eventid IS NOT NULL THEN event.uhrzeit
+                    ELSE NULL
+                END AS uhrzeit,
+                CASE 
+                    WHEN mail.eventid IS NOT NULL THEN event.dauer
+                    ELSE NULL
+                END AS dauer,
+                CASE 
+                    WHEN mail.eventid IS NOT NULL THEN location.name
+                    ELSE NULL
+                END AS locationname,
+                CASE 
+                    WHEN mail.eventid IS NOT NULL THEN location.adresse
+                    ELSE NULL
+                END AS locationadresse,
+                CASE 
+                    WHEN mail.eventid IS NOT NULL THEN location.openair
+                    ELSE NULL
+                END AS locationopenair,
+                CASE 
+                    WHEN mail.eventid IS NOT NULL THEN location.flaeche
+                    ELSE NULL
+                END AS locationflaeche,
+                CASE 
+                    WHEN mail.eventid IS NOT NULL THEN location.kapazitaet
+                    ELSE NULL
+                END AS locationkapazitaet,
                 app_user.profilbild AS senderprofilbild
             FROM mail 
-                JOIN event ON eventid = event.id
-                JOIN location ON event.locationid = location.id
+                LEFT JOIN event ON mail.eventid = event.id
+                LEFT JOIN location ON event.locationid = location.id
                 JOIN app_user ON mail.sender = app_user.id
-            WHERE empfaenger = $1::int`,
+            WHERE mail.empfaenger = $1::int`,
             [req.params[`id`]]
         )
         console.log(mails.rows)
