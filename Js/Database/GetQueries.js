@@ -744,11 +744,11 @@ async function searchEndUser(req,res){
     }
 }
 
-async function getMails(userid) {
+async function getMails(req, res) {
     try {
         const mails = await pool.query(
             `SELECT * FROM mail WHERE empfaenger = $1::int`,
-            [userid]
+            [req.params[`id`]]
         )
         console.log(mails.rows)
         return res.status(200).send(mails)
