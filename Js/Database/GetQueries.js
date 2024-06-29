@@ -747,7 +747,25 @@ async function searchEndUser(req,res){
 async function getMails(req, res) {
     try {
         const mails = await pool.query(
-            `SELECT * FROM mail WHERE empfaenger = $1::int`,
+            `SELECT 
+                mail.anfrage AS anfragetyp
+                app_user.email AS senderemail, 
+                app_user.profilname AS sendername,
+                event.name AS eventname,
+                event.datum,
+                event.uhrzeit,
+                event.dauer,
+                location.name AS locationname,
+                location.adresse AS locationadresse,
+                location.openair AS locationopenair,
+                location.flaeche AS locationflaeche,
+                location.kapazitaet as locationkapazitaet,
+                app_user.profilbild AS senderprofilbild
+            FROM mail 
+                JOIN event ON eventid = event.id
+                JOIN location ON event.locationid = location.id
+                JOIN app_user ON mail.sender = app_user.id
+            WHERE empfaenger = $1::int`,
             [req.params[`id`]]
         )
         console.log(mails.rows)
