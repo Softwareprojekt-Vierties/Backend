@@ -744,6 +744,20 @@ async function searchEndUser(req,res){
     }
 }
 
+async function getMails(userid) {
+    try {
+        const mails = await pool.query(
+            `SELECT * FROM mail WHERE empfaenger = $1::int`,
+            [userid]
+        )
+        console.log(mails.rows)
+        return res.status(200).send(mails)
+    } catch (err) {
+        console.error(err)
+        return res.status(500).send(err)
+    }
+}
+
 module.exports = {
     // GETS
     getUserById, 
@@ -760,6 +774,7 @@ module.exports = {
     getEventReviewById,
     getPersonReviewById,
     getEventById,
+    getMails,
     // SEARCHES
     searchEvent, 
     searchLocaiton,

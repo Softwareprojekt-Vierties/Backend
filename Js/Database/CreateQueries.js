@@ -529,6 +529,27 @@ async function createTicket(userid,eventid){
     }
 }
 
+async function createMail(sender, empfaenger, betreff, inhalt, eventid) {
+    try {
+        await pool.query(
+            `INSERT INTO mail (sender, empfaenger, betreff, inhalt, eventid) 
+            VALUES ($1::int, $2::int, $3::text, $4::text, $5::int)`,
+            [sender, empfaenger, betreff, inhalt, eventid]
+        )
+        console.log("mail CREATED")
+        return {
+            success: true,
+            error: null
+        }
+    } catch(err) {
+        console.error("FAILED TO CREATE mail", err)
+        return {
+            success: false,
+            error: err
+        }
+    }
+}
+
 module.exports = {
     createEndUser, 
     createArtist, 
@@ -539,6 +560,7 @@ module.exports = {
     createServiceArtist,
     createServiceCaterer, 
     createLied, 
+    createMail,
     createGericht, 
     createPlaylist, 
     createPlaylistInhalt, 

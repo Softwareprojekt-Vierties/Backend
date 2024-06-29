@@ -164,6 +164,8 @@ app.get('/tickets/:id', (req,res)=>{
     }
 });
 
+app.get('/getMails/:id', GetQueries.getMails)
+
 app.get('/getEventById/:id', GetQueries.getEventById);
 
 app.get('/playlist/:name', (req,res)=>{
