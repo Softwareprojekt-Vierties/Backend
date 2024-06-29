@@ -748,7 +748,7 @@ async function getMails(req, res) {
     try {
         const mails = await pool.query(
             `SELECT 
-                mail.anfrage AS anfragetyp
+                mail.anfrage AS anfragetyp,
                 app_user.email AS senderemail, 
                 app_user.profilname AS sendername,
                 event.name AS eventname,
