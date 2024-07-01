@@ -49,6 +49,8 @@ app.post('/testpost/:id', (req,res)=>{
 
 app.get("/getLocation/:id",GetQueries.getLocationById)
 
+app.get("/getTicketDates/:id", GetQueries.getBookedTicketsDate)
+
 app.get("/getArtistById/:id",GetQueries.getArtistByID)
 app.get("/getCatererById/:id",GetQueries.getCatererById)
 

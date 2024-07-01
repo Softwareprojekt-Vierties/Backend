@@ -152,6 +152,27 @@ async function getAllTicketsFromUser(userId){
     }
 }
 
+async function getBookedTicketsDate(req, res) {
+    try {
+        const result = await pool.query(
+            `SELECT 
+                datum
+            FROM
+                tickets
+            JOIN
+                event ON tickets.eventid = event.id
+            WHERE
+                tickets.userid = = $1::int`,
+            [req.params["id"]]
+        )
+        console.log(result)
+        return res.status(200).send(result)
+    } catch (err) {
+        console.error(err)
+        return res.status(500).send(null)
+    }
+}
+
 async function getUserByEmailandUsername(email,benutzername){
     try {
         const result = await pool.query(
@@ -825,6 +846,7 @@ module.exports = {
     getPersonReviewById,
     getEventById,
     getMails,
+    getBookedTicketsDate,
     // SEARCHES
     searchEvent, 
     searchLocaiton,
