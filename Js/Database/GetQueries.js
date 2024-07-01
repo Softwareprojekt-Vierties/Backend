@@ -629,7 +629,7 @@ async function searchArtist(req,res){
                 break
             case 'bewertung':
                 paramIndex++
-                additionalFilter += "a.sterne >= $"+paramIndex+"::int"
+                additionalFilter += "ap.sterne >= $"+paramIndex+"::int"
                 param.push(req.body[key])
                 break
             case 'istfavorit':
