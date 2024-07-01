@@ -750,6 +750,8 @@ async function getMails(req, res) {
             `SELECT 
                 mail.id,
                 mail.anfrage AS anfragetyp,
+                mail.gelesen,
+                mail.angenommen,
                 app_user.email AS senderemail, 
                 app_user.profilname AS sendername,
                 empfaenger.profilname AS empfaengername,
