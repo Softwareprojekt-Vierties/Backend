@@ -687,7 +687,6 @@ async function searchEndUser(req,res){
     let istfavorit = " LEFT OUTER JOIN favorit_user fu ON e.id = fu.enduserid"
     let param = []
     let paramIndex = 0;
-    let sqlStirng=""
     let doAND = true
 
     for (let key in req.body) {
@@ -734,7 +733,6 @@ async function searchEndUser(req,res){
     paramIndex == 0 ? sqlstring = query + istfavorit : sqlstring = query + istfavorit + " WHERE " + additionalFilter
     
     try {
-        console.log(sqlstring)
         const result = await pool.query(sqlstring,param)
         for (let i=0;i<result.rowCount;i++)
         {
