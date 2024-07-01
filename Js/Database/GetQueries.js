@@ -752,6 +752,7 @@ async function getMails(req, res) {
                 mail.anfrage AS anfragetyp,
                 app_user.email AS senderemail, 
                 app_user.profilname AS sendername,
+                empfaenger.profilname AS empfaengername,
                 CASE 
                     WHEN mail.eventid IS NOT NULL THEN event.name
                     ELSE NULL
@@ -793,6 +794,7 @@ async function getMails(req, res) {
                 LEFT JOIN event ON mail.eventid = event.id
                 LEFT JOIN location ON event.locationid = location.id
                 JOIN app_user ON mail.sender = app_user.id
+                JOIN app_user AS empfaenger ON mail.empfaenger = empfaenger.id
             WHERE mail.empfaenger = $1::int`,
             [req.params[`id`]]
         )
