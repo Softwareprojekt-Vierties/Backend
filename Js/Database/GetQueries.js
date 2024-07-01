@@ -273,7 +273,7 @@ async function getPersonReviewById(req,res){
 }
 
 async function searchEvent(req,res){
-    console.log("REQUEST",req.body)
+    console.log("REQUEST searchEvent",req.body)
     const user = cookieJwtAuth.getUser(req.headers["auth"])["id"]
     let query = "SELECT e.*, l.name AS locationname,l.adresse as adresse, fe.userid as favorit FROM event e JOIN location l ON e.locationid = l.id"
     let additionalFilter = ""
@@ -395,7 +395,7 @@ async function searchEvent(req,res){
 }
 
 async function searchLocaiton(req,res){
-    console.log("REQUEST",req.body)
+    console.log("REQUEST searchLocaiton",req.body)
     const user = cookieJwtAuth.getUser(req.headers["auth"])["id"]
     let query = "SELECT location.*, favorit_location.userid as favorit FROM location"
     let additionalFilter = ""
@@ -497,7 +497,7 @@ async function searchLocaiton(req,res){
 }
 
 async function searchCaterer(req,res){
-    console.log("REQUEST",req.body)
+    console.log("REQUEST searchCaterer",req.body)
     const user = cookieJwtAuth.getUser(req.headers["auth"])["id"]
     let query = "SELECT c.preis,c.kategorie,c.erfahrung,a.profilname as name,a.region,a.profilbild,a.kurzbeschreibung,a.sterne, fu.userid AS favorit FROM caterer c JOIN app_user a ON c.emailfk = a.email"
     let additionalFilter = ""
@@ -588,7 +588,7 @@ async function searchCaterer(req,res){
 }
 
 async function searchArtist(req,res){
-    console.log("REQUEST",req.body)
+    console.log("REQUEST searchArtist",req.body)
     const user = cookieJwtAuth.getUser(req.headers["auth"])["id"]
     let query = "SELECT a.preis,a.kategorie,a.erfahrung,ap.region,ap.profilname as name,ap.sterne,ap.profilbild,ap.kurzbeschreibung,fu.userid AS favorit FROM artist a JOIN app_user ap ON a.emailfk = ap.email"
     let additionalFilter = ""
@@ -680,7 +680,7 @@ async function searchArtist(req,res){
 }
 
 async function searchEndUser(req,res){
-    console.log("REQUEST",req.body)
+    console.log("REQUEST searchEndUser",req.body)
     const user = cookieJwtAuth.getUser(req.headers["auth"])["id"]
     let query = "SELECT e.*,ap.profilname as name,ap.region,fu.userid AS favorit FROM endnutzer e JOIN app_user ap ON e.emailfk = ap.email"
     let additionalFilter = ""
