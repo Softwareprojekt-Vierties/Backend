@@ -111,6 +111,16 @@ app.post('/searchEndnutzer',cookieJwtAuth.Auth,GetQueries.searchEndUser);  // se
 
 app.post("/updateMail", async (req, res) => {
     console.log("REQUEST TO UPDATE mail")
+    const {id, gelesen, angenommen} = req.body
+    try {
+        let result
+        if (angenommen === undefined) result = await UpdateQueries.updateMail(id, gelesen)
+        else result = await UpdateQueries.updateMail(id, true, angenommen)
+        if (result) res.status(200).send("Updated mail")
+        else res.status(200).send("Didn't update any mail")
+    } catch (err) {
+        res.status(500).send("INTERNAL SERVER ERROR WHILE TRYING TO UPDATE mail!")
+    }
 })
 
 app.post("/updateArtist",async (req,res)=>{
