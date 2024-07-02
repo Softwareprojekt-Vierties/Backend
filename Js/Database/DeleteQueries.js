@@ -827,6 +827,46 @@ async function deleteArtistById(id, deleteBy) {
     }
 }
 
+/**
+ * Deletes a bild from the DB using an id.
+ * 
+ * @param {number} id - the id, dictates what should be deleted
+ * @returns {Object} An object containing the following:
+*
+* - boolean: sucess - If the deletion was successful or not
+* - any[]: data - The data returned from the deletion operation, can be null
+* - any: error - The error that occoured if something failed, only written if success = false
+ */
+async function deleteBild(id) {
+    try {
+        console.warn("TRYING TO DELETE A bild OF", id)
+        const result = await pool.query(
+            `DELETE FROM bild WHERE id = %1::int RETURNING *`,
+            [id]
+        )
+        if (result.rows.length === 0) {
+            return {
+                success: true,
+                data: null,
+                error: null
+            }
+        } else {
+            return {
+                sucess: true,
+                data: result.rows,
+                error: null
+            }
+        }
+    } catch (err) {
+        console.error("AN ERROR OCCURED WHILE TRYING TO DELETE A bild", err)
+        return {
+            sucess: false,
+            data: null,
+            error: err
+        }
+    }
+}
+
 module.exports = {
     deleteAppUserById,
     deleteArtistById,

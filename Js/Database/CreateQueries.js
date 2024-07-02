@@ -27,6 +27,10 @@ async function createAppUser(benutzername, profilname, email, password, profilbi
         ).then(res => {return res.rows[0]})
 
         if (passwordID === undefined) throw new Error("COULDN'T SAVE PASSWORD ON THE DATABASE!")
+
+        //const picture = await createBild(profilbild)
+
+        //if (!picture.success) throw new Error("COULDN'T SAVE PICTURE ON THE DATABASE!")
         
         // then create the app_user
         await pool.query(
@@ -218,7 +222,11 @@ async function createCaterer(benutzername, profilname, email, password, profilbi
  * - error: [the error, if one occured]
  */
 async function createLocation(adresse, name, beschreibung, ownerID, privat, kurzbeschreibung, preis, kapazitaet, openair, flaeche, bild){
-    try {   
+    try {  
+        //const picture = await createBild(profilbild)
+
+        //if (!picture.success) throw new Error("COULDN'T SAVE PICTURE ON THE DATABASE!")
+        
         const location = await pool.query(
             "INSERT INTO location (adresse, name, beschreibung, ownerid, privat, kurzbeschreibung, preis, kapazitaet, openair, flaeche, bild) " + 
             "VALUES ($1::text, $2::text, $3::text, $4::int, $5::bool, $6::text, $7::text, $8::int, $9::bool, $10::text, $11) RETURNING id",
@@ -308,6 +316,10 @@ async function createReview(inhalt, sterne, ownerid, id, intention) {
  */
 async function createEvent(name, datum, uhrzeit, eventgroesse, preis, altersfreigabe, privat, kurzbeschreibung, beschreibung, bild, ownerid, locationid){
     try {
+        //const picture = await createBild(profilbild)
+
+        //if (!picture.success) throw new Error("COULDN'T SAVE PICTURE ON THE DATABASE!")
+        
         const event = await pool.query(
             "INSERT INTO event (name, datum, uhrzeit, eventgroesse, freietickets, preis, altersfreigabe, privat, kurzbeschreibung, beschreibung, bild, ownerid, locationid) " + 
             "VALUES ($1::text, $2, $3::int, $4::int, $5::int, $6::int, $7::int, $8::bool, $9::text, $10::text, $11, $12::int, $13::int) RETURNING id",
@@ -427,6 +439,10 @@ async function createLied(ownerid,name,laenge,erscheinung){
  */
 async function createGericht(ownerid,name,beschreibung,bild=null){
     try {
+        //const picture = await createBild(profilbild)
+
+        //if (!picture.success) throw new Error("COULDN'T SAVE PICTURE ON THE DATABASE!")
+
         await pool.query(
             "INSERT INTO gericht (ownerid,name,beschreibung,bild) VALUES ($1, $2::text, $3::text, $4)",
             [ownerid, name, beschreibung, bild]
@@ -532,8 +548,7 @@ async function createTicket(userid,eventid){
 async function createMail(sender, empfaenger, anfrage, eventid = null) {
     try {
         await pool.query(
-            `INSERT INTO mail (sender, empfaenger, eventid, anfrage)
-            `,
+            `INSERT INTO mail (sender, empfaenger, eventid, anfrage)`,
             []
         )
         console.log("mail CREATED")
@@ -545,6 +560,36 @@ async function createMail(sender, empfaenger, anfrage, eventid = null) {
         console.error("FAILED TO CREATE mail", err)
         return {
             success: false,
+            error: err
+        }
+    }
+}
+
+/**
+ * Inserts a picture into the database.
+ * @param {string} data the picture, can be null
+ * @returns {!Object} 
+ * - success: [true if successful, false otherwise]
+ * - id: [id of the picture, null if error occured]
+ * - error: [the error, if one occured]
+ */
+async function createBild(data) {
+    try {
+        const bild = await pool.query(
+            `INSERT INTO bild (data) VALUES (%1) RETURNING id`,
+            [data]
+        )
+        console.log("bild CREATED")
+        return {
+            success: true,
+            id: bild.rows[0],
+            error: null
+        }
+    } catch (err) {
+        console.error("FAILED TO CREATE bild", err)
+        return {
+            success: false,
+            id: null,
             error: err
         }
     }

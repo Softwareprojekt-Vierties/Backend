@@ -219,9 +219,24 @@ async function updateMail(id, gelesen, angenommen = null) {
             WHERE id = $1::int`,
             [id, gelesen, angenommen]
         )
+        console.log("UPDATED mail")
         return true
     } catch (err) {
         console.error("COULDN'T UPDATE mail", err)
+        return false
+    }
+}
+
+async function updateBild(id, data) {
+    try {
+        await pool.query(
+            `UPDATE bild SET bild = $2 WHERE id = $1::int`,
+            [id, bild]
+        )
+        console.log("UPDATED bild")
+        return true
+    } catch (err) {
+        console.log("COULDN'T UPDATE bild", err)
         return false
     }
 }
