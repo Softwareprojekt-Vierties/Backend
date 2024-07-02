@@ -210,6 +210,22 @@ async function updatePlaylist() {
     return false
 }
 
+async function updateMail(id, gelesen, angenommen = null) {
+    try {
+        await pool.query(
+            `UPDATE mail SET
+            gelesen = $2::boolean,
+            angenommen = $3
+            WHERE id = $1::int`,
+            [id, gelesen, angenommen]
+        )
+        return true
+    } catch (err) {
+        console.error("COULDN'T UPDATE mail", err)
+        return false
+    }
+}
+
 module.exports = {
     updateArtist, 
     updateCaterer, 
@@ -219,5 +235,6 @@ module.exports = {
     updateLied,
     updateLocation,
     updatePassword,
-    updatePlaylist
+    updatePlaylist,
+    updateMail
 }
