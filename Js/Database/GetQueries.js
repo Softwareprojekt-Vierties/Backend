@@ -819,7 +819,6 @@ async function getMails(req, res) {
             WHERE mail.empfaenger = $1::int`,
             [req.params[`id`]]
         )
-        console.log(mails.rows)
         return res.status(200).send(mails)
     } catch (err) {
         console.error(err)
