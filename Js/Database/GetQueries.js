@@ -222,9 +222,12 @@ async function getEndUserById(req,res){
         const owenevent = await pool.query(
             `SELECT 
                 e.*,
+                l.adresse,
+                l.name as locationname,
                 bild.data AS profilbild
             FROM event e
             LEFT JOIN bild ON e.bildid = bild.id
+            JOIN location l ON e.locationid = l.id
             WHERE e.ownerid = $1::int`,
             [id]
         )
@@ -232,10 +235,13 @@ async function getEndUserById(req,res){
         const ticket = await pool.query(
             `SELECT 
                 e.*,
+                l.adresse,
+                l.name as locationname,
                 bild.data AS profilbild
             FROM event e
             LEFT JOIN bild ON e.bildid = bild.id
             LEFT JOIN tickets t ON e.id = t.eventid
+            JOIN location l ON e.locationid = l.id
             WHERE t.userid = $1::int`,
             [id]
         )
