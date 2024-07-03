@@ -1,6 +1,7 @@
 const request = require("supertest")
 const app = require("../Js/Server")
 const jwt = require("jsonwebtoken")
+const bcrypt = require('bcrypt');
 const database = require("../Js/Database/Database.js")
 const CreateQueries = require("../Js/Database/CreateQueries.js")
 SECRET = "BruhnsmanIsTheBest"
@@ -17,9 +18,15 @@ describe('POST /login',()=>{
                             pass: 'test'}
                     };
 
-        const fakeUser = {id: 1, email : message.body["email"], pass: message.body["pass"]}
+        const fakeUser = {
+            success: true,
+            user: {id: 1, email : message.body["email"], pass: message.body["pass"]},
+            error: null
+            
+        }
         jest.spyOn(database,'comparePassword').mockResolvedValue(fakeUser);
-        const token = jwt.sign(fakeUser,SECRET,{expiresIn: '3h'});
+        jest.spyOn(bcrypt,'compare').mockResolvedValue(true)
+        const token = jwt.sign(fakeUser["user"],SECRET,{expiresIn: '3h'});
         try
         {
             const res = await request(app.app).post('/login').send(message);
