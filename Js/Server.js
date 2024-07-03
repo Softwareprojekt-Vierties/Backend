@@ -164,8 +164,6 @@ app.post("/updateLoacation",(req,res)=>{
     
 })
 
-//app.post("/updateEndnutzer")
-
 // -------------------- CREATES -------------------- // 
 
 app.post('/createEvent', async (req,res)=> {
