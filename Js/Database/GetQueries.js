@@ -965,7 +965,7 @@ async function getMails(req, res) {
                     WHEN mail.eventid IS NOT NULL THEN location.kapazitaet
                     ELSE NULL
                 END AS locationkapazitaet,
-                app_user.bildid
+                app_user.bildid,
                 bild.data AS senderprofilbild
             FROM mail 
             LEFT JOIN event ON mail.eventid = event.id
