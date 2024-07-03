@@ -1,16 +1,30 @@
 const jwt = require('jsonwebtoken');
 SECRET = "BruhnsmanIsTheBest"
-
-function Auth (req, res, next){     //checks if there is a JWT cookie 
+/**
+ * checks if an JWT token is valid
+ * 
+ * @param {JSON} req - A JSON that Conatins an JWT token
+ * @param {JSON} res - the response that is send to the Client 
+ * @param next - continus the code
+ */
+function Auth (req, res, next){  
     const token = req.headers["auth"]
     try {
         const user = jwt.verify(token,SECRET);
         next();
     }
     catch (err) {
-        return res.send("NOOOOOO");
+        return res.status(500).send("Token is not Vaild");
     }
 }
+
+/**
+ * checks if the Client allready has an valid JWT Token 
+ * 
+ * @param {JSON} req - A JSON that can Conatin a JWT token
+ * @param {JSON} res - the response that is send to the Client 
+ * @param next - continus the code
+ */
 
 function isLogedIn(req,res,next){
     try
@@ -24,6 +38,13 @@ function isLogedIn(req,res,next){
         next()
     }
 }
+
+/**
+ * gets the User Data out of an JWT Token 
+ * 
+ * @param {JsonWebToken} token - A JWT token
+ * @param {Object} - user data
+ */
 
 function getUser(token){  // returns the user information form the JWT cookie
     const user = jwt.verify(token, SECRET);
