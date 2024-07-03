@@ -887,6 +887,36 @@ async function deleteBildById(id) {
     }
 }
 
+async function deletePartybilderById(id) {
+    try {
+        console.warn("TRYING TO DELETE ALL partybildee OF endnutzer", id)
+        const result = await pool.query(
+            `DELETE FROM partybilder WHERE userid = $1::int RETURNING *`,
+            [id]
+        )
+        if (result.rows.length === 0) {
+            return {
+                success: true,
+                data: null,
+                error: null
+            }
+        } else {
+            return {
+                sucess: true,
+                data: result.rows,
+                error: null
+            }
+        }
+    } catch (err) {
+        console.error("AN ERROR OCCURED WHILE TRYING TO DELETE partybilder", err)
+        return {
+            sucess: false,
+            data: null,
+            error: err
+        }
+    }
+}
+
 module.exports = {
     deleteAppUserById,
     deleteArtistById,
@@ -902,5 +932,6 @@ module.exports = {
     deleteReviewById,
     deleteServiceArtistById,
     deleteServiceCatererById,
-    deleteTicketsById
+    deleteTicketsById,
+    deletePartybilderById
 }

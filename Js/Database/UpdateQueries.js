@@ -1,5 +1,6 @@
 const { pool } = require('./Database.js')
 const createQueries = require("./CreateQueries.js")  
+const DeleteQueries = require("./DeleteQueries.js")
 const bcrypt = require('bcrypt')
 const cookieJwtAuth = require('../CookieJwtAuth')
 
@@ -58,6 +59,12 @@ async function updateApp_user(profilname, profilbild, kurzbeschreibung, beschrei
     }
 }
 
+async function updatePartyBilder(userid, partybilder) {
+    DeleteQueries.deletePartybilderById(userid)
+
+    
+}
+
 // -------------------- PUBLIC -------------------- //
 
 /**
@@ -77,7 +84,7 @@ async function updateApp_user(profilname, profilbild, kurzbeschreibung, beschrei
  * - boolean: success - true if successful, false otherwise
  * - Error: error - the error if one occured
  */
-async function updateEndnutzer(profilname, profilbild, kurzbeschreibung, beschreibung, region, email, alter, arten, lied, gericht, geschlecht) {
+async function updateEndnutzer(profilname, profilbild, kurzbeschreibung, beschreibung, region, email, alter, arten, lied, gericht, geschlecht, partybilder) {
     const app_userResult = await updateApp_user(profilname, profilbild, kurzbeschreibung, beschreibung, region, email)
     if (!app_userResult.success) { // if failed
         console.error(`CANNOT UPDATE endnutzer BECAUSE UPDATE app_user FAILED`)
@@ -95,10 +102,14 @@ async function updateEndnutzer(profilname, profilbild, kurzbeschreibung, beschre
             lied = $3::text,
             gericht = $4::text,
             geschlecht = $5::text
-            WHERE emailfk = $6::text`,
+            WHERE emailfk = $6::text
+            RETURNING id`,
             [alter, arten, lied, gericht, geschlecht, email]
         )
         console.log(`endnutzer UPDATED`)
+
+        if (partybilder != undefined) updatePartyBilder(result.rows[0]['id'], partybilder)
+
         return {
             success: true,
             error: null
