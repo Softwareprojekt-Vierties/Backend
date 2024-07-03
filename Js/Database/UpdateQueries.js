@@ -424,7 +424,7 @@ async function updateMail(id, gelesen, angenommen = null) {
 async function updateBild(id, data) {
     try {
         await pool.query(
-            `UPDATE bild SET bild = $2 WHERE id = $1::int`,
+            `UPDATE bild SET data = $2 WHERE id = $1::int`,
             [id, data]
         )
         console.log("UPDATED bild")
