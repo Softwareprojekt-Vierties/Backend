@@ -597,7 +597,7 @@ async function createMail(sender, empfaenger, anfrage, eventid = null) {
 async function createBild(data) {
     try {
         const bild = await pool.query(
-            `INSERT INTO bild (data) VALUES (%1) RETURNING id`,
+            `INSERT INTO bild (data) VALUES ($1::text) RETURNING id`,
             [data]
         )
         console.log("bild CREATED")
