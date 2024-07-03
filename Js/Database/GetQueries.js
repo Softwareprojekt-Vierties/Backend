@@ -235,7 +235,7 @@ async function getEndUserById(req,res){
                 bild.data AS profilbild
             FROM event e
             LEFT JOIN bild ON e.bildid = bild.id
-            LEFT JOIN tickts t ON e.id = t.eventid
+            LEFT JOIN tickets t ON e.id = t.eventid
             WHERE t.userid = $1::int`,
             [id]
         )
