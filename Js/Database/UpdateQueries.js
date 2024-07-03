@@ -1,6 +1,7 @@
 const { pool } = require('./Database.js')
 const createQueries = require("./CreateQueries.js")  
 const DeleteQueries = require("./DeleteQueries.js")
+const CreateQueries = require("./CreateQueries.js")
 const bcrypt = require('bcrypt')
 const cookieJwtAuth = require('../CookieJwtAuth')
 
@@ -62,7 +63,15 @@ async function updateApp_user(profilname, profilbild, kurzbeschreibung, beschrei
 async function updatePartyBilder(userid, partybilder) {
     DeleteQueries.deletePartybilderById(userid)
 
-    
+    for (let bild of partybilder) {
+        const bildid = CreateQueries.createBild(bild)
+
+        if (bildid.success) {
+            CreateQueries.createPartybild(userid, bildid.id)
+        } else {
+            console.warn("FAILED TO SAFE ONE bild!")
+        }
+    }
 }
 
 // -------------------- PUBLIC -------------------- //
