@@ -39,27 +39,7 @@ const server = app.listen(port, (error) => {           // starts the server on t
 app.post('/login', cookieJwtAuth.isLogedIn,login);      // to log a user in
 app.post('/register', registration);    // register a user
 
-app.post('/checkAccount',async(req,res)=>{
-    const {email, benutzername} = req.body;
-    try
-    {
-        const user  = await GetQueries.getUserByEmailandUsername(email,benutzername);
-        if(user.rowCount>0)
-        {
-            res.status(200).send("1");
-        }
-        else
-        {
-            res.status(400).send("0");
-            
-        }
-    }
-    catch(err)
-    {
-        console.log(err)
-        res.status(404).send("err")
-    }
-})
+app.post('/checkAccount',GetQueries.getUserByEmailandUsername)
 
 // -------------------- GETS -------------------- //
 
@@ -72,41 +52,16 @@ app.get("/getLocationReview/:id",GetQueries.getLocationReviewById)
 app.get("/getEventReview/:id",GetQueries.getEventReviewById)
 app.get("/getPersonReview/:id",GetQueries.getPersonReviewById)
 app.get('/getMails/:id', GetQueries.getMails)
-app.get('/getEventById/:id', GetQueries.getEventById);
-app.post('/searchEvent',GetQueries.searchEvent);  // searchs events with filter param
-app.get('/tickets/:id', (req,res)=>{
-    try
-    {       
-        GetQueries.getAllTicketsFromUser(req.params["id"]).then(result =>{
-            res.status(200).send(result);
-        });
-        
-    }
-    catch (err)
-    {
-        res.status(400).send(err)
-    }
-});
+app.get('/getEventById/:id', GetQueries.getEventById)
+app.post('/searchEvent',GetQueries.searchEvent)  // searchs events with filter param
+app.get('/tickets/:id', GetQueries.getAllTicketsFromUser)
+app.get('/playlist/:name', GetQueries.getPlaylistContent)
 
-app.get('/playlist/:name', (req,res)=>{
-    try
-    {       
-        GetQueries.getPlaylistContent(req.params["name"]).then(result =>{
-            res.status(200).send(result);
-        });
-        
-    }
-    catch (err)
-    {
-        res.status(400).send(err)
-    }
-})
-
-app.post('/searchEvent',cookieJwtAuth.Auth,GetQueries.searchEvent);  // searchs events with filter param
-app.post('/searchLoacation',cookieJwtAuth.Auth,GetQueries.searchLocaiton);  // searchs Locations with filter param
-app.post('/searchCaterer',cookieJwtAuth.Auth,GetQueries.searchCaterer);  // searchs Caterer with filter param
-app.post('/searchArtist',cookieJwtAuth.Auth,GetQueries.searchArtist);  // searchs Artist with filter param
-app.post('/searchEndnutzer',cookieJwtAuth.Auth,GetQueries.searchEndUser);  // searchs Endnutzer with filter param
+app.post('/searchEvent',cookieJwtAuth.Auth,GetQueries.searchEvent)  // searchs events with filter param
+app.post('/searchLoacation',cookieJwtAuth.Auth,GetQueries.searchLocaiton)  // searchs Locations with filter param
+app.post('/searchCaterer',cookieJwtAuth.Auth,GetQueries.searchCaterer)  // searchs Caterer with filter param
+app.post('/searchArtist',cookieJwtAuth.Auth,GetQueries.searchArtist)  // searchs Artist with filter param
+app.post('/searchEndnutzer',cookieJwtAuth.Auth,GetQueries.searchEndUser)  // searchs Endnutzer with filter param
 
 // -------------------- UPDATES -------------------- // 
 
