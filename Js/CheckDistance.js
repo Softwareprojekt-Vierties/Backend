@@ -1,5 +1,13 @@
 const apiKey = "5b3ce3597851110001cf6248a0e410bd9aef4d01b7088f2b257b0bb8"
 
+/**
+ * checks if the given Locations are in a certen radius to each ohter.
+ * 
+ * @param {Number} location1 - the address of Location1
+ * @param {Number} location2 - the address of Location2
+ * @param {Number} maxdistance - the maxdistance between the to Locations
+ * @returns {Boolean} true or false
+ */
 
 module.exports = async(location1,location2,maxdistance) =>{
     try
@@ -27,6 +35,13 @@ module.exports = async(location1,location2,maxdistance) =>{
     }
 }
 
+/**
+ * get the World Coordinates form the given address.
+ * 
+ * @param {Number} address - the address for the Coordinates
+ * @param {Number} apiKey - the apiKey to use the OpenRouteService REST-API
+ * @returns {Number}the Global Coordinats of the given Address
+ */
 async function geocodeAddress(address, apiKey) {
     const response = await fetch(`https://api.openrouteservice.org/geocode/search?api_key=${apiKey}&text=${encodeURIComponent(address)}`);
     const data = await response.json();
@@ -37,26 +52,24 @@ async function geocodeAddress(address, apiKey) {
     }
 }
 
-async function getDistance(originCoords, destinationCoords, apiKey) {
-    const response = await fetch('https://api.openrouteservice.org/v2/directions/driving-car', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': apiKey
-        },
-        body: JSON.stringify({
-            coordinates: [originCoords, destinationCoords]
-        })
-    });
-    return await response.json();
-}
-
+/**
+ * changes Degrees to Radians.
+ * 
+ * @param {Number} degrees 
+ * @returns {Number} the Radians 
+ */
 function degreesToRadians(degrees) {
     var radians = (degrees * Math.PI)/180;
     return radians;
   }
 
-// Function takes two objects, that contain coordinates to a starting and destination location.
+/**
+ * Calculate the Distance between two Coordinates using the Haversine formula
+ * 
+ * @param {String} startingCoords - start Coordinates
+ * @param {String} destinationCoords - end Coordinates
+ * @returns the Beeline in Km
+ */
 function calcDistance (startingCoords, destinationCoords){
     
     let startingLat = degreesToRadians(startingCoords[1]);
