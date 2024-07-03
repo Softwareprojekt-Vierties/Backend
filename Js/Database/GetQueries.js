@@ -373,7 +373,14 @@ async function getPersonReviewById(req,res){
 
 async function searchEvent(req,res){
     console.log("REQUEST searchEvent",req.body)
-    const user = cookieJwtAuth.getUser(req.headers["auth"])["id"]
+    try
+    {
+        const user = cookieJwtAuth.getUser(req.headers["auth"])["id"]
+    }
+    catch(err)
+    {
+       return res.status(500).send(err)
+    }    
     let query = 
         `SELECT 
             e.*,
@@ -504,7 +511,14 @@ async function searchEvent(req,res){
 
 async function searchLocaiton(req,res){
     console.log("REQUEST searchLocaiton",req.body)
-    const user = cookieJwtAuth.getUser(req.headers["auth"])["id"]
+    try
+    {
+        const user = cookieJwtAuth.getUser(req.headers["auth"])["id"]
+    }
+    catch(err)
+    {
+        return res.status(500).send(err)
+    }    
     let query = 
         `SELECT 
             location.*,
@@ -612,7 +626,14 @@ async function searchLocaiton(req,res){
 
 async function searchCaterer(req,res){
     console.log("REQUEST searchCaterer",req.body)
-    const user = cookieJwtAuth.getUser(req.headers["auth"])["id"]
+    try
+    {
+        const user = cookieJwtAuth.getUser(req.headers["auth"])["id"]
+    }
+    catch(err)
+    {
+        return res.status(500).send(err)
+    }    
     let query = 
         `SELECT 
             c.preis,
@@ -717,7 +738,14 @@ async function searchCaterer(req,res){
 
 async function searchArtist(req,res){
     console.log("REQUEST searchArtist",req.body)
-    const user = cookieJwtAuth.getUser(req.headers["auth"])["id"]
+    try
+    {
+        const user = cookieJwtAuth.getUser(req.headers["auth"])["id"]
+    }
+    catch(err)
+    {
+        return res.status(500).send(err)
+    }    
     let query = 
         `SELECT 
             a.preis,
@@ -822,7 +850,14 @@ async function searchArtist(req,res){
 
 async function searchEndUser(req,res){
     console.log("REQUEST searchEndUser",req.body)
-    const user = cookieJwtAuth.getUser(req.headers["auth"])["id"]
+    try
+    {
+        const user = cookieJwtAuth.getUser(req.headers["auth"])["id"]
+    }
+    catch(err)
+    {
+        return res.status(500).send(err)
+    }    
     let query = 
         `SELECT 
             e.*,
