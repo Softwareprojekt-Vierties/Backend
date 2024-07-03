@@ -19,14 +19,18 @@ async function getStuffbyName(req){
 async function getLocationById(req,res){
     try {
         const result = await pool.query(
-            "SELECT * FROM location WHERE id = $1::int",
+            `SELECT 
+                l.*, bild.data AS bild 
+            FROM location l 
+            LEFT JOIN bild ON bildid = bild.id 
+            WHERE l.id = $1::int`,
             [req.params["id"]]
         )
         console.log(req.params["id"])
         return res.status(200).send(result)
     } catch (err) {
         console.error(err)
-        return res.status(400).send(null)
+        return res.status(500).send("INTERNAL SERVER ERROR WHILE TRYING TO GET LOCATION BY ID")
     }
 }
 
@@ -34,7 +38,18 @@ async function getEventById(req,res){
     try {
         const id = req.params["id"]
         const event = await pool.query(
-            "SELECT e.*,l.adresse,l.name as locationname FROM event e JOIN location l ON e.locationid = l.id WHERE e.id = $1::int",
+            `SELECT 
+                e.*,
+                l.adresse,
+                l.name as locationname,
+                CASE
+                    WHEN e.bildid IS NOT NULL THEN bild.data
+                    ELSE NULL
+                END AS bild
+            FROM event e 
+            JOIN location l ON e.locationid = l.id 
+            LEFT JOIN bild ON e.bildid = bild.id
+            WHERE e.id = $1::int`,
             [id]
         )
         const artist = await getArtistByEvent(req.params["id"])
@@ -44,35 +59,58 @@ async function getEventById(req,res){
             artists: artist,
             caterers : caterer
         })
-        console.log(id)
-        return res.status(200).send(result)
     } catch (err) {
         console.error(err)
-        return res.status(400).send(null)
+        return res.status(500).send("INTERNAL SERVER ERROR WHILE TRYING TO GET EVENT BY ID")
     }
 }
 
 async function getCatererById(req,res){
     const id = req.params["id"]
     try {
-        
         const cater = await pool.query(
-            "SELECT c.*,a.id as userid,a.benutzername, a.profilname,a.profilbild,a.kurzbeschreibung,a.beschreibung,a.region,a.sterne FROM caterer c JOIN app_user a ON c.emailfk = a.email WHERE c.id = $1",
+            `SELECT 
+                c.*,
+                a.id as userid,
+                a.benutzername,
+                a.profilname,
+                a.bildid,
+                a.kurzbeschreibung,
+                a.beschreibung,
+                a.region,
+                a.sterne,
+                bild.data AS profilbild
+            FROM caterer c 
+            JOIN app_user a ON c.emailfk = a.email 
+            LEFT JOIN bild ON a.bildid = bild.id
+            WHERE c.id = $1`,
             [id]
         )
         console.log(cater)
 
         const gericht = await pool.query(
-            `SELECT g.id, g.name, g.beschreibung, g.bild
+            `SELECT 
+                g.id, 
+                g.name, 
+                g.beschreibung, 
+                g.bildid,
+                bild.data AS bild
             FROM gericht g
+            LEFT JOIN bild ON g.bildid = bild.id
             WHERE g.ownerid = $1::int`,
             [id]
         )
         console.log(gericht)
 
-        
         const event = await pool.query(
-            `SELECT e.*, l.adresse FROM event e JOIN servicecaterer sc ON sc.eventid = e.id JOIN location l ON e.locationid = l.id
+            `SELECT 
+                e.*, 
+                l.adresse,
+                bild.data AS bild
+            FROM event e 
+            JOIN servicecaterer sc ON sc.eventid = e.id 
+            JOIN location l ON e.locationid = l.id
+            LEFT JOIN bild ON e.bildid = bild.id
             WHERE sc.catererid = $1::int`,
             [id]
         )
@@ -85,7 +123,7 @@ async function getCatererById(req,res){
         })
     } catch (err) {
         console.error(err)
-        return res.status(400).send(err)
+        return res.status(500).send(err)
     }
 }
 
@@ -93,13 +131,31 @@ async function getArtistByID(req,res){
     const id = req.params["id"]
     try {
         const art = await pool.query(
-            "SELECT ar.*, a.id as userid,a.benutzername, a.profilname,a.profilbild,a.kurzbeschreibung,a.beschreibung,a.region,a.sterne FROM artist ar JOIN app_user a ON ar.emailfk = a.email WHERE ar.id = $1",
+            `SELECT 
+                ar.*, 
+                a.id as userid,
+                a.benutzername, 
+                a.profilname,
+                a.bildid,
+                a.kurzbeschreibung,
+                a.beschreibung,
+                a.region,
+                a.sterne,
+                bild.data AS profilbild 
+            FROM artist ar 
+            JOIN app_user a ON ar.emailfk = a.email
+            LEFT JOIN bild ON a.bildid = bild.id
+            WHERE ar.id = $1`,
             [id]
         )
         console.log(art)
 
         const lied = await pool.query(
-            `SELECT l.id, l.name, l.laenge, l.erscheinung
+            `SELECT 
+                l.id,
+                l.name,
+                l.laenge,
+                l.erscheinung
             FROM lied l
             WHERE l.ownerid = $1::int`,
             [id]
@@ -107,7 +163,14 @@ async function getArtistByID(req,res){
         console.log(lied)
 
         const event = await pool.query(
-            `SELECT e.*, l.adresse FROM event e JOIN serviceartist sa ON sa.eventid = e.id JOIN location l ON e.locationid = l.id
+            `SELECT 
+                e.*, 
+                l.adresse,
+                bild.data AS bild
+            FROM event e 
+            JOIN serviceartist sa ON sa.eventid = e.id 
+            JOIN location l ON e.locationid = l.id
+            LEFT JOIN bild ON e.bildid = bild.id
             WHERE sa.artistid = $1::int`,
             [id]
         )
@@ -120,14 +183,19 @@ async function getArtistByID(req,res){
         })
     } catch (err) {
         console.error(err)
-        return res.status(400).send(err)
+        return res.status(500).send(err)
     }
 }
 
 async function getUserById(id){
     try {
         const result = await pool.query(
-            "SELECT * FROM app_user WHERE id = $1::int",
+            `SELECT 
+                a.*,
+                bild.data AS profilbild
+            FROM app_user a
+            LEFT JOIN bild ON a.bildid = bild.id
+            WHERE id = $1::int`,
             [id]
         )
         console.log(result)
@@ -169,14 +237,19 @@ async function getBookedTicketsDate(req, res) {
         return res.status(200).send(result)
     } catch (err) {
         console.error(err)
-        return res.status(500).send(null)
+        return res.status(500).send(err)
     }
 }
 
 async function getUserByEmailandUsername(email,benutzername){
     try {
         const result = await pool.query(
-            "SELECT * FROM app_user WHERE email = $1::text AND benutzername = $2::text",
+            `SELECT 
+                a.*,
+                bild.data AS profilbild
+            FROM app_user a
+            LEFT JOIN bild ON a.bildid = bild.id
+            WHERE email = $1::text AND benutzername = $2::text`,
             [email, benutzername]
         )
         console.log(result)
@@ -190,7 +263,22 @@ async function getUserByEmailandUsername(email,benutzername){
 async function getArtistByEvent(id){
     try {
         const result = await pool.query(
-            "SELECT ar.*,a.benutzername, a.profilname,a.profilbild,a.kurzbeschreibung,a.beschreibung,a.region,a.sterne FROM artist ar JOIN app_user a ON ar.emailfk = a.email JOIN serviceartist sa ON sa.artistid = ar.id JOIN event e ON e.id = sa.eventid WHERE sa.eventid = $1::int",
+            `SELECT 
+                ar.*,
+                a.benutzername,
+                a.profilname,
+                a.bildid,
+                a.kurzbeschreibung,
+                a.beschreibung,
+                a.region,
+                a.sterne,
+                bild.data AS profilbild 
+            FROM artist ar 
+            JOIN app_user a ON ar.emailfk = a.email 
+            JOIN serviceartist sa ON sa.artistid = ar.id 
+            JOIN event e ON e.id = sa.eventid
+            LEFT JOIN bild ON a.bildid = bild.id
+            WHERE sa.eventid = $1::int`,
             [id]
         )
         console.log(result)
@@ -204,7 +292,22 @@ async function getArtistByEvent(id){
 async function getCatererByEvent(id){
     try {
         const result = await pool.query(
-            "SELECT c.*,a.benutzername, a.profilname,a.profilbild,a.kurzbeschreibung,a.beschreibung,a.region,a.sterne FROM caterer c JOIN app_user a ON c.emailfk = a.email JOIN servicecaterer sc ON sc.catererid = c.id JOIN event e ON e.id = sc.eventid WHERE sc.eventid = $1::int",
+            `SELECT 
+                c.*,
+                a.benutzername,
+                a.profilname,
+                a.bildid,
+                a.kurzbeschreibung,
+                a.beschreibung,
+                a.region,
+                a.sterne,
+                bild.data AS profilbild 
+            FROM caterer c 
+            JOIN app_user a ON c.emailfk = a.email 
+            JOIN servicecaterer sc ON sc.catererid = c.id 
+            JOIN event e ON e.id = sc.eventid
+            LEFT JOIN bild ON a.bildid = bild.id
+            WHERE sc.eventid = $1::int`,
             [id]
         )
         
@@ -275,7 +378,16 @@ async function getPersonReviewById(req,res){
 async function searchEvent(req,res){
     console.log("REQUEST searchEvent",req.body)
     const user = cookieJwtAuth.getUser(req.headers["auth"])["id"]
-    let query = "SELECT e.*, l.name AS locationname,l.adresse as adresse, fe.userid as favorit FROM event e JOIN location l ON e.locationid = l.id"
+    let query = 
+        `SELECT 
+            e.*,
+            l.name AS locationname,
+            l.adresse as adresse,
+            fe.userid as favorit,
+            bild.data AS bild
+        FROM event e 
+        JOIN location l ON e.locationid = l.id
+        LEFT JOIN bild ON e.bildid = bild.id`
     let additionalFilter = ""
     let param = []
     let istfavorit = " LEFT OUTER JOIN favorit_event fe ON e.id = fe.eventid"
@@ -390,14 +502,20 @@ async function searchEvent(req,res){
         return res.send(result)
     } catch (err) {
         console.error(err)
-        return res.status(400).send("Error while searching for an Event")
+        return res.status(500).send("Error while searching for an Event")
     }
 }
 
 async function searchLocaiton(req,res){
     console.log("REQUEST searchLocaiton",req.body)
     const user = cookieJwtAuth.getUser(req.headers["auth"])["id"]
-    let query = "SELECT location.*, favorit_location.userid as favorit FROM location"
+    let query = 
+        `SELECT 
+            location.*,
+            favorit_location.userid as favorit,
+            bild.data AS bild
+        FROM location
+        LEFT JOIN bild ON location.bildid = bild.id`
     let additionalFilter = ""
     let istfavorit = " LEFT OUTER JOIN favorit_location ON location.id = favorit_location.locationid"
     let param = []
@@ -492,14 +610,28 @@ async function searchLocaiton(req,res){
         return res.send(result)
     } catch (err) {
         console.error(err)
-        return res.status(400).send("Error while searching for an location")
+        return res.status(500).send("Error while searching for an location")
     }
 }
 
 async function searchCaterer(req,res){
     console.log("REQUEST searchCaterer",req.body)
     const user = cookieJwtAuth.getUser(req.headers["auth"])["id"]
-    let query = "SELECT c.preis,c.kategorie,c.erfahrung,a.profilname as name,a.region,a.profilbild,a.kurzbeschreibung,a.sterne, fu.userid AS favorit FROM caterer c JOIN app_user a ON c.emailfk = a.email"
+    let query = 
+        `SELECT 
+            c.preis,
+            c.kategorie,
+            c.erfahrung,
+            a.profilname as name,
+            a.region,
+            a.bildid,
+            a.kurzbeschreibung,
+            a.sterne,
+            fu.userid AS favorit,
+            bild.data AS profilbild
+        FROM caterer c 
+        JOIN app_user a ON c.emailfk = a.email
+        LEFT JOIN bild ON a.bildid = bild.id`
     let additionalFilter = ""
     let param = []
     let istfavorit = " LEFT OUTER JOIN favorit_user fu ON c.id = fu.catereid"
@@ -590,12 +722,25 @@ async function searchCaterer(req,res){
 async function searchArtist(req,res){
     console.log("REQUEST searchArtist",req.body)
     const user = cookieJwtAuth.getUser(req.headers["auth"])["id"]
-    let query = "SELECT a.preis,a.kategorie,a.erfahrung,ap.region,ap.profilname as name,ap.sterne,ap.profilbild,ap.kurzbeschreibung,fu.userid AS favorit FROM artist a JOIN app_user ap ON a.emailfk = ap.email"
+    let query = 
+        `SELECT 
+            a.preis,
+            a.kategorie,
+            a.erfahrung,
+            ap.region,
+            ap.profilname as name,
+            ap.sterne,
+            ap.bildid,
+            ap.kurzbeschreibung,
+            fu.userid AS favorit,
+            bild.data AS profilbild
+        FROM artist a 
+        JOIN app_user ap ON a.emailfk = ap.email
+        LEFT JOIN bild ON ap.bildid = bild.id`
     let additionalFilter = ""
     let istfavorit = " LEFT OUTER JOIN favorit_user fu ON a.id = fu.artistid"
     let param = []
     let paramIndex = 0;
-    let sqlStirng=""
     let doAND = true
 
     for (let key in req.body) {
@@ -675,14 +820,24 @@ async function searchArtist(req,res){
         return res.send(result)
     } catch (err) {
         console.error(err)
-        return res.status(400).send("Error while searching for an Artist")
+        return res.status(500).send("Error while searching for an Artist")
     }
 }
 
 async function searchEndUser(req,res){
     console.log("REQUEST searchEndUser",req.body)
     const user = cookieJwtAuth.getUser(req.headers["auth"])["id"]
-    let query = "SELECT e.*,ap.profilname as name,ap.region,fu.userid AS favorit FROM endnutzer e JOIN app_user ap ON e.emailfk = ap.email"
+    let query = 
+        `SELECT 
+            e.*,
+            ap.profilname as name,
+            ap.region,
+            fu.userid AS favorit,
+            ap.bildid,
+            bild.data AS profilbild
+        FROM endnutzer e 
+        JOIN app_user ap ON e.emailfk = ap.email
+        LEFT JOIN bild ON ap.bildid = bild.id`
     let additionalFilter = ""
     let istfavorit = " LEFT OUTER JOIN favorit_user fu ON e.id = fu.enduserid"
     let param = []
@@ -759,7 +914,7 @@ async function searchEndUser(req,res){
         return res.send(result)
     } catch (err) {
         console.error(err)
-        return res.status(400).send("Error while searching for an enduser")
+        return res.status(500).send("Error while searching for an enduser")
     }
 }
 
@@ -810,12 +965,14 @@ async function getMails(req, res) {
                     WHEN mail.eventid IS NOT NULL THEN location.kapazitaet
                     ELSE NULL
                 END AS locationkapazitaet,
-                app_user.profilbild AS senderprofilbild
+                app_user.bildid
+                bild.data AS senderprofilbild
             FROM mail 
-                LEFT JOIN event ON mail.eventid = event.id
-                LEFT JOIN location ON event.locationid = location.id
-                JOIN app_user ON mail.sender = app_user.id
-                JOIN app_user AS empfaenger ON mail.empfaenger = empfaenger.id
+            LEFT JOIN event ON mail.eventid = event.id
+            LEFT JOIN location ON event.locationid = location.id
+            JOIN app_user ON mail.sender = app_user.id
+            JOIN app_user AS empfaenger ON mail.empfaenger = empfaenger.id
+            LEFT JOIN bild ON app_user.bildid = bild.id
             WHERE mail.empfaenger = $1::int`,
             [req.params[`id`]]
         )
