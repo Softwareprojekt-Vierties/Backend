@@ -72,7 +72,7 @@ app.post("/updateMail", async (req, res) => {
         let result
         if (angenommen === undefined) result = await UpdateQueries.updateMail(id, gelesen)
         else result = await UpdateQueries.updateMail(id, true, angenommen)
-        if (result) res.status(200).send("Updated mail")
+        if (result.success) res.status(200).send("Updated mail")
         else res.status(200).send("Didn't update any mail")
     } catch (err) {
         res.status(500).send("INTERNAL SERVER ERROR WHILE TRYING TO UPDATE mail!")
@@ -113,7 +113,7 @@ app.post("/updateCaterer",async (req,res)=>{
         if (gerichte != null) {
             for(let gericht of gerichte) {
                 const resultGericht = await UpdateQueries.updateGericht(gericht['id'], gericht['dishName'], gericht['info1']+", "+gericht['info2'], gericht['imagePreview'])
-                if (resultGericht) message.concat(", UPDATED gericht", gericht['dishName'])
+                if (resultGericht.success) message.concat(", UPDATED gericht", gericht['dishName'])
                 else message.concat(", FAILED TO UPDATE gericht", gericht['dishName'])
             }
         }
@@ -133,7 +133,7 @@ app.post("/updateLoacation",(req,res)=>{
     try
     {
         UpdateQueries.updateLocation(locationid, adresse, name, beschreibung, privat, kurzbeschreibung, preis, openair, flaeche, bild, kapazitaet).then(result =>{
-            if(result)
+            if(result.success)
                 {
                     res.status(200).send("Updatet Loacation")
                 }
@@ -144,7 +144,7 @@ app.post("/updateLoacation",(req,res)=>{
     catch(err)
     {
         console.error(err)
-        res.status(400).send("big Problem")
+        res.status(500).send("big Problem")
     }
     
 })
