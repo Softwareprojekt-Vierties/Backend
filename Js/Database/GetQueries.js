@@ -187,6 +187,59 @@ async function getArtistByID(req,res){
     }
 }
 
+async function getEndUserById(req,res){
+    try {
+        const id = req.params["id"]
+        const user = await pool.query(
+            `SELECT 
+                e.*,
+                a.benutzername,
+                a.profilname,
+                a.bildid,
+                a.kurzbeschreibung,
+                a.beschreibung,
+                a.region,
+                a.sterne,
+                bild.data AS profilbild
+            FROM endnutzer e
+            JOIN app_user a ON a.email = e.emailfk
+            LEFT JOIN bild ON a.bildid = bild.id
+            WHERE a.id = $1::int`,
+            [id]
+        )
+        console.log(user)
+        location = await pool.query(
+            `SELECT 
+                l.*,
+                bild.data AS profilbild
+            FROM location l
+            LEFT JOIN bild ON l.bildid = bild.id
+            WHERE l.ownerid = $1::int`,
+            [id]
+        )
+        console.log(location)
+
+        event = await pool.query(
+            `SELECT 
+                e.*,
+                bild.data AS profilbild
+            FROM event e
+            LEFT JOIN bild ON e.bildid = bild.id
+            WHERE e.ownerid = $1::int`,
+            [id]
+        )
+
+        return res.status(200).send({
+            user : user,
+            locations : location,
+            events : event
+        })
+    } catch (err) {
+        console.error(err)
+        return null
+    }
+}
+
 async function getUserById(id){
     try {
         const result = await pool.query(
@@ -991,6 +1044,7 @@ module.exports = {
     getLocationById,  
     getCatererById ,
     getArtistByID, 
+    getEndUserById,
     getAllTicketsFromUser,
     getArtistByEvent, 
     getCatererByEvent, 
