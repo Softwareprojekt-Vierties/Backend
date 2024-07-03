@@ -200,7 +200,6 @@ async function getEndUserById(req,res){
                 a.beschreibung,
                 a.region,
                 a.sterne,
-                a.partybilder,
                 bild.data AS profilbild
             FROM endnutzer e
             JOIN app_user a ON a.email = e.emailfk
@@ -246,26 +245,12 @@ async function getEndUserById(req,res){
             WHERE t.userid = $1::int`,
             [id]
         )
-        let partybild = []
-        for(let bild  in user.rows[0]["partybilder"])
-        {
-            console.log(bild)
-            bild=await pool.query(
-                `SELECT 
-                    bild.data AS bild
-                FROM bild
-                WHERE bild.id = $1::int`,
-                [user.rows[0]["partybilder"][bild]]
-            )
-            if(bild.rowCount>0) {partybild.push(bild.rows[0]["bild"])}
-        }
 
         return res.status(200).send({
             user : user,
             locations : location,
             owenevents : owenevent,
-            tickets :  ticket,
-            partybilder : partybild
+            tickets :  ticket
         })
     } catch (err) {
         console.error(err)

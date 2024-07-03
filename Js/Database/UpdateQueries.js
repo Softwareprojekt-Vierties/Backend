@@ -32,21 +32,7 @@ async function updateApp_user(profilname, profilbild, kurzbeschreibung, beschrei
         console.log(`app_user UPDATED`)
 
         console.log("BILD:",result.rows[0])
-        if(result.rows[0]=null && result.rows[0]["profilbild"]!=null)
-        {
-            const id = await createQueries.createBild(profilbild)["id"]
-            await pool.query(
-                `UPDATE app_user SET
-                bildid = $1::int
-                WHERE email = $2::text`,
-                [id,email]
-            )
-        }
-        else
-        {        
-            await updateBild(result.rows[0], profilbild)
-        }
-
+        await updateBild(result.rows[0], profilbild)
 
         return {
             success: true,

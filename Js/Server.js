@@ -129,10 +129,9 @@ app.post("/updateCaterer",async (req,res)=>{
 
 app.post("/updateEndnutzer",async (req,res)=>{
     console.log("REQUEST TO UPDATE Endnutzer",req.body)
-    const {profilname, profilbild, kurzbeschreibung, beschreibung, region, email, alter, arten, lied, gericht, geschlecht, partybilder} = req.body
+    const {profilname, profilbild, kurzbeschreibung, beschreibung, region, email, alter, arten, lied, gericht, geschlecht} = req.body
     try {
-        const resultEndnutzer = await UpdateQueries.updateEndnutzer(profilname, profilbild, kurzbeschreibung, beschreibung, region, email, alter, arten, lied, gericht, geschlecht, partybilder)
-
+        const resultEndnutzer = await UpdateQueries.updateEndnutzer(profilname, profilbild, kurzbeschreibung, beschreibung, region, email, alter, arten, lied, gericht, geschlecht)
         if (resultEndnutzer.success) res.status(200).send("UPDATED Endnutzer")
         else res.status(400).send("FAILED TO UPDATE Endnutzer! " + resultEndnutzer.error + ",")
     }
