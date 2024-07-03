@@ -31,7 +31,7 @@ async function updateApp_user(profilname, profilbild, kurzbeschreibung, beschrei
         )
         console.log(`app_user UPDATED`)
 
-        console.log(result)
+        console.log("BILD:",result.rows[0])
         if(result.rows[0]=null && result.rows[0]["profilbild"]!=null)
         {
             const id = await createQueries.createBild(profilbild)["id"]
