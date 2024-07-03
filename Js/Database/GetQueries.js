@@ -16,6 +16,11 @@ async function getStuffbyName(req){
     }
 }
 
+/**
+ * Gets a location by the id.
+ * @param {*} req - the request from frontend
+ * @param {*} res - the response from backend
+ */
 async function getLocationById(req,res){
     try {
         const result = await pool.query(
@@ -27,13 +32,18 @@ async function getLocationById(req,res){
             [req.params["id"]]
         )
         console.log(req.params["id"])
-        return res.status(200).send(result)
+        res.status(200).send(result)
     } catch (err) {
         console.error(err)
-        return res.status(500).send("INTERNAL SERVER ERROR WHILE TRYING TO GET LOCATION BY ID")
+        res.status(500).send("INTERNAL SERVER ERROR WHILE TRYING TO GET LOCATION BY ID")
     }
 }
 
+/**
+ * Gets an event by the id and the artists and caterer that are working for the event.
+ * @param {*} req - the request from frontend
+ * @param {*} res - the response from backend
+ */
 async function getEventById(req,res){
     try {
         const id = req.params["id"]
@@ -54,17 +64,22 @@ async function getEventById(req,res){
         )
         const artist = await getArtistByEvent(req.params["id"])
         const caterer = await getCatererByEvent(req.params["id"])
-        return res.status(200).send({
+        res.status(200).send({
             event: event,
             artists: artist,
             caterers : caterer
         })
     } catch (err) {
         console.error(err)
-        return res.status(500).send("INTERNAL SERVER ERROR WHILE TRYING TO GET EVENT BY ID")
+        res.status(500).send("INTERNAL SERVER ERROR WHILE TRYING TO GET EVENT BY ID")
     }
 }
 
+/**
+ * Gets a caterer by the id and its dishes aswell as all the events that caterer is working for.
+ * @param {*} req - the request from frontend
+ * @param {*} res - the response from backend
+ */
 async function getCatererById(req,res){
     const id = req.params["id"]
     try {
@@ -116,17 +131,22 @@ async function getCatererById(req,res){
         )
         console.log(event)
 
-        return res.status(200).send({
+        res.status(200).send({
             caterer: cater,
             gerichte: gericht,
             events : event
         })
     } catch (err) {
         console.error(err)
-        return res.status(500).send(err)
+        res.status(500).send(err)
     }
 }
 
+/**
+ * Gets an artist by the id and its songs aswell as all the events the artist is working for.
+ * @param {*} req - the request from frontend
+ * @param {*} res - the response from backend
+ */
 async function getArtistByID(req,res){
     const id = req.params["id"]
     try {
@@ -176,17 +196,22 @@ async function getArtistByID(req,res){
         )
         console.log(event)
 
-        return res.status(200).send({
+        res.status(200).send({
             artist: art,
             lieder: lied,
             events : event
         })
     } catch (err) {
         console.error(err)
-        return res.status(500).send(err)
+        res.status(500).send(err)
     }
 }
 
+/**
+ * Gets an enduser by the id and all the locations it hosts aswell as all events that the user is on.
+ * @param {*} req - the request from frontend
+ * @param {*} res - the response from backend
+ */
 async function getEndUserById(req,res){
     try {
         const id = req.params["id"]
@@ -229,17 +254,22 @@ async function getEndUserById(req,res){
             [id]
         )
 
-        return res.status(200).send({
+        res.status(200).send({
             user : user,
             locations : location,
             events : event
         })
     } catch (err) {
         console.error(err)
-        return res.status(500).send(err)
+        res.status(500).send(err)
     }
 }
 
+/**
+ * Gets all the tickets from a user by the id.
+ * @param {*} req - the request from frontend
+ * @param {*} res - the response from backend
+ */
 async function getAllTicketsFromUser(req,res){
     try {
         const result = await pool.query(
@@ -247,13 +277,18 @@ async function getAllTicketsFromUser(req,res){
             [req.params['id']]
         )
         console.log(result)
-        return res.status(200).send(result)
+        res.status(200).send(result)
     } catch (err) {
         console.error(err)
-        return res.status(500).send(err)
+        res.status(500).send(err)
     }
 }
 
+/**
+ * Gets all the dates from the events that a ticket has been booked from.
+ * @param {*} req - the request from frontend
+ * @param {*} res - the response from backend
+ */
 async function getBookedTicketsDate(req, res) {
     try {
         const result = await pool.query(
@@ -268,13 +303,18 @@ async function getBookedTicketsDate(req, res) {
             [req.params["id"]]
         )
         console.log(result)
-        return res.status(200).send(result)
+        res.status(200).send(result)
     } catch (err) {
         console.error(err)
-        return res.status(500).send(err)
+        res.status(500).send(err)
     }
 }
 
+/**
+ * Checks if a given email and username is already in use.
+ * @param {*} req - the request from frontend
+ * @param {*} res - the response from backend
+ */
 async function getUserByEmailandUsername(req, res){
     const {email, benutzername} = req.body 
     try {
@@ -288,16 +328,21 @@ async function getUserByEmailandUsername(req, res){
             [email, benutzername]
         )
         if(result.rowCount>0) {
-            return res.status(200).send("1") // account with given credentials does already exist
+            res.status(200).send("1") // account with given credentials does already exist
         } else {
-            return res.status(200).send("0") // account with given credentials does not exist
+            res.status(200).send("0") // account with given credentials does not exist
         }
     } catch (err) {
         console.error(err)
-        return res.status(500).send(err)
+        res.status(500).send(err)
     }
 }
 
+/**
+ * Gets the playlists content from a playlist by the id.
+ * @param {*} req - the request from frontend
+ * @param {*} res - the response from backend
+ */
 async function getPlaylistContent(req, res) {
     try {
         const result = await pool.query(
@@ -311,6 +356,11 @@ async function getPlaylistContent(req, res) {
     }
 }
 
+/**
+ * Gets all the reviews for a location by the id.
+ * @param {*} req - the request from frontend
+ * @param {*} res - the response from backend
+ */
 async function getLocationReviewById(req,res){
     try {
         const result = await pool.query(
@@ -325,6 +375,11 @@ async function getLocationReviewById(req,res){
     }
 }
 
+/**
+ * Gets all the reviews for an event by the id.
+ * @param {*} req - the request from frontend
+ * @param {*} res - the response from backend
+ */
 async function getEventReviewById(req,res){
     try {
         const result = await pool.query(
@@ -339,6 +394,11 @@ async function getEventReviewById(req,res){
     }
 }
 
+/**
+ * Gets all the reviews for a user by the id.
+ * @param {*} req - the request from frontend
+ * @param {*} res - the response from backend
+ */
 async function getPersonReviewById(req,res){
     try {
         const result = await pool.query(
@@ -353,6 +413,11 @@ async function getPersonReviewById(req,res){
     }
 }
 
+/**
+ * Gets all events from the db with optional filters from frontend.
+ * @param {*} req - the request from frontend
+ * @param {*} res - the response from backend
+ */
 async function searchEvent(req,res){
     console.log("REQUEST searchEvent",req.body)
     const user = cookieJwtAuth.getUser(req.headers["auth"])["id"]
@@ -477,13 +542,18 @@ async function searchEvent(req,res){
                 isokay ? result.rows[i]["distanz"] = true : result.rows[i]["distanz"] = false
             } 
         }
-        return res.send(result)
+        res.status(200).send(result)
     } catch (err) {
         console.error(err)
-        return res.status(500).send(`Error while searching for an Event: ${err}`)
+        res.status(500).send(`Error while searching for an Event: ${err}`)
     }
 }
 
+/**
+ * Gets all locations from the db with optional filters from frontend.
+ * @param {*} req - the request from frontend
+ * @param {*} res - the response from backend
+ */
 async function searchLocaiton(req,res){
     console.log("REQUEST searchLocaiton",req.body)
     const user = cookieJwtAuth.getUser(req.headers["auth"])["id"]
@@ -585,13 +655,18 @@ async function searchLocaiton(req,res){
                     isokay ? result.rows[i]["distanz"] = true : result.rows[i]["distanz"] = false
                 } 
             }
-        return res.send(result)
+        res.status(200).send(result)
     } catch (err) {
         console.error(err)
-        return res.status(500).send(`Error while searching for an location: ${err}`)
+        res.status(500).send(`Error while searching for an location: ${err}`)
     }
 }
 
+/**
+ * Gets all caterer from the db with optional filters from frontend.
+ * @param {*} req - the request from frontend
+ * @param {*} res - the response from backend
+ */
 async function searchCaterer(req,res){
     console.log("REQUEST searchCaterer",req.body)
     const user = cookieJwtAuth.getUser(req.headers["auth"])["id"]
@@ -690,13 +765,18 @@ async function searchCaterer(req,res){
                     isokay ? result.rows[i]["distanz"] = true : result.rows[i]["distanz"] = false
                 } 
             }
-        return res.send(result)
+        res.status(200).send(result)
     } catch (err) {
         console.error(err)
-        return res.status(500).send(`Error while searching for an Caterer: ${err}`)
+        res.status(500).send(`Error while searching for an Caterer: ${err}`)
     }
 }
 
+/**
+ * Gets all artists from the db with optional filters from frontend.
+ * @param {*} req - the request from frontend
+ * @param {*} res - the response from backend
+ */
 async function searchArtist(req,res){
     console.log("REQUEST searchArtist",req.body)
     const user = cookieJwtAuth.getUser(req.headers["auth"])["id"]
@@ -795,13 +875,18 @@ async function searchArtist(req,res){
                     isokay ? result.rows[i]["distanz"] = true : result.rows[i]["distanz"] = false
                 } 
             }
-        return res.send(result)
+        res.status(200).send(result)
     } catch (err) {
         console.error(err)
-        return res.status(500).send(`Error while searching for an Artist: ${err}`)
+        res.status(500).send(`Error while searching for an Artist: ${err}`)
     }
 }
 
+/**
+ * Gets all endusers from the db with optional filters from frontend.
+ * @param {*} req - the request from frontend
+ * @param {*} res - the response from backend
+ */
 async function searchEndUser(req,res){
     console.log("REQUEST searchEndUser",req.body)
     const user = cookieJwtAuth.getUser(req.headers["auth"])["id"]
@@ -889,13 +974,18 @@ async function searchEndUser(req,res){
                     isokay ? result.rows[i]["distanz"] = true : result.rows[i]["distanz"] = false
                 } 
             }
-        return res.send(result)
+        res.status(200).send(result)
     } catch (err) {
         console.error(err)
-        return res.status(500).send(`Error while searching for an enduser: ${err}`)
+        res.status(500).send(`Error while searching for an enduser: ${err}`)
     }
 }
 
+/**
+ * Gets all mails by the id of the reciever.
+ * @param {*} req - the request from frontend
+ * @param {*} res - the response from backend
+ */
 async function getMails(req, res) {
     try {
         const mails = await pool.query(
@@ -954,10 +1044,10 @@ async function getMails(req, res) {
             WHERE mail.empfaenger = $1::int`,
             [req.params[`id`]]
         )
-        return res.status(200).send(mails)
+        res.status(200).send(mails)
     } catch (err) {
         console.error(err)
-        return res.status(500).send(err)
+        res.status(500).send(err)
     }
 }
 
