@@ -44,7 +44,7 @@ async function updateApp_user(profilname, profilbild, kurzbeschreibung, beschrei
                 [newBild.id, email]
             )
         } else {
-            await updateBild(result[0]['bildid'], profilbild)
+            await updateBild(result.rows[0], profilbild)
         }
 
         return {
