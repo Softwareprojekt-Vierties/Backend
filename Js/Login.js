@@ -2,6 +2,13 @@ const jwt = require('jsonwebtoken')
 const { comparePassword } = require('./Database/Database.js')
 SECRET = "BruhnsmanIsTheBest"
 
+/**
+ * checks if an Account exist whit the given data and sends a JWT token back if successful
+ * 
+ * @param {JSON} req - A JSON that Conatins an Email and a Password
+ * @param {JSON} res - the response that is send to the Client 
+ * @returns {JSON} JWT token for the Client 
+ */
 module.exports = async(req, res) => {
     const {email, pass} = req.body
     try {
