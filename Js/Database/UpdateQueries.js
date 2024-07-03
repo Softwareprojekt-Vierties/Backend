@@ -31,7 +31,7 @@ async function updateApp_user(profilname, profilbild, kurzbeschreibung, beschrei
         )
         console.log(`app_user UPDATED`)
 
-        if(bildid==null && profilbild!=null)
+        if(result.rows[0]["bildid"]==null && result.rows[0]["profilbild"]!=null)
         {
             const id = await createQueries.createBild(profilbild)["id"]
             await pool.query(
