@@ -550,8 +550,8 @@ async function createTicket(userid,eventid){
  * Creates a mail on the database.
  * @param {!number} sender - the app_user id of the sender
  * @param {!number} empfaenger - the app_user id of the reciever
- * @param {!string} anfrage - must be one of [location, dienstleistung, freundschaft]
- * @param {number} eventid - the event id if anfrage is [location, dienstleistung], standard null
+ * @param {!string} anfrage - must be one of [location, service, freundschaft]
+ * @param {number} eventid - the event id if anfrage is [location, service], standard null
  * @returns {!Object}  
  * - success: [true if successful, false otherwise]
  * - error: [the error, if one occured]
@@ -560,15 +560,15 @@ async function createMail(sender, empfaenger, anfrage, eventid = null) {
     try {
         let sqlQuery, params
 
-        if (anfrage === 'location' || anfrage === 'dienstleistung') {
-            if (eventid === null) throw new Error('Cannot create mail for location or dienstleistung without eventid')
+        if (anfrage === 'location' || anfrage === 'service') {
+            if (eventid === null) throw new Error('Cannot create mail for location or service without eventid')
             sqlQuery = `INSERT INTO mail (sender, empfaenger, anfrage, eventid) VALUES ($1::int, $2::int, $3::text, $4::int)`
             params = [sender, empfaenger, anfrage, eventid]
         } else if (anfrage === 'freundschaft') {
             sqlQuery = `INSERT INTO mail (sender, empfaenger, anfrage) VALUES ($1::int, $2::int, $3::text)`
             params = [sender, empfaenger, anfrage]
         } else {
-            throw new Error(`The given anfrage is not allowed: [location, dienstleistung, freundschaft], given ${anfrage}`)
+            throw new Error(`The given anfrage is not allowed: [location, service, freundschaft], given ${anfrage}`)
         }
 
         await pool.query(sqlQuery, params)
