@@ -17,7 +17,7 @@ const cookieJwtAuth = require('../CookieJwtAuth')
  * - boolean: success - true if successful, false otherwise
  * - Error: error - the error if one occured
  */
-async function updateApp_user(profilname, profilbild, kurzbeschreibung, beschreibung, region, email,) {
+async function updateApp_user(profilname, profilbild, kurzbeschreibung, beschreibung, region, email) {
     try {
         const result = await pool.query(
             `UPDATE app_user SET
@@ -33,7 +33,17 @@ async function updateApp_user(profilname, profilbild, kurzbeschreibung, beschrei
 
         console.log("BILD:",result.rows[0])
         
-        await updateBild(result[0]['bildid'], profilbild)
+        if (result.rows[0]['bildid'] == undefined && profilbild != undefined) { // create new profilbild for user
+            const newBild = await createQueries.createBild(profilbild)
+            if (!newBild.success) throw new Error(newBild.error)
+            
+            await pool.query(
+                `UPDATE app_user SET bildid = $1::int WHERE email = $2::text`,
+                [newBild.id, email]
+            )
+        } else {
+            await updateBild(result[0]['bildid'], profilbild)
+        }
 
         return {
             success: true,
