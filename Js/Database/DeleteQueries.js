@@ -427,6 +427,11 @@ async function deleteLocationById(id, deleteBy) {
             }
         }
         else {
+            // delete pictures
+            for (let i = 0; i < result.rows.length; i++) {
+                await deleteBildById(result.rows[i]['bildid'])
+            }
+
             return {
                 sucess: true,
                 data: result.rows
@@ -537,6 +542,11 @@ async function deleteGerichtById(id, deleteBy) {
             }
         }
         else {
+            // delete pictures
+            for (let i = 0; i < result.rows.length; i++) {
+                await deleteBildById(result.rows[i]['bildid'])
+            }
+
             return {
                 sucess: true,
                 data: result.rows
@@ -592,6 +602,11 @@ async function deleteEventById(id, deleteBy) {
             }
         }
         else {
+            // delete pictures
+            for (let i = 0; i < result.rows.length; i++) {
+                await deleteBildById(result.rows[i]['bildid'])
+            }
+
             return {
                 sucess: true,
                 data: result.rows
@@ -647,6 +662,11 @@ async function deleteAppUserById(id) {
             }
         }
         else {
+            // delete pictures
+            for (let i = 0; i < result.rows.length; i++) {
+                await deleteBildById(result.rows[i]['bildid'])
+            }
+
             return {
                 sucess: true,
                 data: result.rows
@@ -837,7 +857,7 @@ async function deleteArtistById(id, deleteBy) {
 * - any[]: data - The data returned from the deletion operation, can be null
 * - any: error - The error that occoured if something failed, only written if success = false
  */
-async function deleteBild(id) {
+async function deleteBildById(id) {
     try {
         console.warn("TRYING TO DELETE A bild OF", id)
         const result = await pool.query(
