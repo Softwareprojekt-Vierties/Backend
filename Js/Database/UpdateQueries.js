@@ -1,4 +1,5 @@
 const { pool } = require('./Database.js')
+const createQueries = require("./CreateQueries.js")  
 const bcrypt = require('bcrypt')
 const cookieJwtAuth = require('../CookieJwtAuth')
 
@@ -16,7 +17,7 @@ const cookieJwtAuth = require('../CookieJwtAuth')
  * - boolean: success - true if successful, false otherwise
  * - Error: error - the error if one occured
  */
-async function updateApp_user(profilname, profilbild, kurzbeschreibung, beschreibung, region, email) {
+async function updateApp_user(profilname, profilbild, kurzbeschreibung, beschreibung, region, email,partybilder=[]) {
     try {
         const result = await pool.query(
             `UPDATE app_user SET
@@ -25,12 +26,48 @@ async function updateApp_user(profilname, profilbild, kurzbeschreibung, beschrei
             beschreibung = $3::text,
             region = $4::text
             WHERE email = $5::text
-            RETURNING bildid`,
+            RETURNING bildid,partybilder`,
             [profilname, kurzbeschreibung, beschreibung, region, email]
         )
         console.log(`app_user UPDATED`)
 
-        await updateBild(result.rows[0], profilbild)
+        if(bildid==null && profilbild!=null)
+        {
+            const id = await createQueries.createBild(profilbild)["id"]
+            await pool.query(
+                `UPDATE app_user SET
+                bildid = $1::int
+                WHERE email = $2::text`,
+                [id,email]
+            )
+        }
+        else
+        {        
+            await updateBild(result.rows[0], profilbild)
+        }
+        if(partybilder.length>0)
+        {
+            let partybilderid = []
+            for(let i=0;i<partybilder.length;i++)
+            {           
+                if(result.rows[0]["parybilder"].length>i)
+                {
+                    partybilder.push(await createQueries.createBild(profilbild)["id"])
+                    
+                }
+                else
+                {        
+                    await updateBild(result.rows[0]["partybilder"][i], profilbild)
+                    partybilderid.push(result.rows[0]["partybilder"][i])
+                }
+            }
+            await pool.query(
+                `UPDATE app_user SET
+                partybilder = $1:
+                WHERE email = $2::text`,
+                [partybilderid,email]
+            )
+        }
 
         return {
             success: true,
@@ -64,8 +101,8 @@ async function updateApp_user(profilname, profilbild, kurzbeschreibung, beschrei
  * - boolean: success - true if successful, false otherwise
  * - Error: error - the error if one occured
  */
-async function updateEndnutzer(profilname, profilbild, kurzbeschreibung, beschreibung, region, email, alter, arten, lied, gericht, geschlecht) {
-    const app_userResult = await updateApp_user(profilname, profilbild, kurzbeschreibung, beschreibung, region, email)
+async function updateEndnutzer(profilname, profilbild, kurzbeschreibung, beschreibung, region, email, alter, arten, lied, gericht, geschlecht, partybilder) {
+    const app_userResult = await updateApp_user(profilname, profilbild, kurzbeschreibung, beschreibung, region, email, partybilder)
     if (!app_userResult.success) { // if failed
         console.error(`CANNOT UPDATE endnutzer BECAUSE UPDATE app_user FAILED`)
         return {
@@ -423,7 +460,7 @@ async function updateBild(id, data) {
     try {
         await pool.query(
             `UPDATE bild SET bild = $2 WHERE id = $1::int`,
-            [id, bild]
+            [id, data]
         )
         console.log("UPDATED bild")
         return {

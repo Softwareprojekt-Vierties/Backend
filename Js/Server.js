@@ -127,6 +127,21 @@ app.post("/updateCaterer",async (req,res)=>{
     }
 })
 
+app.post("/updateEndnutzer",async (req,res)=>{
+    console.log("REQUEST TO UPDATE Endnutzer",req.body)
+    const {profilname, profilbild, kurzbeschreibung, beschreibung, region, email, alter, arten, lied, gericht, geschlecht, partybilder} = req.body
+    try {
+        const resultCaterer = await UpdateQueries.updateEndnutzer(profilname, profilbild, kurzbeschreibung, beschreibung, region, email, alter, arten, lied, gericht, geschlecht, partybilder)
+
+        if (resultCaterer.success) res.status(200).send("UPDATED CATERER")
+        else res.status(400).send("FAILED TO UPDATE caterer! " + resultCaterer.error + ",")
+    }
+    catch(err) {
+        console.error(err)
+        res.status(500).send("Server error! " + err)
+    }
+})
+
 app.post("/updateLoacation",(req,res)=>{
     console.log(req.body)
     const {locationid, adresse, name, beschreibung, privat, kurzbeschreibung, preis, openair, flaeche, bild, kapazitaet} = req.body
@@ -201,6 +216,8 @@ app.post('/createLocation', async (req,res)=> {
     if (result.success) res.status(200).send("LOCATION CREATED")
     else res.status(404).send("FAILED TO CREATE LOCATION")
 })    // creates a new Location
+
+
 
 // -------------------- TESTS -------------------- // 
 

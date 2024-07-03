@@ -603,7 +603,7 @@ async function createBild(data) {
         console.log("bild CREATED")
         return {
             success: true,
-            id: bild.rows[0],
+            id: bild.rows[0]["id"],
             error: null
         }
     } catch (err) {
@@ -630,5 +630,6 @@ module.exports = {
     createGericht, 
     createPlaylist, 
     createPlaylistInhalt, 
-    createTicket
+    createTicket,
+    createBild
 }
