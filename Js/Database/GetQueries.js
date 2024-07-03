@@ -379,7 +379,7 @@ async function searchEvent(req,res){
     }
     catch(err)
     {
-        res.status(500).send(err)
+       return res.status(500).send(err)
     }    
     let query = 
         `SELECT 
@@ -517,7 +517,7 @@ async function searchLocaiton(req,res){
     }
     catch(err)
     {
-        res.status(500).send(err)
+        return res.status(500).send(err)
     }    
     let query = 
         `SELECT 
@@ -632,7 +632,7 @@ async function searchCaterer(req,res){
     }
     catch(err)
     {
-        res.status(500).send(err)
+        return res.status(500).send(err)
     }    
     let query = 
         `SELECT 
@@ -744,7 +744,7 @@ async function searchArtist(req,res){
     }
     catch(err)
     {
-        res.status(500).send(err)
+        return res.status(500).send(err)
     }    
     let query = 
         `SELECT 
@@ -856,7 +856,7 @@ async function searchEndUser(req,res){
     }
     catch(err)
     {
-        res.status(500).send(err)
+        return res.status(500).send(err)
     }    
     let query = 
         `SELECT 
