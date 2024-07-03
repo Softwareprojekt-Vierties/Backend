@@ -2,6 +2,20 @@ const { pool } = require('./Database.js')
 const bcrypt = require('bcrypt')
 const cookieJwtAuth = require('../CookieJwtAuth')
 
+// -------------------- PRIVATE -------------------- //
+
+/**
+ * Updates the app_user.
+ * @param {string} profilname
+ * @param {string} profilbild 
+ * @param {string} kurzbeschreibung 
+ * @param {string} beschreibung 
+ * @param {string} region 
+ * @param {!string} email - must be given, used as reference
+ * @returns {!Object}
+ * - boolean: success - true if successful, false otherwise
+ * - Error: error - the error if one occured
+ */
 async function updateApp_user(profilname, profilbild, kurzbeschreibung, beschreibung, region, email) {
     try {
         const result = await pool.query(
@@ -18,17 +32,46 @@ async function updateApp_user(profilname, profilbild, kurzbeschreibung, beschrei
 
         await updateBild(result.rows[0], profilbild)
 
-        return true
+        return {
+            success: true,
+            error: null
+        }
     } catch (err) {
         console.error(`COULDN'T UPDATE app_user`,err)
-        return false
+        return {
+            success: false,
+            error: err
+        }
     }
 }
 
+// -------------------- PUBLIC -------------------- //
+
+/**
+ * Updates the enduser.
+ * @param {string} profilname 
+ * @param {string} profilbild 
+ * @param {string} kurzbeschreibung 
+ * @param {string} beschreibung 
+ * @param {string} region 
+ * @param {!string} email - must be given, used as reference
+ * @param {int} alter 
+ * @param {string} arten 
+ * @param {string} lied 
+ * @param {string} gericht 
+ * @param {string} geschlecht 
+ * @returns {!Object} 
+ * - boolean: success - true if successful, false otherwise
+ * - Error: error - the error if one occured
+ */
 async function updateEndnutzer(profilname, profilbild, kurzbeschreibung, beschreibung, region, email, alter, arten, lied, gericht, geschlecht) {
-    if (!updateApp_user(profilname, profilbild, kurzbeschreibung, beschreibung, region, email)) { // if failed
+    const app_userResult = await updateApp_user(profilname, profilbild, kurzbeschreibung, beschreibung, region, email)
+    if (!app_userResult.success) { // if failed
         console.error(`CANNOT UPDATE endnutzer BECAUSE UPDATE app_user FAILED`)
-        return false
+        return {
+            success: false,
+            error: app_userResult.error
+        }
     }
 
     try {
@@ -43,17 +86,42 @@ async function updateEndnutzer(profilname, profilbild, kurzbeschreibung, beschre
             [alter, arten, lied, gericht, geschlecht, email]
         )
         console.log(`endnutzer UPDATED`)
-        return true
+        return {
+            success: true,
+            error: null
+        }
     } catch (err) {
         console.error(`COULDN'T UPDATE endnutzer`,err)
-        return false
+        return {
+            success: false,
+            error: err
+        }
     }
 }
 
+/**
+ * Updates the artist.
+ * @param {string} profilname 
+ * @param {string} profilbild 
+ * @param {string} kurzbeschreibung 
+ * @param {string} beschreibung 
+ * @param {string} region 
+ * @param {!string} email - must be given, used as reference
+ * @param {!string} preis 
+ * @param {string} kategorie 
+ * @param {string} erfahrung 
+ * @returns {!Object} 
+ * - boolean: success - true if successful, false otherwise
+ * - Error: error - an error, if one occured
+ */
 async function updateArtist(profilname, profilbild, kurzbeschreibung, beschreibung, region, email, preis, kategorie, erfahrung) {
-    if (false == await updateApp_user(profilname, profilbild, kurzbeschreibung, beschreibung, region, email)) { // if failed
+    const app_userResult = await updateApp_user(profilname, profilbild, kurzbeschreibung, beschreibung, region, email)
+    if (!app_userResult.success) { // if failed
         console.error(`CANNOT UPDATE artist BECAUSE UPDATE app_user FAILED`)
-        return false
+        return {
+            success: false,
+            error: app_userResult.error
+        }
     }
 
     try {
@@ -67,7 +135,8 @@ async function updateArtist(profilname, profilbild, kurzbeschreibung, beschreibu
         )
         console.log(`artist UPDATED`)
         return {
-            success: true
+            success: true,
+            error: null
         }
     } catch (err) {
         console.error(`COULDN'T UPDATE artist`,err)
@@ -78,12 +147,28 @@ async function updateArtist(profilname, profilbild, kurzbeschreibung, beschreibu
     }
 }
 
+/**
+ * Updates the caterer.
+ * @param {string} profilname 
+ * @param {string} profilbild 
+ * @param {string} kurzbeschreibung 
+ * @param {string} beschreibung 
+ * @param {string} region 
+ * @param {!string} email 
+ * @param {!string} preis 
+ * @param {string} kategorie 
+ * @param {string} erfahrung 
+ * @returns {!Object} 
+ * - boolean: success - true if successful, false otherwise
+ * - Error: error - an error, if one occured
+ */
 async function updateCaterer(profilname, profilbild, kurzbeschreibung, beschreibung, region, email, preis, kategorie, erfahrung) {
-    if (false == await updateApp_user(profilname, profilbild, kurzbeschreibung, beschreibung, region, email)) { // if failed
+    const app_userResult = await updateApp_user(profilname, profilbild, kurzbeschreibung, beschreibung, region, email)
+    if (!app_userResult.success) { // if failed
         console.error(`CANNOT UPDATE caterer BECAUSE UPDATE app_user FAILED`)
         return {
             success: false,
-            error: "UPDATE app_user FAILED"
+            error: app_userResult.error
         }
     }
 
@@ -98,7 +183,8 @@ async function updateCaterer(profilname, profilbild, kurzbeschreibung, beschreib
         )
         console.log(`caterer UPDATED`)
         return {
-            success: true
+            success: true,
+            error: null
         }
     } catch (err) {
         console.error(`COULDN'T UPDATE caterer`,err)
@@ -111,9 +197,22 @@ async function updateCaterer(profilname, profilbild, kurzbeschreibung, beschreib
 
 async function updateEvent() {
     console.error("UPDATE EVENT NOT YET IMPLEMENTED")
-    return false
+    return {
+        success: false,
+        error: null
+    }
 }
 
+/**
+ * Updates the dishes.
+ * @param {!int} id 
+ * @param {string} name 
+ * @param {string} beschreibung 
+ * @param {string} bild 
+ * @returns {!Object} 
+ * - boolean: success - true if successful, false otherwise
+ * - Error: error - an error, if one occured
+ */
 async function updateGericht(id, name, beschreibung, bild) {
     try {
         const result = await pool.query(
@@ -128,13 +227,29 @@ async function updateGericht(id, name, beschreibung, bild) {
 
         await updateBild(result.rows[0], bild)
 
-        return true
+        return {
+            success: true,
+            error: false
+        }
     } catch (err) {
         console.error("FAILED TO UPDATE gericht", err)
-        return false
+        return {
+            success: false,
+            error: err
+        }
     }
 }
 
+/**
+ * Updates the songs
+ * @param {!int} id 
+ * @param {string} name 
+ * @param {string} laenge 
+ * @param {string} erscheinung 
+ * @returns {!Object} 
+ * - boolean: success - true if successful, false otherwise
+ * - Error: error - an error, if one occured
+ */
 async function updateLied(id, name, laenge, erscheinung) {
     try {
         const result = await pool.query(
@@ -146,13 +261,36 @@ async function updateLied(id, name, laenge, erscheinung) {
             [name, laenge, erscheinung, id]
         )
         console.error("lied UPDATED")
-        return true
+        return {
+            success: true,
+            error: null
+        }
     } catch (err) {
         console.error("FAILED TO UPDATE lied", err)
-        return false
+        return {
+            success: false,
+            error: err
+        }
     }
 }
 
+/**
+ * Updates the location.
+ * @param {!int} locationid 
+ * @param {!string} adresse 
+ * @param {!string} name 
+ * @param {string} beschreibung 
+ * @param {!boolean} privat 
+ * @param {string} kurzbeschreibung 
+ * @param {!string} preis 
+ * @param {!boolean} openair 
+ * @param {!string} flaeche 
+ * @param {string} bild 
+ * @param {!int} kapazitaet 
+ * @returns {!Object} 
+ * - boolean: success - true if successful, false otherwise
+ * - Error: error - an error, if one occured
+ */
 async function updateLocation(locationid, adresse, name, beschreibung, privat, kurzbeschreibung, preis, openair, flaeche, bild, kapazitaet) {
     try {
         const result = await pool.query(
@@ -174,13 +312,28 @@ async function updateLocation(locationid, adresse, name, beschreibung, privat, k
 
         await updateBild(result.rows[0], bild)
 
-        return true
+        return {
+            success: true,
+            error: null
+        }
     } catch (err) {
         console.error(`COULDN'T UPDATE location`,err)
-        return false
+        return {
+            success: false,
+            error: err
+        }
     }
 }
 
+/**
+ * Updates a password.
+ * @param {*} token 
+ * @param {!string} oldPassword 
+ * @param {!string} newPassword 
+ * @returns {!Object} 
+ * - boolean: success - true if successful, false otherwise
+ * - Error: error - an error, if one occured 
+ */
 async function updatePassword(token, oldPassword, newPassword) {
     try {
         const cookie = cookieJwtAuth.getUser(token)
@@ -207,18 +360,36 @@ async function updatePassword(token, oldPassword, newPassword) {
             [salt, newHash, cookie.rows[0]['password']]
         )
         console.log(`password UPDATED`)
-        return true
+        return {
+            success: true,
+            error: null
+        }
     } catch (err) {
         console.error(`COULDN'T UPDATE password`,err)
-        return false
+        return {
+            success: false,
+            error: err
+        }
     }
 }
 
 async function updatePlaylist() {
     console.error("UPDATE PLAYLIST NOT YET IMPLEMENTED")
-    return false
+    return {
+        success: false,
+        error: null
+    }
 }
 
+/**
+ * Updates a mail.
+ * @param {!int} id 
+ * @param {boolean} gelesen 
+ * @param {boolean} angenommen 
+ * @returns {!Object} 
+ * - boolean: success - true if successful, false otherwise
+ * - Error: error - an error, if one occured
+ */
 async function updateMail(id, gelesen, angenommen = null) {
     try {
         await pool.query(
@@ -229,10 +400,16 @@ async function updateMail(id, gelesen, angenommen = null) {
             [id, gelesen, angenommen]
         )
         console.log("UPDATED mail")
-        return true
+        return {
+            success: true,
+            error: null
+        }
     } catch (err) {
         console.error("COULDN'T UPDATE mail", err)
-        return false
+        return {
+            success: false,
+            error: err
+        }
     }
 }
 
@@ -249,10 +426,16 @@ async function updateBild(id, data) {
             [id, bild]
         )
         console.log("UPDATED bild")
-        return true
+        return {
+            success: true,
+            error: null
+        }
     } catch (err) {
         console.log("COULDN'T UPDATE bild", err)
-        return false
+        return {
+            success: false,
+            error: err
+        }
     }
 }
 
