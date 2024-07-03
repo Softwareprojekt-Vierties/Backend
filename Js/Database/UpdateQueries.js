@@ -7,14 +7,17 @@ async function updateApp_user(profilname, profilbild, kurzbeschreibung, beschrei
         const result = await pool.query(
             `UPDATE app_user SET
             profilname = $1::text,
-            profilbild = $2::text,
-            kurzbeschreibung = $3::text,
-            beschreibung = $4::text,
-            region = $5::text
-            WHERE email = $6::text`,
-            [profilname, profilbild, kurzbeschreibung, beschreibung, region, email]
+            kurzbeschreibung = $2::text,
+            beschreibung = $3::text,
+            region = $4::text
+            WHERE email = $5::text
+            RETURNING bildid`,
+            [profilname, kurzbeschreibung, beschreibung, region, email]
         )
         console.log(`app_user UPDATED`)
+
+        await updateBild(result.rows[0], profilbild)
+
         return true
     } catch (err) {
         console.error(`COULDN'T UPDATE app_user`,err)
@@ -116,12 +119,15 @@ async function updateGericht(id, name, beschreibung, bild) {
         const result = await pool.query(
             `UPDATE gericht SET
             name = $1::text,
-            beschreibung = $2::text,
-            bild = $3::text
-            WHERE id = $4::int`,
-            [name, beschreibung, bild, id]
+            beschreibung = $2::text
+            WHERE id = $3::int
+            RETURNING bildid`,
+            [name, beschreibung, id]
         )
         console.error("gericht UPDATED")
+
+        await updateBild(result.rows[0], bild)
+
         return true
     } catch (err) {
         console.error("FAILED TO UPDATE gericht", err)
@@ -159,12 +165,15 @@ async function updateLocation(locationid, adresse, name, beschreibung, privat, k
             preis = $6::text,
             openair = $7::boolean,
             flaeche = $8::text,
-            bild = $9::text,
-            kapazitaet = $10::int
-            WHERE id = $11::int`,
-            [adresse, name, beschreibung, privat, kurzbeschreibung, preis, openair, flaeche, bild, kapazitaet, locationid]
+            kapazitaet = $9::int
+            WHERE id = $10::int
+            RETURNING bildid`,
+            [adresse, name, beschreibung, privat, kurzbeschreibung, preis, openair, flaeche, kapazitaet, locationid]
         )
         console.log(`location UPDATED`)
+
+        await updateBild(result.rows[0], bild)
+
         return true
     } catch (err) {
         console.error(`COULDN'T UPDATE location`,err)
@@ -227,6 +236,12 @@ async function updateMail(id, gelesen, angenommen = null) {
     }
 }
 
+/**
+ * Updates a picture in the db.
+ * @param {!number} id - the id of the picture
+ * @param {string} data - the data that'll replace the old
+ * @returns {boolean} true if it was successful, false otherwise
+ */
 async function updateBild(id, data) {
     try {
         await pool.query(
