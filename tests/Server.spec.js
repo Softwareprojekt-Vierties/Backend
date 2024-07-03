@@ -6,9 +6,12 @@ const database = require("../Js/Database/Database.js")
 const CreateQueries = require("../Js/Database/CreateQueries.js")
 SECRET = "BruhnsmanIsTheBest"
 
+
 afterAll(done =>{
     app.server.close(done);
 });
+
+jest.mock("../Js/Database/Database.js")
 
 describe('POST /login',()=>{
     it('should return a jwt token',async ()=>{
@@ -24,8 +27,7 @@ describe('POST /login',()=>{
             error: null
             
         }
-        jest.spyOn(database,'comparePassword').mockResolvedValue(fakeUser);
-        jest.spyOn(bcrypt,'compare').mockResolvedValue(true)
+        database.comparePassword.mockImplementation((email, password)=>{return fakeUser});
         const token = jwt.sign(fakeUser["user"],SECRET,{expiresIn: '3h'});
         try
         {

@@ -7,7 +7,6 @@ module.exports = async(req, res) => {
     try {
         console.log("LOGIN REQUEST WITH",req.body)
         const comparison = await comparePassword(email,pass);
-        console.log(comparison)
 
         if (comparison.success && comparison.user != null) {
             const token = jwt.sign(comparison['user'],SECRET,{expiresIn: '3h'})
