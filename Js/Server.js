@@ -39,7 +39,7 @@ const server = app.listen(port, (error) => {           // starts the server on t
 app.post('/login', cookieJwtAuth.isLogedIn,login);      // to log a user in
 app.post('/register', registration);    // register a user
 
-app.post('/checkAccount',GetQueries.getUserByEmailandUsername)
+app.post('/checkAccount',GetQueries.checkIfAccountIsInUse)
 
 // -------------------- GETS -------------------- //
 

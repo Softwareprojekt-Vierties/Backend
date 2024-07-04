@@ -2,328 +2,19 @@ const { pool } = require('./Database.js')
 const cookieJwtAuth = require('../CookieJwtAuth')
 const checkDistance = require('../CheckDistance')
 
-async function getStuffbyName(req){
-    try {
-        const result = await pool.query(
-            "SELECT * FROM $1::text WHERE UPPER(name) LIKE UPPER($2)",
-            [req.body["table"], req.body["value"]]
-        )
-        console.log(result)
-        return result
-    } catch (err) {
-        console.error(err)
-        return null
-    }
-}
-
-async function getPartybilderFromUser(req, res) {
-    try {
-        const result = await pool.query(
-            `SELECT 
-                pb.id AS partybilder_id,
-                bild.data AS partybild_data
-            FROM partybilder pb
-            JOIN bild ON pb.bildid = bild.id
-            WHERE pb.userid = $1::int`,
-            [req.params['id']]
-        )
-        res.status(200).send(result)
-    } catch (err) {
-        console.error(err)
-        res.status(500).send(toString(err))
-    }
-}
-
-async function getLocationById(req,res){
-    try {
-        const result = await pool.query(
-            `SELECT 
-                l.*, bild.data AS bild 
-            FROM location l 
-            LEFT JOIN bild ON bildid = bild.id 
-            WHERE l.id = $1::int`,
-            [req.params["id"]]
-        )
-        console.log(req.params["id"])
-        return res.status(200).send(result)
-    } catch (err) {
-        console.error(err)
-        return res.status(500).send("INTERNAL SERVER ERROR WHILE TRYING TO GET LOCATION BY ID")
-    }
-}
-
-async function getEventById(req,res){
-    try {
-        const id = req.params["id"]
-        const event = await pool.query(
-            `SELECT 
-                e.*,
-                l.adresse,
-                l.name as locationname,
-                CASE
-                    WHEN e.bildid IS NOT NULL THEN bild.data
-                    ELSE NULL
-                END AS bild
-            FROM event e 
-            JOIN location l ON e.locationid = l.id 
-            LEFT JOIN bild ON e.bildid = bild.id
-            WHERE e.id = $1::int`,
-            [id]
-        )
-        const artist = await getArtistByEvent(req.params["id"])
-        const caterer = await getCatererByEvent(req.params["id"])
-        return res.status(200).send({
-            event: event,
-            artists: artist,
-            caterers : caterer
-        })
-    } catch (err) {
-        console.error(err)
-        return res.status(500).send("INTERNAL SERVER ERROR WHILE TRYING TO GET EVENT BY ID")
-    }
-}
-
-async function getCatererById(req,res){
-    const id = req.params["id"]
-    try {
-        const cater = await pool.query(
-            `SELECT 
-                c.*,
-                a.id as userid,
-                a.benutzername,
-                a.profilname,
-                a.bildid,
-                a.kurzbeschreibung,
-                a.beschreibung,
-                a.region,
-                a.sterne,
-                bild.data AS profilbild
-            FROM caterer c 
-            JOIN app_user a ON c.emailfk = a.email 
-            LEFT JOIN bild ON a.bildid = bild.id
-            WHERE c.id = $1`,
-            [id]
-        )
-        console.log(cater)
-
-        const gericht = await pool.query(
-            `SELECT 
-                g.id, 
-                g.name, 
-                g.beschreibung, 
-                g.bildid,
-                bild.data AS bild
-            FROM gericht g
-            LEFT JOIN bild ON g.bildid = bild.id
-            WHERE g.ownerid = $1::int`,
-            [id]
-        )
-        console.log(gericht)
-
-        const event = await pool.query(
-            `SELECT 
-                e.*, 
-                l.adresse,
-                bild.data AS bild
-            FROM event e 
-            JOIN servicecaterer sc ON sc.eventid = e.id 
-            JOIN location l ON e.locationid = l.id
-            LEFT JOIN bild ON e.bildid = bild.id
-            WHERE sc.catererid = $1::int`,
-            [id]
-        )
-        console.log(event)
-
-        return res.status(200).send({
-            caterer: cater,
-            gerichte: gericht,
-            events : event
-        })
-    } catch (err) {
-        console.error(err)
-        return res.status(500).send(err)
-    }
-}
-
-async function getArtistByID(req,res){
-    const id = req.params["id"]
-    try {
-        const art = await pool.query(
-            `SELECT 
-                ar.*, 
-                a.id as userid,
-                a.benutzername, 
-                a.profilname,
-                a.bildid,
-                a.kurzbeschreibung,
-                a.beschreibung,
-                a.region,
-                a.sterne,
-                bild.data AS profilbild 
-            FROM artist ar 
-            JOIN app_user a ON ar.emailfk = a.email
-            LEFT JOIN bild ON a.bildid = bild.id
-            WHERE ar.id = $1`,
-            [id]
-        )
-        console.log(art)
-
-        const lied = await pool.query(
-            `SELECT 
-                l.id,
-                l.name,
-                l.laenge,
-                l.erscheinung
-            FROM lied l
-            WHERE l.ownerid = $1::int`,
-            [id]
-        )
-        console.log(lied)
-
-        const event = await pool.query(
-            `SELECT 
-                e.*, 
-                l.adresse,
-                bild.data AS bild
-            FROM event e 
-            JOIN serviceartist sa ON sa.eventid = e.id 
-            JOIN location l ON e.locationid = l.id
-            LEFT JOIN bild ON e.bildid = bild.id
-            WHERE sa.artistid = $1::int`,
-            [id]
-        )
-        console.log(event)
-
-        return res.status(200).send({
-            artist: art,
-            lieder: lied,
-            events : event
-        })
-    } catch (err) {
-        console.error(err)
-        return res.status(500).send(err)
-    }
-}
-
-async function getEndUserById(req,res){
-    try {
-        const id = req.params["id"]
-        const user = await pool.query(
-            `SELECT 
-                e.*,
-                a.benutzername,
-                a.profilname,
-                a.bildid,
-                a.kurzbeschreibung,
-                a.beschreibung,
-                a.region,
-                a.sterne,
-                bild.data AS profilbild
-            FROM endnutzer e
-            JOIN app_user a ON a.email = e.emailfk
-            LEFT JOIN bild ON a.bildid = bild.id
-            WHERE a.id = $1::int`,
-            [id]
-        )
-        
-        const location = await pool.query(
-            `SELECT 
-                l.*,
-                bild.data AS profilbild
-            FROM location l
-            LEFT JOIN bild ON l.bildid = bild.id
-            WHERE l.ownerid = $1::int`,
-            [id]
-        )
-        
-
-        const owenevent = await pool.query(
-            `SELECT 
-                e.*,
-                l.adresse,
-                l.name as locationname,
-                bild.data AS profilbild
-            FROM event e
-            LEFT JOIN bild ON e.bildid = bild.id
-            JOIN location l ON e.locationid = l.id
-            WHERE e.ownerid = $1::int`,
-            [id]
-        )
-
-        const ticket = await pool.query(
-            `SELECT 
-                e.*,
-                l.adresse,
-                l.name as locationname,
-                bild.data AS profilbild
-            FROM event e
-            LEFT JOIN bild ON e.bildid = bild.id
-            LEFT JOIN tickets t ON e.id = t.eventid
-            JOIN location l ON e.locationid = l.id
-            WHERE t.userid = $1::int`,
-            [id]
-        )
-
-        return res.status(200).send({
-            user : user,
-            locations : location,
-            owenevents : owenevent,
-            tickets :  ticket
-        })
-    } catch (err) {
-        console.error(err)
-        return res.status(500).send(err)
-    }
-}
-
-async function getAllTicketsFromUser(req,res){
-    try {
-        const result = await pool.query(
-            "SELECT name FROM event  JOIN tickets ON tickets.eventid = event.id WHERE tickets.userid = $1::int",
-            [req.params['id']]
-        )
-        console.log(result)
-        return res.status(200).send(result)
-    } catch (err) {
-        console.error(err)
-        return res.status(500).send(err)
-    }
-}
-
-async function getBookedTicketsDate(req, res) {
-    try {
-        const result = await pool.query(
-            `SELECT 
-                datum
-            FROM
-                tickets
-            JOIN
-                event ON tickets.eventid = event.id
-            WHERE
-                tickets.userid = = $1::int`,
-            [req.params["id"]]
-        )
-        console.log(result)
-        return res.status(200).send(result)
-    } catch (err) {
-        console.error(err)
-        return res.status(500).send(err)
-    }
-}
-
-async function getUserByEmailandUsername(req, res){
+async function checkIfAccountIsInUse(req, res){
     const {email, benutzername} = req.body 
     try {
         const result = await pool.query(
-            `SELECT 
-                a.*,
-                bild.data AS profilbild
-            FROM app_user a
-            LEFT JOIN bild ON a.bildid = bild.id
-            WHERE email = $1::text AND benutzername = $2::text`,
+            `SELECT EXISTS (
+                SELECT 1
+                FROM app_user
+                WHERE email = $1::text 
+                OR benutzername = $2::text
+            )`,
             [email, benutzername]
         )
-        if(result.rowCount>0) {
+        if(result.rows[0].exists) {
             return res.status(200).send("1") // account with given credentials does already exist
         } else {
             return res.status(200).send("0") // account with given credentials does not exist
@@ -334,60 +25,7 @@ async function getUserByEmailandUsername(req, res){
     }
 }
 
-async function getPlaylistContent(req, res) {
-    try {
-        const result = await pool.query(
-            "SELECT p.name AS playlistname, l.name AS liedname FROM playlist p JOIN playlistinhalt pi ON p.id = pi.playlistid JOIN lied l ON pi.liedid = l.id WHERE UPPER(p.name) LIKE UPPER($1)",
-            [`%${req.params['name']}%`]
-        )
-        return res.status(200).send(result)
-    } catch (err) {
-        console.error(err)
-        return res.status(500).send(err)
-    }
-}
-
-async function getLocationReviewById(req,res){
-    try {
-        const result = await pool.query(
-            "SELECT r.inhalt,r.sterne,a.profilname FROM review r JOIN app_user a ON r.ownerid = a.id WHERE r.locationid = $1::int",
-            [req.params["id"]]
-        )
-        console.log(req.params["id"])
-        return res.status(200).send(result)
-    } catch (err) {
-        console.error(err)
-        return res.status(500).send(err)
-    }
-}
-
-async function getEventReviewById(req,res){
-    try {
-        const result = await pool.query(
-            "SELECT r.inhalt,r.sterne,a.profilname FROM review r JOIN app_user a ON r.ownerid = a.id WHERE r.eventid = $1::int",
-            [req.params["id"]]
-        )
-        console.log(req.params["id"])
-        return res.status(200).send(result)
-    } catch (err) {
-        console.error(err)
-        return res.status(500).send(err)
-    }
-}
-
-async function getPersonReviewById(req,res){
-    try {
-        const result = await pool.query(
-            "SELECT r.inhalt,r.sterne,a.profilname FROM review r JOIN app_user a ON r.ownerid = a.id WHERE r.userid = $1::int",
-            [req.params["id"]]
-        )
-        console.log(req.params["id"])
-        return res.status(200).send(result)
-    } catch (err) {
-        console.error(err)
-        return res.status(500).send(err)
-    }
-}
+// -------------------- SEARCHES -------------------- //
 
 async function searchEvent(req,res){
     console.log("REQUEST searchEvent",req.body)
@@ -972,6 +610,372 @@ async function searchEndUser(req,res){
     }
 }
 
+// -------------------- GETS -------------------- //
+
+async function getStuffbyName(req){
+    try {
+        const result = await pool.query(
+            "SELECT * FROM $1::text WHERE UPPER(name) LIKE UPPER($2)",
+            [req.body["table"], req.body["value"]]
+        )
+        console.log(result)
+        return result
+    } catch (err) {
+        console.error(err)
+        return null
+    }
+}
+
+async function getPartybilderFromUser(req, res) {
+    try {
+        const result = await pool.query(
+            `SELECT 
+                pb.id AS partybilder_id,
+                bild.data AS partybild_data
+            FROM partybilder pb
+            JOIN bild ON pb.bildid = bild.id
+            WHERE pb.userid = $1::int`,
+            [req.params['id']]
+        )
+        res.status(200).send(result)
+    } catch (err) {
+        console.error(err)
+        res.status(500).send(toString(err))
+    }
+}
+
+async function getLocationById(req,res){
+    try {
+        const result = await pool.query(
+            `SELECT 
+                l.*, bild.data AS bild 
+            FROM location l 
+            LEFT JOIN bild ON bildid = bild.id 
+            WHERE l.id = $1::int`,
+            [req.params["id"]]
+        )
+        console.log(req.params["id"])
+        return res.status(200).send(result)
+    } catch (err) {
+        console.error(err)
+        return res.status(500).send("INTERNAL SERVER ERROR WHILE TRYING TO GET LOCATION BY ID")
+    }
+}
+
+async function getEventById(req,res){
+    try {
+        const id = req.params["id"]
+        const event = await pool.query(
+            `SELECT 
+                e.*,
+                l.adresse,
+                l.name as locationname,
+                CASE
+                    WHEN e.bildid IS NOT NULL THEN bild.data
+                    ELSE NULL
+                END AS bild
+            FROM event e 
+            JOIN location l ON e.locationid = l.id 
+            LEFT JOIN bild ON e.bildid = bild.id
+            WHERE e.id = $1::int`,
+            [id]
+        )
+        const artist = await getArtistByEvent(req.params["id"])
+        const caterer = await getCatererByEvent(req.params["id"])
+        return res.status(200).send({
+            event: event,
+            artists: artist,
+            caterers : caterer
+        })
+    } catch (err) {
+        console.error(err)
+        return res.status(500).send("INTERNAL SERVER ERROR WHILE TRYING TO GET EVENT BY ID")
+    }
+}
+
+async function getCatererById(req,res){
+    const id = req.params["id"]
+    try {
+        const cater = await pool.query(
+            `SELECT 
+                c.*,
+                a.id as userid,
+                a.benutzername,
+                a.profilname,
+                a.bildid,
+                a.kurzbeschreibung,
+                a.beschreibung,
+                a.region,
+                a.sterne,
+                bild.data AS profilbild
+            FROM caterer c 
+            JOIN app_user a ON c.emailfk = a.email 
+            LEFT JOIN bild ON a.bildid = bild.id
+            WHERE c.id = $1`,
+            [id]
+        )
+        console.log(cater)
+
+        const gericht = await pool.query(
+            `SELECT 
+                g.id, 
+                g.name, 
+                g.beschreibung, 
+                g.bildid,
+                bild.data AS bild
+            FROM gericht g
+            LEFT JOIN bild ON g.bildid = bild.id
+            WHERE g.ownerid = $1::int`,
+            [id]
+        )
+        console.log(gericht)
+
+        const event = await pool.query(
+            `SELECT 
+                e.*, 
+                l.adresse,
+                bild.data AS bild
+            FROM event e 
+            JOIN servicecaterer sc ON sc.eventid = e.id 
+            JOIN location l ON e.locationid = l.id
+            LEFT JOIN bild ON e.bildid = bild.id
+            WHERE sc.catererid = $1::int`,
+            [id]
+        )
+        console.log(event)
+
+        return res.status(200).send({
+            caterer: cater,
+            gerichte: gericht,
+            events : event
+        })
+    } catch (err) {
+        console.error(err)
+        return res.status(500).send(err)
+    }
+}
+
+async function getArtistByID(req,res){
+    const id = req.params["id"]
+    try {
+        const art = await pool.query(
+            `SELECT 
+                ar.*, 
+                a.id as userid,
+                a.benutzername, 
+                a.profilname,
+                a.bildid,
+                a.kurzbeschreibung,
+                a.beschreibung,
+                a.region,
+                a.sterne,
+                bild.data AS profilbild 
+            FROM artist ar 
+            JOIN app_user a ON ar.emailfk = a.email
+            LEFT JOIN bild ON a.bildid = bild.id
+            WHERE ar.id = $1`,
+            [id]
+        )
+        console.log(art)
+
+        const lied = await pool.query(
+            `SELECT 
+                l.id,
+                l.name,
+                l.laenge,
+                l.erscheinung
+            FROM lied l
+            WHERE l.ownerid = $1::int`,
+            [id]
+        )
+        console.log(lied)
+
+        const event = await pool.query(
+            `SELECT 
+                e.*, 
+                l.adresse,
+                bild.data AS bild
+            FROM event e 
+            JOIN serviceartist sa ON sa.eventid = e.id 
+            JOIN location l ON e.locationid = l.id
+            LEFT JOIN bild ON e.bildid = bild.id
+            WHERE sa.artistid = $1::int`,
+            [id]
+        )
+        console.log(event)
+
+        return res.status(200).send({
+            artist: art,
+            lieder: lied,
+            events : event
+        })
+    } catch (err) {
+        console.error(err)
+        return res.status(500).send(err)
+    }
+}
+
+async function getEndUserById(req,res){
+    try {
+        const id = req.params["id"]
+        const user = await pool.query(
+            `SELECT 
+                e.*,
+                a.benutzername,
+                a.profilname,
+                a.bildid,
+                a.kurzbeschreibung,
+                a.beschreibung,
+                a.region,
+                a.sterne,
+                bild.data AS profilbild
+            FROM endnutzer e
+            JOIN app_user a ON a.email = e.emailfk
+            LEFT JOIN bild ON a.bildid = bild.id
+            WHERE a.id = $1::int`,
+            [id]
+        )
+        
+        const location = await pool.query(
+            `SELECT 
+                l.*,
+                bild.data AS profilbild
+            FROM location l
+            LEFT JOIN bild ON l.bildid = bild.id
+            WHERE l.ownerid = $1::int`,
+            [id]
+        )
+        
+
+        const owenevent = await pool.query(
+            `SELECT 
+                e.*,
+                l.adresse,
+                l.name as locationname,
+                bild.data AS profilbild
+            FROM event e
+            LEFT JOIN bild ON e.bildid = bild.id
+            JOIN location l ON e.locationid = l.id
+            WHERE e.ownerid = $1::int`,
+            [id]
+        )
+
+        const ticket = await pool.query(
+            `SELECT 
+                e.*,
+                l.adresse,
+                l.name as locationname,
+                bild.data AS profilbild
+            FROM event e
+            LEFT JOIN bild ON e.bildid = bild.id
+            LEFT JOIN tickets t ON e.id = t.eventid
+            JOIN location l ON e.locationid = l.id
+            WHERE t.userid = $1::int`,
+            [id]
+        )
+
+        return res.status(200).send({
+            user : user,
+            locations : location,
+            owenevents : owenevent,
+            tickets :  ticket
+        })
+    } catch (err) {
+        console.error(err)
+        return res.status(500).send(err)
+    }
+}
+
+async function getAllTicketsFromUser(req,res){
+    try {
+        const result = await pool.query(
+            "SELECT name FROM event  JOIN tickets ON tickets.eventid = event.id WHERE tickets.userid = $1::int",
+            [req.params['id']]
+        )
+        console.log(result)
+        return res.status(200).send(result)
+    } catch (err) {
+        console.error(err)
+        return res.status(500).send(err)
+    }
+}
+
+async function getBookedTicketsDate(req, res) {
+    try {
+        const result = await pool.query(
+            `SELECT 
+                datum
+            FROM
+                tickets
+            JOIN
+                event ON tickets.eventid = event.id
+            WHERE
+                tickets.userid = = $1::int`,
+            [req.params["id"]]
+        )
+        console.log(result)
+        return res.status(200).send(result)
+    } catch (err) {
+        console.error(err)
+        return res.status(500).send(err)
+    }
+}
+
+async function getPlaylistContent(req, res) {
+    try {
+        const result = await pool.query(
+            "SELECT p.name AS playlistname, l.name AS liedname FROM playlist p JOIN playlistinhalt pi ON p.id = pi.playlistid JOIN lied l ON pi.liedid = l.id WHERE UPPER(p.name) LIKE UPPER($1)",
+            [`%${req.params['name']}%`]
+        )
+        return res.status(200).send(result)
+    } catch (err) {
+        console.error(err)
+        return res.status(500).send(err)
+    }
+}
+
+async function getLocationReviewById(req,res){
+    try {
+        const result = await pool.query(
+            "SELECT r.inhalt,r.sterne,a.profilname FROM review r JOIN app_user a ON r.ownerid = a.id WHERE r.locationid = $1::int",
+            [req.params["id"]]
+        )
+        console.log(req.params["id"])
+        return res.status(200).send(result)
+    } catch (err) {
+        console.error(err)
+        return res.status(500).send(err)
+    }
+}
+
+async function getEventReviewById(req,res){
+    try {
+        const result = await pool.query(
+            "SELECT r.inhalt,r.sterne,a.profilname FROM review r JOIN app_user a ON r.ownerid = a.id WHERE r.eventid = $1::int",
+            [req.params["id"]]
+        )
+        console.log(req.params["id"])
+        return res.status(200).send(result)
+    } catch (err) {
+        console.error(err)
+        return res.status(500).send(err)
+    }
+}
+
+async function getPersonReviewById(req,res){
+    try {
+        const result = await pool.query(
+            "SELECT r.inhalt,r.sterne,a.profilname FROM review r JOIN app_user a ON r.ownerid = a.id WHERE r.userid = $1::int",
+            [req.params["id"]]
+        )
+        console.log(req.params["id"])
+        return res.status(200).send(result)
+    } catch (err) {
+        console.error(err)
+        return res.status(500).send(err)
+    }
+}
+
 async function getMails(req, res) {
     try {
         const mails = await pool.query(
@@ -1108,7 +1112,7 @@ async function getCatererByEvent(id){
 
 module.exports = {
     // GETS 
-    getUserByEmailandUsername, 
+    checkIfAccountIsInUse, 
     getStuffbyName, 
     getLocationById,  
     getCatererById ,
