@@ -21,7 +21,7 @@ async function checkIfAccountIsInUse(req, res){
         }
     } catch (err) {
         console.error(err)
-        return res.status(500).send(err)
+        return res.status(500).send(toString(err))
     }
 }
 
@@ -36,7 +36,7 @@ async function searchEvent(req,res){
     }
     catch(err)
     {
-       return res.status(500).send(err)
+       return res.status(500).send(toString(err))
     }    
     let query = 
         `SELECT 
@@ -162,7 +162,7 @@ async function searchEvent(req,res){
         return res.send(result)
     } catch (err) {
         console.error(err)
-        return res.status(500).send(`Error while searching for an Event: ${err}`)
+        return res.status(500).send(`Error while searching for an Event: ${toString(err)}`)
     }
 }
 
@@ -175,7 +175,7 @@ async function searchLocaiton(req,res){
     }
     catch(err)
     {
-        return res.status(500).send(err)
+        return res.status(500).send(toString(err))
     }    
     let query = 
         `SELECT 
@@ -278,7 +278,7 @@ async function searchLocaiton(req,res){
         return res.send(result)
     } catch (err) {
         console.error(err)
-        return res.status(500).send(`Error while searching for an location: ${err}`)
+        return res.status(500).send(`Error while searching for an location: ${toString(err)}`)
     }
 }
 
@@ -291,7 +291,7 @@ async function searchCaterer(req,res){
     }
     catch(err)
     {
-        return res.status(500).send(err)
+        return res.status(500).send(toString(err))
     }    
     let query = 
         `SELECT 
@@ -391,7 +391,7 @@ async function searchCaterer(req,res){
         return res.send(result)
     } catch (err) {
         console.error(err)
-        return res.status(500).send(`Error while searching for an Caterer: ${err}`)
+        return res.status(500).send(`Error while searching for an Caterer: ${toString(err)}`)
     }
 }
 
@@ -404,7 +404,7 @@ async function searchArtist(req,res){
     }
     catch(err)
     {
-        return res.status(500).send(err)
+        return res.status(500).send(toString(err))
     }    
     let query = 
         `SELECT 
@@ -504,7 +504,7 @@ async function searchArtist(req,res){
         return res.send(result)
     } catch (err) {
         console.error(err)
-        return res.status(500).send(`Error while searching for an Artist: ${err}`)
+        return res.status(500).send(`Error while searching for an Artist: ${toString(err)}`)
     }
 }
 
@@ -517,7 +517,7 @@ async function searchEndUser(req,res){
     }
     catch(err)
     {
-        return res.status(500).send(err)
+        return res.status(500).send(toString(err))
     }    
     let query = 
         `SELECT 
@@ -606,7 +606,7 @@ async function searchEndUser(req,res){
         return res.send(result)
     } catch (err) {
         console.error(err)
-        return res.status(500).send(`Error while searching for an enduser: ${err}`)
+        return res.status(500).send(`Error while searching for an enduser: ${toString(err)}`)
     }
 }
 
@@ -751,7 +751,7 @@ async function getCatererById(req,res){
         })
     } catch (err) {
         console.error(err)
-        return res.status(500).send(err)
+        return res.status(500).send(toString(err))
     }
 }
 
@@ -811,7 +811,7 @@ async function getArtistByID(req,res){
         })
     } catch (err) {
         console.error(err)
-        return res.status(500).send(err)
+        return res.status(500).send(toString(err))
     }
 }
 
@@ -882,7 +882,7 @@ async function getEndUserById(req,res){
         })
     } catch (err) {
         console.error(err)
-        return res.status(500).send(err)
+        return res.status(500).send(toString(err))
     }
 }
 
@@ -896,7 +896,7 @@ async function getAllTicketsFromUser(req,res){
         return res.status(200).send(result)
     } catch (err) {
         console.error(err)
-        return res.status(500).send(err)
+        return res.status(500).send(toString(err))
     }
 }
 
@@ -917,7 +917,7 @@ async function getBookedTicketsDate(req, res) {
         return res.status(200).send(result)
     } catch (err) {
         console.error(err)
-        return res.status(500).send(err)
+        return res.status(500).send(toString(err))
     }
 }
 
@@ -930,7 +930,7 @@ async function getPlaylistContent(req, res) {
         return res.status(200).send(result)
     } catch (err) {
         console.error(err)
-        return res.status(500).send(err)
+        return res.status(500).send(toString(err))
     }
 }
 
@@ -944,7 +944,7 @@ async function getLocationReviewById(req,res){
         return res.status(200).send(result)
     } catch (err) {
         console.error(err)
-        return res.status(500).send(err)
+        return res.status(500).send(toString(err))
     }
 }
 
@@ -958,7 +958,7 @@ async function getEventReviewById(req,res){
         return res.status(200).send(result)
     } catch (err) {
         console.error(err)
-        return res.status(500).send(err)
+        return res.status(500).send(toString(err))
     }
 }
 
@@ -972,7 +972,7 @@ async function getPersonReviewById(req,res){
         return res.status(200).send(result)
     } catch (err) {
         console.error(err)
-        return res.status(500).send(err)
+        return res.status(500).send(toString(err))
     }
 }
 
@@ -1045,7 +1045,7 @@ async function getMails(req, res) {
         return res.status(200).send(mails)
     } catch (err) {
         console.error(err)
-        return res.status(500).send(err)
+        return res.status(500).send(toString(err))
     }
 }
 

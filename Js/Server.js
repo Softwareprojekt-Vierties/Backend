@@ -100,7 +100,7 @@ app.post("/updateArtist",async (req,res)=>{
     }
     catch(err) {
         console.error(err)
-        res.status(500).send("Server error! " + err)
+        res.status(500).send("Server error! " + toString(err))
     }
 })
 
@@ -124,7 +124,7 @@ app.post("/updateCaterer",async (req,res)=>{
     }
     catch(err) {
         console.error(err)
-        res.status(500).send("Server error! " + err)
+        res.status(500).send("Server error! " + toString(err))
     }
 })
 
@@ -138,7 +138,7 @@ app.post("/updateEndnutzer",async (req,res)=>{
     }
     catch(err) {
         console.error(err)
-        res.status(500).send("Server error! " + err)
+        res.status(500).send("Server error! " + toString(err))
     }
 })
 
@@ -150,16 +150,16 @@ app.post("/updateLoacation",(req,res)=>{
         UpdateQueries.updateLocation(locationid, adresse, name, beschreibung, privat, kurzbeschreibung, preis, openair, flaeche, bild, kapazitaet).then(result =>{
             if(result.success)
                 {
-                    res.status(200).send("Updatet Loacation")
+                    res.status(200).send("Updatet Location")
                 }
-            else   {res.status(400).send("problem")}
+            else   {res.status(400).send("Update Location failed: " + toString(result.error))}
         })
         
     }
     catch(err)
     {
         console.error(err)
-        res.status(500).send("big Problem")
+        res.status(500).send("Server error! " + toString(err))
     }
     
 })
@@ -172,7 +172,7 @@ app.post('/createEvent', async (req,res)=> {
     const {eventname,datum,uhrzeit,eventgroesse,preis,altersfreigabe,privat,kurzbeschreibung,beschreibung,bild,ownerid,locationid} = req.body
     const result = await CreateQueries.createEvent(eventname,datum,uhrzeit,eventgroesse,preis,altersfreigabe,privat,kurzbeschreibung,beschreibung,bild,ownerid,locationid)
     if (result.success) res.status(200).send("EVENT CREATED")
-    else res.status(404).send("FAILED TO CREATE EVENT")
+    else res.status(500).send("FAILED TO CREATE EVENT " + toString(result.error))
 })    // creates a new events
 
 app.post('/createCaterer', async (req,res)=> {
@@ -189,7 +189,7 @@ app.post('/createCaterer', async (req,res)=> {
     }
 
     if (caterer.success) res.status(200).send("CATERER CREATED "+ caterer.id)
-    else res.status(404).send("FAILED TO CREATE CATERER "+ caterer.error)
+    else res.status(500).send("FAILED TO CREATE CATERER "+ toString(caterer.error))
 })    // creates a new Caterer
 
 app.post('/createArtist', async (req,res)=> {
@@ -206,7 +206,7 @@ app.post('/createArtist', async (req,res)=> {
     }
     
     if (artist.success) res.status(200).send("ARTIST CREATED "+ artist.id)
-    else res.status(404).send("FAILED TO CREATE ARTIST "+ artist.error)
+    else res.status(500).send("FAILED TO CREATE ARTIST "+ toString(artist.error))
 })    // creates a new Artist
 
 app.post('/createLocation', async (req,res)=> {
@@ -214,7 +214,7 @@ app.post('/createLocation', async (req,res)=> {
     const {adresse, region, name, beschreibung, ownerID, kurzbeschreibung, preis, kapazitaet, openair, flaeche, bild} = req.body // frontend is missing field 'privat'
     const result = await CreateQueries.createLocation(adresse + ", " + region, name, beschreibung, ownerID, true, kurzbeschreibung, preis, kapazitaet, openair, flaeche, bild)
     if (result.success) res.status(200).send("LOCATION CREATED")
-    else res.status(404).send("FAILED TO CREATE LOCATION")
+    else res.status(500).send("FAILED TO CREATE LOCATION " + toString(result.error))
 })    // creates a new Location
 
 
@@ -231,7 +231,7 @@ app.post('/testSearch', (req,res)=>{
     }
     catch (err)
     {
-        res.status(400).send(err)
+        res.status(500).send(err)
     }
 });
 
