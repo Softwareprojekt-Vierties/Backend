@@ -62,7 +62,7 @@ async function updatePartyBilder(userid, partybilder) {
     DeleteQueries.deletePartybilderById(userid)
 
     for (let bild of partybilder) {
-        const bildid = CreateQueries.createBild(bild)
+        const bildid = await CreateQueries.createBild(bild)
 
         if (bildid.success) {
             CreateQueries.createPartybild(userid, bildid.id)
