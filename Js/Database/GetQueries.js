@@ -1117,7 +1117,7 @@ module.exports = {
     getEventById,
     getMails,
     getBookedTicketsDate,
-    getPartybilderFromUser
+    getPartybilderFromUser,
     // SEARCHES
     searchEvent, 
     searchLocaiton,
