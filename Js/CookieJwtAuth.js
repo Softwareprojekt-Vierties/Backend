@@ -14,7 +14,7 @@ function Auth (req, res, next){
         next();
     }
     catch (err) {
-        return res.status(500).send("Token is not Vaild");
+        return res.status(400).send("Token is not Vaild");
     }
 }
 
@@ -27,14 +27,11 @@ function Auth (req, res, next){
  */
 
 function isLogedIn(req,res,next){
-    try
-    {
+    try {
         const token = req.headers["auth"]
         const user = jwt.verify(token, SECRET)
         res.send("u are already logged in")
-    }
-    catch
-    {
+    } catch {
         next()
     }
 }
@@ -48,7 +45,7 @@ function isLogedIn(req,res,next){
 
 function getUser(token){  // returns the user information form the JWT cookie
     const user = jwt.verify(token, SECRET);
-        return user;
+    return user;
 }
 
 module.exports = {Auth, getUser,isLogedIn};

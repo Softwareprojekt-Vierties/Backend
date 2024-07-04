@@ -43,7 +43,6 @@ app.post('/checkAccount',GetQueries.checkIfAccountIsInUse)
 
 // -------------------- GETS -------------------- //
 
-app.get("/getLocation/:id", cookieJwtAuth.Auth, GetQueries.getLocationById)
 app.get("/getArtistById/:id",GetQueries.getArtistByID)
 app.get("/getCatererById/:id",GetQueries.getCatererById)
 app.get("/getUserById/:id",GetQueries.getEndUserById)
@@ -58,6 +57,7 @@ app.get("/getTicketDates", cookieJwtAuth.Auth, GetQueries.getBookedTicketsDate)
 app.get('/tickets', cookieJwtAuth.Auth, GetQueries.getAllTicketsFromUser)
 app.get('/getMails', cookieJwtAuth.Auth, GetQueries.getMails)
 
+app.post("/getLocation", cookieJwtAuth.Auth, GetQueries.getLocationById)
 app.post('/searchEvent',cookieJwtAuth.Auth,GetQueries.searchEvent)  // searchs events with filter param
 app.post('/searchLoacation',cookieJwtAuth.Auth,GetQueries.searchLocaiton)  // searchs Locations with filter param
 app.post('/searchCaterer',cookieJwtAuth.Auth,GetQueries.searchCaterer)  // searchs Caterer with filter param

@@ -671,9 +671,9 @@ async function getLocationById(req,res){
             FROM location l 
             LEFT JOIN bild ON bildid = bild.id 
             WHERE l.id = $1::int`,
-            [req.params["id"]]
+            [req.body["id"]]
         )
-        console.log(req.params["id"])
+        console.log(req.body["id"])
         return res.status(200).send({
             result: result,
             isOwner: userid === result.rows[0]['ownerid'] ? true : false
