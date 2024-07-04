@@ -56,6 +56,7 @@ app.get('/getEventById/:id', GetQueries.getEventById)
 app.post('/searchEvent',GetQueries.searchEvent)  // searchs events with filter param
 app.get('/tickets/:id', GetQueries.getAllTicketsFromUser)
 app.get('/playlist/:name', GetQueries.getPlaylistContent)
+app.get('/getPartybilder/:id', GetQueries.getPartybilderFromUser)
 
 app.post('/searchEvent',cookieJwtAuth.Auth,GetQueries.searchEvent)  // searchs events with filter param
 app.post('/searchLoacation',cookieJwtAuth.Auth,GetQueries.searchLocaiton)  // searchs Locations with filter param

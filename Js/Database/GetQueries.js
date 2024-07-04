@@ -16,6 +16,24 @@ async function getStuffbyName(req){
     }
 }
 
+async function getPartybilderFromUser(req, res) {
+    try {
+        const result = await pool.query(
+            `SELECT 
+                pb.id AS partybilder_id,
+                bild.data AS partybild_data
+            FROM partybilder pb
+            JOIN bild ON pb.bildid = bild.id
+            WHERE pb.userid = $1::int`,
+            [req.params['id']]
+        )
+        res.status(200).send(result)
+    } catch (err) {
+        console.error(err)
+        res.status(500).send(toString(err))
+    }
+}
+
 async function getLocationById(req,res){
     try {
         const result = await pool.query(
@@ -1099,6 +1117,7 @@ module.exports = {
     getEventById,
     getMails,
     getBookedTicketsDate,
+    getPartybilderFromUser
     // SEARCHES
     searchEvent, 
     searchLocaiton,
