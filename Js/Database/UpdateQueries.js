@@ -87,6 +87,7 @@ async function updatePartyBilder(userid, partybilder) {
  * @param {string} lied 
  * @param {string} gericht 
  * @param {string} geschlecht 
+ * @param {string[]} partybilder
  * @returns {!Object} 
  * - boolean: success - true if successful, false otherwise
  * - Error: error - the error if one occured
