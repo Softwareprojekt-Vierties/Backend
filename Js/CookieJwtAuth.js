@@ -10,7 +10,8 @@ SECRET = "BruhnsmanIsTheBest"
 function Auth (req, res, next){  
     const token = req.headers["auth"]
     try {
-        const user = jwt.verify(token,SECRET);
+        console.log(token)
+        jwt.verify(token,SECRET);
         next();
     }
     catch (err) {
