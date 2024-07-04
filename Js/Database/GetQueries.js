@@ -172,6 +172,7 @@ async function searchLocaiton(req,res){
     try
     {
         user = cookieJwtAuth.getUser(req.headers["auth"])["id"]
+        if (user == undefined) throw new Error("INVALID TOKEN")
     }
     catch(err)
     {
@@ -288,6 +289,7 @@ async function searchCaterer(req,res){
     try
     {
         user = cookieJwtAuth.getUser(req.headers["auth"])["id"]
+        if (user == undefined) throw new Error("INVALID TOKEN")
     }
     catch(err)
     {
@@ -401,6 +403,7 @@ async function searchArtist(req,res){
     try
     {
         user = cookieJwtAuth.getUser(req.headers["auth"])["id"]
+        if (user == undefined) throw new Error("INVALID TOKEN")
     }
     catch(err)
     {
@@ -514,6 +517,7 @@ async function searchEndUser(req,res){
     try
     {
         user = cookieJwtAuth.getUser(req.headers["auth"])["id"]
+        if (user == undefined) throw new Error("INVALID TOKEN")
     }
     catch(err)
     {
