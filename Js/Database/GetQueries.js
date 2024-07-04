@@ -657,7 +657,7 @@ async function getPartybilderFromUser(req, res) {
 async function getLocationById(req,res){
     let userid
     try {
-        userid = cookieJwtAuth.getUser(req.headers["auth"])["email"]
+        userid = cookieJwtAuth.getUser(req.headers["auth"])["id"]
         if (userid == undefined) throw new Error("INVALID TOKEN")
     } catch(err) {
         console.error(err)
