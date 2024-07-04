@@ -391,9 +391,10 @@ async function getPersonReviewById(req,res){
 
 async function searchEvent(req,res){
     console.log("REQUEST searchEvent",req.body)
+    let user
     try
     {
-        const user = cookieJwtAuth.getUser(req.headers["auth"])["id"]
+        user = cookieJwtAuth.getUser(req.headers["auth"])["id"]
     }
     catch(err)
     {
@@ -529,9 +530,10 @@ async function searchEvent(req,res){
 
 async function searchLocaiton(req,res){
     console.log("REQUEST searchLocaiton",req.body)
+    let user
     try
     {
-        const user = cookieJwtAuth.getUser(req.headers["auth"])["id"]
+        user = cookieJwtAuth.getUser(req.headers["auth"])["id"]
     }
     catch(err)
     {
@@ -644,9 +646,10 @@ async function searchLocaiton(req,res){
 
 async function searchCaterer(req,res){
     console.log("REQUEST searchCaterer",req.body)
+    let user
     try
     {
-        const user = cookieJwtAuth.getUser(req.headers["auth"])["id"]
+        user = cookieJwtAuth.getUser(req.headers["auth"])["id"]
     }
     catch(err)
     {
@@ -756,9 +759,10 @@ async function searchCaterer(req,res){
 
 async function searchArtist(req,res){
     console.log("REQUEST searchArtist",req.body)
+    let user
     try
     {
-        const user = cookieJwtAuth.getUser(req.headers["auth"])["id"]
+        user = cookieJwtAuth.getUser(req.headers["auth"])["id"]
     }
     catch(err)
     {
@@ -868,9 +872,10 @@ async function searchArtist(req,res){
 
 async function searchEndUser(req,res){
     console.log("REQUEST searchEndUser",req.body)
+    let user
     try
     {
-        const user = cookieJwtAuth.getUser(req.headers["auth"])["id"]
+        user = cookieJwtAuth.getUser(req.headers["auth"])["id"]
     }
     catch(err)
     {
