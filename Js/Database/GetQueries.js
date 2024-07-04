@@ -37,7 +37,8 @@ async function searchEvent(req,res){
     }
     catch(err)
     {
-       return res.status(400).send(toString(err))
+        console.error(err)
+        return res.status(400).send(toString(err))
     }    
     let query = 
         `SELECT 
@@ -177,6 +178,7 @@ async function searchLocaiton(req,res){
     }
     catch(err)
     {
+        console.error(err)
         return res.status(400).send(toString(err))
     }    
     let query = 
@@ -294,6 +296,7 @@ async function searchCaterer(req,res){
     }
     catch(err)
     {
+        console.error(err)
         return res.status(400).send(toString(err))
     }    
     let query = 
@@ -408,6 +411,7 @@ async function searchArtist(req,res){
     }
     catch(err)
     {
+        console.error(err)
         return res.status(400).send(toString(err))
     }    
     let query = 
@@ -522,6 +526,7 @@ async function searchEndUser(req,res){
     }
     catch(err)
     {
+        console.error(err)
         return res.status(400).send(toString(err))
     }    
     let query = 
