@@ -323,31 +323,43 @@ async function updateLied(id, name, laenge, erscheinung) {
  * - boolean: success - true if successful, false otherwise
  * - Error: error - an error, if one occured
  */
-async function updateLocation(locationid, adresse, name, beschreibung, privat, kurzbeschreibung, preis, openair, flaeche, bild, kapazitaet) {
+async function updateLocation(userid, locationid, adresse, name, beschreibung, privat, kurzbeschreibung, preis, openair, flaeche, bild, kapazitaet) {
     try {
-        const result = await pool.query(
-            `UPDATE location SET
-            adresse = $1::text,
-            name = $2::text,
-            beschreibung = $3::text,
-            privat = $4::boolean,
-            kurzbeschreibung = $5::text,
-            preis = $6::text,
-            openair = $7::boolean,
-            flaeche = $8::text,
-            kapazitaet = $9::int
-            WHERE id = $10::int
-            RETURNING bildid`,
-            [adresse, name, beschreibung, privat, kurzbeschreibung, preis, openair, flaeche, kapazitaet, locationid]
+        const location = await pool.query(
+            `SELECT ownerid FROM location WHERE id = $1::int`,
+            [locationid]
         )
-        console.log(`location UPDATED`)
 
-        await updateBild(result.rows[0], bild)
+        if (location.rowCount > 0 && location.rows[0]['ownerid'] === userid) {
+            const result = await pool.query(
+                `UPDATE location SET
+                adresse = $1::text,
+                name = $2::text,
+                beschreibung = $3::text,
+                privat = $4::boolean,
+                kurzbeschreibung = $5::text,
+                preis = $6::text,
+                openair = $7::boolean,
+                flaeche = $8::text,
+                kapazitaet = $9::int
+                WHERE id = $10::int
+                RETURNING bildid`,
+                [adresse, name, beschreibung, privat, kurzbeschreibung, preis, openair, flaeche, kapazitaet, locationid]
+            )
+            console.log(`location UPDATED`)
 
-        return {
-            success: true,
-            error: null
+            await updateBild(result.rows[0], bild)
+
+            return {
+                success: true,
+                error: null
+            }
         }
+        return {
+            success: false,
+            error: "Unauthorized"
+        }
+        
     } catch (err) {
         console.error(`COULDN'T UPDATE location`,err)
         return {
@@ -422,20 +434,32 @@ async function updatePlaylist() {
  * - boolean: success - true if successful, false otherwise
  * - Error: error - an error, if one occured
  */
-async function updateMail(id, gelesen, angenommen = null) {
+async function updateMail(userid, id, gelesen, angenommen = null) {
     try {
-        await pool.query(
-            `UPDATE mail SET
-            gelesen = $2::boolean,
-            angenommen = $3
-            WHERE id = $1::int`,
-            [id, gelesen, angenommen]
+        const mail = await pool.query(
+            `SELECT empfaenger FROM mail WHERE id = $1::int`,
+            [id]
         )
-        console.log("UPDATED mail")
-        return {
-            success: true,
-            error: null
+
+        if (mail.rows.length > 0 && mail.rows[0]['empfaenger'] === userid) {
+            await pool.query(
+                `UPDATE mail SET
+                gelesen = $2::boolean,
+                angenommen = $3
+                WHERE id = $1::int`,
+                [id, gelesen, angenommen]
+            )
+            console.log("UPDATED mail")
+            return {
+                success: true,
+                error: null
+            }
         }
+        return {
+            success: false,
+            error: "Unauthorized"
+        }
+        
     } catch (err) {
         console.error("COULDN'T UPDATE mail", err)
         return {

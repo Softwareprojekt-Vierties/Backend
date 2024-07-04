@@ -897,10 +897,19 @@ async function getEndUserById(req,res){
 }
 
 async function getAllTicketsFromUser(req,res){
+    let userid
+    try {
+        userid = cookieJwtAuth.getUser(req.headers["auth"])["id"]
+        if (userid == undefined) throw new Error("INVALID TOKEN")
+    } catch(err) {
+        console.error(err)
+        return res.status(400).send(toString(err))
+    } 
+
     try {
         const result = await pool.query(
             "SELECT name FROM event  JOIN tickets ON tickets.eventid = event.id WHERE tickets.userid = $1::int",
-            [req.params['id']]
+            [userid]
         )
         console.log(result)
         return res.status(200).send(result)
@@ -911,6 +920,18 @@ async function getAllTicketsFromUser(req,res){
 }
 
 async function getBookedTicketsDate(req, res) {
+    let user
+    try
+    {
+        user = cookieJwtAuth.getUser(req.headers["auth"])["id"]
+        if (user == undefined) throw new Error("INVALID TOKEN")
+    }
+    catch(err)
+    {
+        console.error(err)
+        return res.status(400).send(toString(err))
+    }   
+
     try {
         const result = await pool.query(
             `SELECT 
@@ -921,7 +942,7 @@ async function getBookedTicketsDate(req, res) {
                 event ON tickets.eventid = event.id
             WHERE
                 tickets.userid = = $1::int`,
-            [req.params["id"]]
+            [user]
         )
         console.log(result)
         return res.status(200).send(result)
@@ -987,6 +1008,15 @@ async function getPersonReviewById(req,res){
 }
 
 async function getMails(req, res) {
+    let userid
+    try {
+        userid = cookieJwtAuth.getUser(req.headers["auth"])["id"]
+        if (userid == undefined) throw new Error("INVALID TOKEN")
+    } catch(err) {
+        console.error(err)
+        return res.status(400).send(toString(err))
+    }  
+
     try {
         const mails = await pool.query(
             `SELECT 
@@ -1050,7 +1080,7 @@ async function getMails(req, res) {
             JOIN app_user AS empfaenger ON mail.empfaenger = empfaenger.id
             LEFT JOIN bild ON app_user.bildid = bild.id
             WHERE mail.empfaenger = $1::int`,
-            [req.params[`id`]]
+            [userid]
         )
         return res.status(200).send(mails)
     } catch (err) {

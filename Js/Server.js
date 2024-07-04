@@ -44,19 +44,19 @@ app.post('/checkAccount',GetQueries.checkIfAccountIsInUse)
 // -------------------- GETS -------------------- //
 
 app.get("/getLocation/:id",GetQueries.getLocationById)
-app.get("/getTicketDates/:id", GetQueries.getBookedTicketsDate)
 app.get("/getArtistById/:id",GetQueries.getArtistByID)
 app.get("/getCatererById/:id",GetQueries.getCatererById)
 app.get("/getUserById/:id",GetQueries.getEndUserById)
 app.get("/getLocationReview/:id",GetQueries.getLocationReviewById)
 app.get("/getEventReview/:id",GetQueries.getEventReviewById)
 app.get("/getPersonReview/:id",GetQueries.getPersonReviewById)
-app.get('/getMails/:id', GetQueries.getMails)
 app.get('/getEventById/:id', GetQueries.getEventById)
-app.post('/searchEvent',GetQueries.searchEvent)  // searchs events with filter param
-app.get('/tickets/:id', GetQueries.getAllTicketsFromUser)
 app.get('/playlist/:name', GetQueries.getPlaylistContent)
 app.get('/getPartybilder/:id', GetQueries.getPartybilderFromUser)
+
+app.get("/getTicketDates", cookieJwtAuth.Auth, GetQueries.getBookedTicketsDate)
+app.get('/tickets', cookieJwtAuth.Auth, GetQueries.getAllTicketsFromUser)
+app.get('/getMails', cookieJwtAuth.Auth, GetQueries.getMails)
 
 app.post('/searchEvent',cookieJwtAuth.Auth,GetQueries.searchEvent)  // searchs events with filter param
 app.post('/searchLoacation',cookieJwtAuth.Auth,GetQueries.searchLocaiton)  // searchs Locations with filter param
@@ -66,25 +66,20 @@ app.post('/searchEndnutzer',cookieJwtAuth.Auth,GetQueries.searchEndUser)  // sea
 
 // -------------------- UPDATES -------------------- // 
 
-app.post("/updateMail", async (req, res) => {
-    console.log("REQUEST TO UPDATE mail")
-    const {id, gelesen, angenommen} = req.body
-    try {
-        let result
-        if (angenommen === undefined) result = await UpdateQueries.updateMail(id, gelesen)
-        else result = await UpdateQueries.updateMail(id, true, angenommen)
-        if (result.success) res.status(200).send("Updated mail")
-        else res.status(200).send("Didn't update any mail")
-    } catch (err) {
-        res.status(500).send("INTERNAL SERVER ERROR WHILE TRYING TO UPDATE mail!")
-    }
-})
-
-app.post("/updateArtist",async (req,res)=>{
+app.post("/updateArtist", cookieJwtAuth.Auth, async (req,res)=>{
     console.log("REQUEST TO UPDATE ARTIST",req.body)
-    const {profilname, profilbild, kurzbeschreibung, beschreibung, region, email, preis, kategorie, erfahrung, songs} = req.body
+    let userEmail
     try {
-        const resultArtist = await UpdateQueries.updateArtist(profilname, profilbild, kurzbeschreibung, beschreibung, region, email, preis, kategorie, erfahrung)
+        userEmail = cookieJwtAuth.getUser(req.headers["auth"])["email"]
+        if (userEmail == undefined) throw new Error("INVALID TOKEN")
+    } catch(err) {
+        console.error(err)
+        return res.status(400).send(toString(err))
+    } 
+
+    const {profilname, profilbild, kurzbeschreibung, beschreibung, region, preis, kategorie, erfahrung, songs} = req.body
+    try {
+        const resultArtist = await UpdateQueries.updateArtist(profilname, profilbild, kurzbeschreibung, beschreibung, region, userEmail, preis, kategorie, erfahrung)
         let message = ""
 
         if (songs != null) {
@@ -104,11 +99,20 @@ app.post("/updateArtist",async (req,res)=>{
     }
 })
 
-app.post("/updateCaterer",async (req,res)=>{
+app.post("/updateCaterer", cookieJwtAuth.Auth, async (req,res)=>{
     console.log("REQUEST TO UPDATE CATETER",req.body)
-    const {profilname, profilbild, kurzbeschreibung, beschreibung, region, email, preis, kategorie, erfahrung, gerichte} = req.body
+    let userEmail
     try {
-        const resultCaterer = await UpdateQueries.updateCaterer(profilname, profilbild, kurzbeschreibung, beschreibung, region, email, preis, kategorie, erfahrung)
+        userEmail = cookieJwtAuth.getUser(req.headers["auth"])["email"]
+        if (userEmail == undefined) throw new Error("INVALID TOKEN")
+    } catch(err) {
+        console.error(err)
+        return res.status(400).send(toString(err))
+    } 
+
+    const {profilname, profilbild, kurzbeschreibung, beschreibung, region, preis, kategorie, erfahrung, gerichte} = req.body
+    try {
+        const resultCaterer = await UpdateQueries.updateCaterer(profilname, profilbild, kurzbeschreibung, beschreibung, region, userEmail, preis, kategorie, erfahrung)
         let message = ""
 
         if (gerichte != null) {
@@ -128,11 +132,20 @@ app.post("/updateCaterer",async (req,res)=>{
     }
 })
 
-app.post("/updateEndnutzer",async (req,res)=>{
+app.post("/updateEndnutzer", cookieJwtAuth.Auth, async (req,res)=>{
     console.log("REQUEST TO UPDATE Endnutzer",req.body)
-    const {profilname, profilbild, kurzbeschreibung, beschreibung, region, email, alter, arten, lied, gericht, geschlecht, partybilder} = req.body
+    let userEmail
     try {
-        const resultEndnutzer = await UpdateQueries.updateEndnutzer(profilname, profilbild, kurzbeschreibung, beschreibung, region, email, alter, arten, lied, gericht, geschlecht, partybilder)
+        userEmail = cookieJwtAuth.getUser(req.headers["auth"])["email"]
+        if (userEmail == undefined) throw new Error("INVALID TOKEN")
+    } catch(err) {
+        console.error(err)
+        return res.status(400).send(toString(err))
+    } 
+
+    const {profilname, profilbild, kurzbeschreibung, beschreibung, region, alter, arten, lied, gericht, geschlecht, partybilder} = req.body
+    try {
+        const resultEndnutzer = await UpdateQueries.updateEndnutzer(profilname, profilbild, kurzbeschreibung, beschreibung, region, userEmail, alter, arten, lied, gericht, geschlecht, partybilder)
         if (resultEndnutzer.success) res.status(200).send("UPDATED Endnutzer")
         else res.status(400).send("FAILED TO UPDATE Endnutzer! " + resultEndnutzer.error + ",")
     }
@@ -142,38 +155,61 @@ app.post("/updateEndnutzer",async (req,res)=>{
     }
 })
 
-app.post("/updateLoacation",(req,res)=>{
+app.post("/updateLocation", cookieJwtAuth.Auth, (req,res)=>{
     console.log(req.body)
+    let userid
+    try {
+        userid = cookieJwtAuth.getUser(req.headers["auth"])["id"]
+        if (userid == undefined) throw new Error("INVALID TOKEN")
+    } catch(err) {
+        console.error(err)
+        return res.status(400).send(toString(err))
+    } 
+
     const {locationid, adresse, name, beschreibung, privat, kurzbeschreibung, preis, openair, flaeche, bild, kapazitaet} = req.body
     try
     {
-        UpdateQueries.updateLocation(locationid, adresse, name, beschreibung, privat, kurzbeschreibung, preis, openair, flaeche, bild, kapazitaet).then(result =>{
-            if(result.success)
-                {
-                    res.status(200).send("Updatet Location")
-                }
-            else   {res.status(400).send("Update Location failed: " + toString(result.error))}
+        UpdateQueries.updateLocation(userid, locationid, adresse, name, beschreibung, privat, kurzbeschreibung, preis, openair, flaeche, bild, kapazitaet).then(result =>{
+            if(result.success) {
+                res.status(200).send("Updated Location")
+            } if (result.error === "Unauthorized") {
+                res.status(401).send("User is not authorized to edit the given location!")
+            } else {
+                res.status(400).send("Update Location failed: " + toString(result.error))
+            }
         })
-        
     }
     catch(err)
     {
         console.error(err)
         res.status(500).send("Server error! " + toString(err))
     }
-    
+})
+
+app.post("/updateMail", cookieJwtAuth.Auth, async (req, res) => {
+    console.log("REQUEST TO UPDATE mail")
+    let userid
+    try {
+        userid = cookieJwtAuth.getUser(req.headers["auth"])["id"]
+        if (userid == undefined) throw new Error("INVALID TOKEN")
+    } catch(err) {
+        console.error(err)
+        return res.status(400).send(toString(err))
+    } 
+    const {id, gelesen, angenommen} = req.body
+
+    try {
+        let result
+        if (angenommen === undefined) result = await UpdateQueries.updateMail(userid, id, gelesen)
+        else result = await UpdateQueries.updateMail(userid, id, true, angenommen)
+        if (result.success) res.status(200).send("Updated mail")
+        else res.status(200).send("Didn't update any mail")
+    } catch (err) {
+        res.status(500).send("INTERNAL SERVER ERROR WHILE TRYING TO UPDATE mail!")
+    }
 })
 
 // -------------------- CREATES -------------------- // 
-
-app.post('/createEvent', async (req,res)=> {
-    console.log("REQUEST TO CREATE EVENT",req.body)
-
-    const {eventname,datum,uhrzeit,eventgroesse,preis,altersfreigabe,privat,kurzbeschreibung,beschreibung,bild,ownerid,locationid} = req.body
-    const result = await CreateQueries.createEvent(eventname,datum,uhrzeit,eventgroesse,preis,altersfreigabe,privat,kurzbeschreibung,beschreibung,bild,ownerid,locationid)
-    if (result.success) res.status(200).send("EVENT CREATED")
-    else res.status(500).send("FAILED TO CREATE EVENT " + toString(result.error))
-})    // creates a new events
 
 app.post('/createCaterer', async (req,res)=> {
     console.log("REQUEST TO CREATE CATERER",req.body)
@@ -209,15 +245,39 @@ app.post('/createArtist', async (req,res)=> {
     else res.status(500).send("FAILED TO CREATE ARTIST "+ toString(artist.error))
 })    // creates a new Artist
 
-app.post('/createLocation', async (req,res)=> {
+app.post('/createEvent', cookieJwtAuth.Auth, async (req,res)=> {
+    console.log("REQUEST TO CREATE EVENT",req.body)
+    let userid
+    try {
+        userid = cookieJwtAuth.getUser(req.headers["auth"])["id"]
+        if (userid == undefined) throw new Error("INVALID TOKEN")
+    } catch(err) {
+        console.error(err)
+        return res.status(400).send(toString(err))
+    } 
+
+    const {eventname,datum,uhrzeit,eventgroesse,preis,altersfreigabe,privat,kurzbeschreibung,beschreibung,bild,locationid} = req.body
+    const result = await CreateQueries.createEvent(eventname,datum,uhrzeit,eventgroesse,preis,altersfreigabe,privat,kurzbeschreibung,beschreibung,bild,userid,locationid)
+    if (result.success) res.status(200).send("EVENT CREATED")
+    else res.status(500).send("FAILED TO CREATE EVENT " + toString(result.error))
+})    // creates a new events
+
+app.post('/createLocation', cookieJwtAuth.Auth, async (req,res)=> {
     console.log("REQUEST TO CREATE LOCATION",req.body)
-    const {adresse, region, name, beschreibung, ownerID, kurzbeschreibung, preis, kapazitaet, openair, flaeche, bild} = req.body // frontend is missing field 'privat'
-    const result = await CreateQueries.createLocation(adresse + ", " + region, name, beschreibung, ownerID, true, kurzbeschreibung, preis, kapazitaet, openair, flaeche, bild)
+    let userid
+    try {
+        userid = cookieJwtAuth.getUser(req.headers["auth"])["id"]
+        if (userid == undefined) throw new Error("INVALID TOKEN")
+    } catch(err) {
+        console.error(err)
+        return res.status(400).send(toString(err))
+    }
+
+    const {adresse, region, name, beschreibung, kurzbeschreibung, preis, kapazitaet, openair, flaeche, bild} = req.body // frontend is missing field 'privat'
+    const result = await CreateQueries.createLocation(adresse + ", " + region, name, beschreibung, userid, true, kurzbeschreibung, preis, kapazitaet, openair, flaeche, bild)
     if (result.success) res.status(200).send("LOCATION CREATED")
     else res.status(500).send("FAILED TO CREATE LOCATION " + toString(result.error))
 })    // creates a new Location
-
-
 
 // -------------------- TESTS -------------------- // 
 
