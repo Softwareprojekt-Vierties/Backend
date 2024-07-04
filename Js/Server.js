@@ -56,8 +56,8 @@ app.get('/getPartybilder/:id', GetQueries.getPartybilderFromUser)
 app.get("/getTicketDates", cookieJwtAuth.Auth, GetQueries.getBookedTicketsDate)
 app.get('/tickets', cookieJwtAuth.Auth, GetQueries.getAllTicketsFromUser)
 app.get('/getMails', cookieJwtAuth.Auth, GetQueries.getMails)
+app.get("/getLocation", cookieJwtAuth.Auth, GetQueries.getLocationById)
 
-app.post("/getLocation", cookieJwtAuth.Auth, GetQueries.getLocationById)
 app.post('/searchEvent',cookieJwtAuth.Auth,GetQueries.searchEvent)  // searchs events with filter param
 app.post('/searchLoacation',cookieJwtAuth.Auth,GetQueries.searchLocaiton)  // searchs Locations with filter param
 app.post('/searchCaterer',cookieJwtAuth.Auth,GetQueries.searchCaterer)  // searchs Caterer with filter param

@@ -671,7 +671,7 @@ async function getLocationById(req,res){
             FROM location l 
             LEFT JOIN bild ON bildid = bild.id 
             WHERE l.id = $1::int`,
-            [req.body["id"]]
+            [req.params["id"]]
         )
         return res.status(200).send({
             result: result,
