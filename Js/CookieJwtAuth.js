@@ -14,7 +14,7 @@ function Auth (req, res, next){
         next();
     }
     catch (err) {
-        return res.status(400).send("Token is not Vaild");
+        return res.status(400).send(`Token is not Vaild: ${toString(err)}`);
     }
 }
 
