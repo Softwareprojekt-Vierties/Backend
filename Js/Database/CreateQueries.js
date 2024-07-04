@@ -34,7 +34,7 @@ async function createAppUser(benutzername, profilname, email, password, profilbi
         
         // then create the app_user
         await pool.query(
-            `INSERT INTO app_user (benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region) 
+            `INSERT INTO app_user (benutzername, profilname, email, password, bildid, kurzbeschreibung, beschreibung, region) 
             VALUES ($1::text, $2::text, $3::text, $4::integer, $5::integer, $6::text, $7::text, $8::text)`,
             [benutzername, profilname, email, passwordID['id'], picture.id, kurzbeschreibung, beschreibung, region])
         console.log("app_user CREATED")
@@ -44,7 +44,7 @@ async function createAppUser(benutzername, profilname, email, password, profilbi
         }
     } catch (err) {
         // delete the password if creation of app_user failed
-        if (passwordID != undefined) await DeleteQueries.deletePasswordById(passwordID)
+        if (passwordID != undefined) await DeleteQueries.deletePasswordById(passwordID['id'])
         console.error("FAILED TO CREATE app_user",err)
         return {
             success: false,
