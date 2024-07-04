@@ -658,7 +658,6 @@ async function getLocationById(req,res){
     let userid
     try {
         userid = cookieJwtAuth.getUser(req.headers["auth"])["id"]
-        console.log(userid)
         if (userid == undefined) throw new Error("INVALID TOKEN")
     } catch(err) {
         console.error(err)
@@ -674,7 +673,6 @@ async function getLocationById(req,res){
             WHERE l.id = $1::int`,
             [req.body["id"]]
         )
-        console.log(req.body["id"])
         return res.status(200).send({
             result: result,
             isOwner: userid === result.rows[0]['ownerid'] ? true : false
