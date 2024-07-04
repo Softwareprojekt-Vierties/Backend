@@ -33,6 +33,7 @@ async function searchEvent(req,res){
     try
     {
         user = cookieJwtAuth.getUser(req.headers["auth"])["id"]
+        if (user == undefined) throw new Error("INVALID TOKEN")
     }
     catch(err)
     {
