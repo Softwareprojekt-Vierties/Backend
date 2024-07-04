@@ -655,6 +655,15 @@ async function getPartybilderFromUser(req, res) {
 }
 
 async function getLocationById(req,res){
+    let userid
+    try {
+        userid = cookieJwtAuth.getUser(req.headers["auth"])["email"]
+        if (userid == undefined) throw new Error("INVALID TOKEN")
+    } catch(err) {
+        console.error(err)
+        return res.status(400).send(toString(err))
+    } 
+
     try {
         const result = await pool.query(
             `SELECT 
@@ -665,7 +674,10 @@ async function getLocationById(req,res){
             [req.params["id"]]
         )
         console.log(req.params["id"])
-        return res.status(200).send(result)
+        return res.status(200).send({
+            result: result,
+            isOwner: userid === result.rows[0]['ownerid'] ? true : false
+        })
     } catch (err) {
         console.error(err)
         return res.status(500).send("INTERNAL SERVER ERROR WHILE TRYING TO GET LOCATION BY ID")
