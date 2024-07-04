@@ -43,7 +43,7 @@ app.post('/checkAccount',GetQueries.checkIfAccountIsInUse)
 
 // -------------------- GETS -------------------- //
 
-app.get("/getLocation/:id",GetQueries.getLocationById)
+app.get("/getLocation/:id", cookieJwtAuth.Auth, GetQueries.getLocationById)
 app.get("/getArtistById/:id",GetQueries.getArtistByID)
 app.get("/getCatererById/:id",GetQueries.getCatererById)
 app.get("/getUserById/:id",GetQueries.getEndUserById)
