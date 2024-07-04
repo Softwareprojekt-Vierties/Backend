@@ -32,8 +32,6 @@ async function updateApp_user(profilname, profilbild, kurzbeschreibung, beschrei
             [profilname, kurzbeschreibung, beschreibung, region, email]
         )
         console.log(`app_user UPDATED`)
-
-        console.log("BILD:",result.rows[0])
         
         if (result.rows[0]['bildid'] == undefined && profilbild != undefined) { // create new profilbild for user
             const newBild = await createQueries.createBild(profilbild)
@@ -44,7 +42,7 @@ async function updateApp_user(profilname, profilbild, kurzbeschreibung, beschrei
                 [newBild.id, email]
             )
         } else {
-            await updateBild(result.rows[0], profilbild)
+            await updateBild(result.rows[0]['bildid'], profilbild)
         }
 
         return {
