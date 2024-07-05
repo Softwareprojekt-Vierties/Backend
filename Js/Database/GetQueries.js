@@ -776,7 +776,7 @@ async function getCatererById(req,res){
         )
 
         return res.status(200).send({
-            isOwner : userid === result.rows[0]['userid'] ? true : false,
+            isOwner : userid === cater.rows[0]['userid'] ? true : false,
             caterer: cater,
             gerichte: gericht,
             events : event
