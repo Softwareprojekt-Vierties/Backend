@@ -257,8 +257,14 @@ async function updateGericht(id, name, beschreibung, bild) {
         )
         console.error("gericht UPDATED")
 
-        await updateBild(result.rows[0]["bildid"], bild)
-
+        if(result.rowCount > 0)
+        {
+            await updateBild(result.rows[0]["bildid"], bild)
+        }
+        else
+        {
+            await createQueries.createBild(bild)
+        }
         return {
             success: true,
             error: false
@@ -348,7 +354,14 @@ async function updateLocation(userid, locationid, adresse, name, beschreibung, p
             )
             console.log(`location UPDATED`)
 
-            await updateBild(result.rows[0]["bildid"], bild)
+            if (result.rowCount > 0)
+            {
+                await updateBild(result.rows[0]["bildid"], bild)
+            }
+            else
+            {
+                await createQueries.createBild(profilbild)
+            }
 
             return {
                 success: true,
