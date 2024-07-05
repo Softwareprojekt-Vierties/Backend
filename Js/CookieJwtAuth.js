@@ -46,7 +46,7 @@ function isLogedIn(req,res,next){
  * @param {Object} - user data
  */
 
-function getUser(token){  // returns the user information form the JWT cookie
+function getUser(token) {  // returns the user information form the JWT cookie
     const user = jwt.verify(token, SECRET);
     return user;
 }
