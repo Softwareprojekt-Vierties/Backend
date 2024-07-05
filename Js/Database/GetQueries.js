@@ -1,6 +1,7 @@
 const { pool } = require('./Database.js')
 const jwt = require('jsonwebtoken');
-const checkDistance = require('../CheckDistance.js')
+const checkDistance = require('../CheckDistance.js');
+const { getUser } = require('../CookieJwtAuth.js');
 SECRET = "BruhnsmanIsTheBest"
 
 async function checkIfAccountIsInUse(email, benutzername){
@@ -720,6 +721,14 @@ async function getEventById(req,res){
 
 async function getCatererById(req,res){
     const id = req.params["id"]
+    let userid
+    try {
+        userid = jwt.verify(req.headers["auth"], SECRET)["id"]
+        if (userid == undefined) throw new Error("INVALID TOKEN")
+    } catch(err) {
+        console.error(err)
+        return res.status(400).send(toString(err))
+    } 
     try {
         const cater = await pool.query(
             `SELECT 
@@ -767,6 +776,7 @@ async function getCatererById(req,res){
         )
 
         return res.status(200).send({
+            isOwner : userid === result.rows[0]['userid'] ? true : false,
             caterer: cater,
             gerichte: gericht,
             events : event
