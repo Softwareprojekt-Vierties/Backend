@@ -257,7 +257,7 @@ async function updateGericht(id, name, beschreibung, bild) {
         )
         console.error("gericht UPDATED")
 
-        if(result.rowCount > 0)
+        if(result.rows[0]["bildid"]===undefined)
         {
             await updateBild(result.rows[0]["bildid"], bild)
         }
@@ -354,7 +354,7 @@ async function updateLocation(userid, locationid, adresse, name, beschreibung, p
             )
             console.log(`location UPDATED`)
 
-            if (result.rowCount > 0)
+            if (result.rows[0]["bildid"]===undefined)
             {
                 await updateBild(result.rows[0]["bildid"], bild)
             }
