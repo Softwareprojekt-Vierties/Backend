@@ -1,6 +1,6 @@
 const express = require("express"); // import express for REST API
 const cookieParser = require("cookie-parser"); // import cookie parser for cookies
-const login = require('./Login'); // import login.js file
+const { login, tempToken} = require('./Login'); // import login.js file
 const cookieJwtAuth = require('./CookieJwtAuth'); // import CookieJwtAuth.js file
 const registration = require('./Registration'); // import Registration.js file
 const cors = require('cors')
@@ -38,6 +38,7 @@ const server = app.listen(port, (error) => {           // starts the server on t
 
 app.post('/login', cookieJwtAuth.isLogedIn,login);      // to log a user in
 app.post('/register', registration);    // register a user
+app.post('/tempToken', tempToken)
 
 app.post('/checkAccount',GetQueries.checkIfAccountIsInUse)
 
@@ -211,9 +212,12 @@ app.post("/updateMail", cookieJwtAuth.Auth, async (req, res) => {
 
 // -------------------- CREATES -------------------- // 
 
-app.post('/createCaterer', async (req,res)=> {
+app.post('/createCaterer', cookieJwtAuth.Auth, async (req,res)=> {
     console.log("REQUEST TO CREATE CATERER",req.body)
-    const {benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, adresse, preis, kategorie, erfahrung, gerichte} = req.body
+    const benutzername = req.headers['auth']['benutzername']
+    const email = req.headers['auth']['email']
+    const password = req.headers['auth']['password']
+    const {profilname, profilbild, kurzbeschreibung, beschreibung, region, adresse, preis, kategorie, erfahrung, gerichte} = req.body
     const caterer = await CreateQueries.createCaterer(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, adresse + ", " + region, preis, kategorie, erfahrung)
 
     if (caterer.success && gerichte != null) {
@@ -228,9 +232,12 @@ app.post('/createCaterer', async (req,res)=> {
     else res.status(500).send("FAILED TO CREATE CATERER "+ toString(caterer.error))
 })    // creates a new Caterer
 
-app.post('/createArtist', async (req,res)=> {
+app.post('/createArtist', cookieJwtAuth.Auth, async (req,res)=> {
     console.log("REQUEST TO CREATE ARTIST",req.body)
-    const {benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, adresse, preis, kategorie, erfahrung, songs} = req.body
+    const benutzername = req.headers['auth']['benutzername']
+    const email = req.headers['auth']['email']
+    const password = req.headers['auth']['password']
+    const {profilname, profilbild, kurzbeschreibung, beschreibung, region, adresse, preis, kategorie, erfahrung, songs} = req.body
     const artist = await CreateQueries.createArtist(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, adresse + ", " + region, preis, kategorie, erfahrung)
     
     if (artist.success && songs != null) {
@@ -244,6 +251,18 @@ app.post('/createArtist', async (req,res)=> {
     if (artist.success) res.status(200).send("ARTIST CREATED "+ artist.id)
     else res.status(500).send("FAILED TO CREATE ARTIST "+ toString(artist.error))
 })    // creates a new Artist
+
+app.post('/createEndnutzer', cookieJwtAuth.Auth, async (req,res) => {
+    console.log("REQUEST TO CREATE ARTIST",req.body)
+    const benutzername = req.headers['auth']['benutzername']
+    const email = req.headers['auth']['email']
+    const password = req.headers['auth']['password']
+    const {profilname, profilbild, kurzbeschreibung, beschreibung, region, alter, arten, lied, gericht, geschlecht} = req.body
+    await CreateQueries.createEndUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, alter, arten, lied, gericht, geschlecht).then(result => {
+        if(result.success) return res.status(200).send("User created")
+        else return res.status(500).send("User not created: " + result.error)
+    })
+})
 
 app.post('/createEvent', cookieJwtAuth.Auth, async (req,res)=> {
     console.log("REQUEST TO CREATE EVENT",req.body)
