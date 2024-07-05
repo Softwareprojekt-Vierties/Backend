@@ -360,7 +360,14 @@ async function updateLocation(userid, locationid, adresse, name, beschreibung, p
             }
             else
             {
-                await createQueries.createBild(bild)
+                const id = await createQueries.createBild(bild)
+                if(!id.success) throw new Error(id.error)
+                await pool.query(
+                    `UPDATE location SET
+                    bildid = $1::int
+                    WHERE id = $2::int`,
+                    [id.id,locationid]
+                )
             }
 
             return {
