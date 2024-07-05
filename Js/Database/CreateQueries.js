@@ -315,15 +315,15 @@ async function createReview(inhalt, sterne, ownerid, id, intention) {
  * - id: [id of the created event, null if creation failed]
  * - error: [the error, if one occured]
  */
-async function createEvent(name, datum, uhrzeit, eventgroesse, preis, altersfreigabe, privat, kurzbeschreibung, beschreibung, bild, ownerid, locationid){
+async function createEvent(name, datum, startuhrzeit,enduhrzeit, eventgroesse, preis, altersfreigabe, privat, kurzbeschreibung, beschreibung, bild, ownerid, locationid){
     try {
         const picture = await createBild(bild)
 
         if (!picture.success) throw new Error("COULDN'T SAVE PICTURE ON THE DATABASE!")
         
         const event = await pool.query(
-            `INSERT INTO event (name, datum, uhrzeit, eventgroesse, freietickets, preis, altersfreigabe, privat, kurzbeschreibung, beschreibung, bildid, ownerid, locationid)
-            VALUES ($1::text, $2, $3::int, $4::int, $5::int, $6::int, $7::int, $8::bool, $9::text, $10::text, $11::integer, $12::int, $13::int) RETURNING id`,
+            `INSERT INTO event (name, datum, startuhrzeit, enduhrzeit , eventgroesse, freietickets, preis, altersfreigabe, privat, kurzbeschreibung, beschreibung, bildid, ownerid, locationid)
+            VALUES ($1::text, $2, $3::int, $4::int ,$5::int, $6::int, $7::int, $8::int, $9::bool, $10::text, $11::text, $12::integer, $13::int, $14::int) RETURNING id`,
             [name,datum,uhrzeit,eventgroesse,eventgroesse,preis,altersfreigabe,privat,kurzbeschreibung,beschreibung,picture.id,ownerid,locationid]
         )
         console.log("event CREATED")
