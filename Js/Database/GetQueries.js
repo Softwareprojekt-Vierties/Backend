@@ -698,7 +698,7 @@ async function getEventById(req,res){
                 e.*,
                 l.adresse,
                 l.name as locationname,
-                l.openair
+                l.openair,
                 CASE
                     WHEN e.bildid IS NOT NULL THEN bild.data
                     ELSE NULL
