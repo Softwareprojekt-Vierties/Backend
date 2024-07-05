@@ -1,5 +1,5 @@
 const { pool } = require('./Database.js')
-const { getUser } = require('./CookieJwtAuth.js'); // import CookieJwtAuth.js file
+const { getUser } = require('../CookieJwtAuth.js'); // import CookieJwtAuth.js file
 const checkDistance = require('../CheckDistance.js')
 
 async function checkIfAccountIsInUse(email, benutzername){
