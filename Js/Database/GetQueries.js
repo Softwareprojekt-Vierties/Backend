@@ -738,7 +738,6 @@ async function getCatererById(req,res){
             WHERE c.id = $1`,
             [id]
         )
-        console.log(cater)
 
         const gericht = await pool.query(
             `SELECT 
@@ -752,7 +751,6 @@ async function getCatererById(req,res){
             WHERE g.ownerid = $1::int`,
             [id]
         )
-        console.log(gericht)
 
         const event = await pool.query(
             `SELECT 
@@ -766,7 +764,6 @@ async function getCatererById(req,res){
             WHERE sc.catererid = $1::int`,
             [id]
         )
-        console.log(event)
 
         return res.status(200).send({
             caterer: cater,
@@ -800,7 +797,6 @@ async function getArtistByID(req,res){
             WHERE ar.id = $1`,
             [id]
         )
-        console.log(art)
 
         const lied = await pool.query(
             `SELECT 
@@ -812,7 +808,6 @@ async function getArtistByID(req,res){
             WHERE l.ownerid = $1::int`,
             [id]
         )
-        console.log(lied)
 
         const event = await pool.query(
             `SELECT 
@@ -826,7 +821,6 @@ async function getArtistByID(req,res){
             WHERE sa.artistid = $1::int`,
             [id]
         )
-        console.log(event)
 
         return res.status(200).send({
             artist: art,
@@ -925,7 +919,6 @@ async function getAllTicketsFromUser(req,res){
             "SELECT name FROM event  JOIN tickets ON tickets.eventid = event.id WHERE tickets.userid = $1::int",
             [userid]
         )
-        console.log(result)
         return res.status(200).send(result)
     } catch (err) {
         console.error(err)
@@ -958,7 +951,6 @@ async function getBookedTicketsDate(req, res) {
                 tickets.userid = = $1::int`,
             [user]
         )
-        console.log(result)
         return res.status(200).send(result)
     } catch (err) {
         console.error(err)
@@ -985,7 +977,6 @@ async function getLocationReviewById(req,res){
             "SELECT r.inhalt,r.sterne,a.profilname FROM review r JOIN app_user a ON r.ownerid = a.id WHERE r.locationid = $1::int",
             [req.params["id"]]
         )
-        console.log(req.params["id"])
         return res.status(200).send(result)
     } catch (err) {
         console.error(err)
@@ -999,7 +990,6 @@ async function getEventReviewById(req,res){
             "SELECT r.inhalt,r.sterne,a.profilname FROM review r JOIN app_user a ON r.ownerid = a.id WHERE r.eventid = $1::int",
             [req.params["id"]]
         )
-        console.log(req.params["id"])
         return res.status(200).send(result)
     } catch (err) {
         console.error(err)
@@ -1013,7 +1003,6 @@ async function getPersonReviewById(req,res){
             "SELECT r.inhalt,r.sterne,a.profilname FROM review r JOIN app_user a ON r.ownerid = a.id WHERE r.userid = $1::int",
             [req.params["id"]]
         )
-        console.log(req.params["id"])
         return res.status(200).send(result)
     } catch (err) {
         console.error(err)
@@ -1126,7 +1115,6 @@ async function getArtistByEvent(id){
             WHERE sa.eventid = $1::int`,
             [id]
         )
-        console.log(result)
         return result
     } catch (err) {
         console.error(err)
@@ -1155,8 +1143,6 @@ async function getCatererByEvent(id){
             WHERE sc.eventid = $1::int`,
             [id]
         )
-        
-        console.log(result)
         return result
     } catch (err) {
         console.error(err)
