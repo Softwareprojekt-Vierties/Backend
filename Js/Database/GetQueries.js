@@ -789,6 +789,14 @@ async function getCatererById(req,res){
 
 async function getArtistByID(req,res){
     const id = req.params["id"]
+    let userid
+    try {
+        userid = jwt.verify(req.headers["auth"], SECRET)["id"]
+        if (userid == undefined) throw new Error("INVALID TOKEN")
+    } catch(err) {
+        console.error(err)
+        return res.status(400).send(toString(err))
+    } 
     try {
         const art = await pool.query(
             `SELECT 
@@ -834,6 +842,7 @@ async function getArtistByID(req,res){
         )
 
         return res.status(200).send({
+            isOwner : userid === result.rows[0]['userid'] ? true : false,
             artist: art,
             lieder: lied,
             events : event
