@@ -34,7 +34,7 @@ const server = app.listen(port, (error) => {           // starts the server on t
     console.log("Server is running on port", port);
 });
 
-app.post('/login', cookieJwtAuth.isLogedIn,login)      // to log a user in
+app.post('/login', cookieJwtAuth.isLogedIn, cookieJwtAuth.login)      // to log a user in
 app.post('/tempToken', cookieJwtAuth.tempToken)
 
 // -------------------- GETS -------------------- //
