@@ -1,5 +1,5 @@
 const { pool } = require('./Database.js')
-const cookieJwtAuth = require('../CookieJwtAuth.js')
+const { getUser } = require('./CookieJwtAuth.js'); // import CookieJwtAuth.js file
 const checkDistance = require('../CheckDistance.js')
 
 async function checkIfAccountIsInUse(email, benutzername){
@@ -35,7 +35,7 @@ async function searchEvent(req,res){
     let user
     try
     {
-        user = cookieJwtAuth.getUser(req.headers["auth"])["id"]
+        user = getUser(req.headers["auth"])["id"]
         if (user == undefined) throw new Error("INVALID TOKEN")
     }
     catch(err)
@@ -176,7 +176,7 @@ async function searchLocaiton(req,res){
     let user
     try
     {
-        user = cookieJwtAuth.getUser(req.headers["auth"])["id"]
+        user = getUser(req.headers["auth"])["id"]
         if (user == undefined) throw new Error("INVALID TOKEN")
     }
     catch(err)
@@ -294,7 +294,7 @@ async function searchCaterer(req,res){
     let user
     try
     {
-        user = cookieJwtAuth.getUser(req.headers["auth"])["id"]
+        user = getUser(req.headers["auth"])["id"]
         if (user == undefined) throw new Error("INVALID TOKEN")
     }
     catch(err)
@@ -409,7 +409,7 @@ async function searchArtist(req,res){
     let user
     try
     {
-        user = cookieJwtAuth.getUser(req.headers["auth"])["id"]
+        user = getUser(req.headers["auth"])["id"]
         if (user == undefined) throw new Error("INVALID TOKEN")
     }
     catch(err)
@@ -524,7 +524,7 @@ async function searchEndUser(req,res){
     let user
     try
     {
-        user = cookieJwtAuth.getUser(req.headers["auth"])["id"]
+        user = getUser(req.headers["auth"])["id"]
         if (user == undefined) throw new Error("INVALID TOKEN")
     }
     catch(err)
@@ -660,7 +660,7 @@ async function getPartybilderFromUser(req, res) {
 async function getLocationById(req,res){
     let userid
     try {
-        userid = cookieJwtAuth.getUser(req.headers["auth"])["id"]
+        userid = getUser(req.headers["auth"])["id"]
         if (userid == undefined) throw new Error("INVALID TOKEN")
     } catch(err) {
         console.error(err)
@@ -913,7 +913,7 @@ async function getEndUserById(req,res){
 async function getAllTicketsFromUser(req,res){
     let userid
     try {
-        userid = cookieJwtAuth.getUser(req.headers["auth"])["id"]
+        userid = getUser(req.headers["auth"])["id"]
         if (userid == undefined) throw new Error("INVALID TOKEN")
     } catch(err) {
         console.error(err)
@@ -937,7 +937,7 @@ async function getBookedTicketsDate(req, res) {
     let user
     try
     {
-        user = cookieJwtAuth.getUser(req.headers["auth"])["id"]
+        user = getUser(req.headers["auth"])["id"]
         if (user == undefined) throw new Error("INVALID TOKEN")
     }
     catch(err)
@@ -1024,7 +1024,7 @@ async function getPersonReviewById(req,res){
 async function getMails(req, res) {
     let userid
     try {
-        userid = cookieJwtAuth.getUser(req.headers["auth"])["id"]
+        userid = getUser(req.headers["auth"])["id"]
         if (userid == undefined) throw new Error("INVALID TOKEN")
     } catch(err) {
         console.error(err)

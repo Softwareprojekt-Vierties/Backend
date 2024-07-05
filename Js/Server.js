@@ -1,6 +1,6 @@
 const express = require("express"); // import express for REST API
 const cookieParser = require("cookie-parser"); // import cookie parser for cookies
-const cookieJwtAuth = require('./CookieJwtAuth'); // import CookieJwtAuth.js file
+const { Auth,getUser,isLogedIn,login,tempToken} = require('./CookieJwtAuth.js'); // import CookieJwtAuth.js file
 const cors = require('cors')
 const checkDistance = require('./CheckDistance')
 
@@ -34,8 +34,8 @@ const server = app.listen(port, (error) => {           // starts the server on t
     console.log("Server is running on port", port);
 });
 
-app.post('/login', cookieJwtAuth.isLogedIn, cookieJwtAuth.login)      // to log a user in
-app.post('/tempToken', cookieJwtAuth.tempToken)
+app.post('/login', isLogedIn, login)      // to log a user in
+app.post('/tempToken', tempToken)
 
 // -------------------- GETS -------------------- //
 
@@ -49,24 +49,24 @@ app.get('/getEventById/:id', GetQueries.getEventById)
 app.get('/playlist/:name', GetQueries.getPlaylistContent)
 app.get('/getPartybilder/:id', GetQueries.getPartybilderFromUser)
 
-app.get("/getTicketDates", cookieJwtAuth.Auth, GetQueries.getBookedTicketsDate)
-app.get('/tickets', cookieJwtAuth.Auth, GetQueries.getAllTicketsFromUser)
-app.get('/getMails', cookieJwtAuth.Auth, GetQueries.getMails)
-app.get("/getLocation/:id", cookieJwtAuth.Auth, GetQueries.getLocationById)
+app.get("/getTicketDates", Auth, GetQueries.getBookedTicketsDate)
+app.get('/tickets', Auth, GetQueries.getAllTicketsFromUser)
+app.get('/getMails', Auth, GetQueries.getMails)
+app.get("/getLocation/:id", Auth, GetQueries.getLocationById)
 
-app.post('/searchEvent',cookieJwtAuth.Auth,GetQueries.searchEvent)  // searchs events with filter param
-app.post('/searchLoacation',cookieJwtAuth.Auth,GetQueries.searchLocaiton)  // searchs Locations with filter param
-app.post('/searchCaterer',cookieJwtAuth.Auth,GetQueries.searchCaterer)  // searchs Caterer with filter param
-app.post('/searchArtist',cookieJwtAuth.Auth,GetQueries.searchArtist)  // searchs Artist with filter param
-app.post('/searchEndnutzer',cookieJwtAuth.Auth,GetQueries.searchEndUser)  // searchs Endnutzer with filter param
+app.post('/searchEvent',Auth,GetQueries.searchEvent)  // searchs events with filter param
+app.post('/searchLoacation',Auth,GetQueries.searchLocaiton)  // searchs Locations with filter param
+app.post('/searchCaterer',Auth,GetQueries.searchCaterer)  // searchs Caterer with filter param
+app.post('/searchArtist',Auth,GetQueries.searchArtist)  // searchs Artist with filter param
+app.post('/searchEndnutzer',Auth,GetQueries.searchEndUser)  // searchs Endnutzer with filter param
 
 // -------------------- UPDATES -------------------- // 
 
-app.post("/updateArtist", cookieJwtAuth.Auth, async (req,res)=>{
+app.post("/updateArtist", Auth, async (req,res)=>{
     console.log("REQUEST TO UPDATE ARTIST",req.body)
     let userEmail
     try {
-        userEmail = cookieJwtAuth.getUser(req.headers["auth"])["email"]
+        userEmail = getUser(req.headers["auth"])["email"]
         if (userEmail == undefined) throw new Error("INVALID TOKEN")
     } catch(err) {
         console.error(err)
@@ -95,11 +95,11 @@ app.post("/updateArtist", cookieJwtAuth.Auth, async (req,res)=>{
     }
 })
 
-app.post("/updateCaterer", cookieJwtAuth.Auth, async (req,res)=>{
+app.post("/updateCaterer", Auth, async (req,res)=>{
     console.log("REQUEST TO UPDATE CATETER",req.body)
     let userEmail
     try {
-        userEmail = cookieJwtAuth.getUser(req.headers["auth"])["email"]
+        userEmail = getUser(req.headers["auth"])["email"]
         if (userEmail == undefined) throw new Error("INVALID TOKEN")
     } catch(err) {
         console.error(err)
@@ -128,11 +128,11 @@ app.post("/updateCaterer", cookieJwtAuth.Auth, async (req,res)=>{
     }
 })
 
-app.post("/updateEndnutzer", cookieJwtAuth.Auth, async (req,res)=>{
+app.post("/updateEndnutzer", Auth, async (req,res)=>{
     console.log("REQUEST TO UPDATE Endnutzer",req.body)
     let userEmail
     try {
-        userEmail = cookieJwtAuth.getUser(req.headers["auth"])["email"]
+        userEmail = getUser(req.headers["auth"])["email"]
         if (userEmail == undefined) throw new Error("INVALID TOKEN")
     } catch(err) {
         console.error(err)
@@ -151,11 +151,11 @@ app.post("/updateEndnutzer", cookieJwtAuth.Auth, async (req,res)=>{
     }
 })
 
-app.post("/updateLocation", cookieJwtAuth.Auth, (req,res)=>{
+app.post("/updateLocation", Auth, (req,res)=>{
     console.log(req.body)
     let userid
     try {
-        userid = cookieJwtAuth.getUser(req.headers["auth"])["id"]
+        userid = getUser(req.headers["auth"])["id"]
         if (userid == undefined) throw new Error("INVALID TOKEN")
     } catch(err) {
         console.error(err)
@@ -182,11 +182,11 @@ app.post("/updateLocation", cookieJwtAuth.Auth, (req,res)=>{
     }
 })
 
-app.post("/updateMail", cookieJwtAuth.Auth, async (req, res) => {
+app.post("/updateMail", Auth, async (req, res) => {
     console.log("REQUEST TO UPDATE mail")
     let userid
     try {
-        userid = cookieJwtAuth.getUser(req.headers["auth"])["id"]
+        userid = getUser(req.headers["auth"])["id"]
         if (userid == undefined) throw new Error("INVALID TOKEN")
     } catch(err) {
         console.error(err)
@@ -207,7 +207,7 @@ app.post("/updateMail", cookieJwtAuth.Auth, async (req, res) => {
 
 // -------------------- CREATES -------------------- // 
 
-app.post('/createCaterer', cookieJwtAuth.Auth, async (req,res)=> {
+app.post('/createCaterer', Auth, async (req,res)=> {
     console.log("REQUEST TO CREATE CATERER",req.body)
     const benutzername = req.headers['auth']['benutzername']
     const email = req.headers['auth']['email']
@@ -227,7 +227,7 @@ app.post('/createCaterer', cookieJwtAuth.Auth, async (req,res)=> {
     else res.status(500).send("FAILED TO CREATE CATERER "+ toString(caterer.error))
 })    // creates a new Caterer
 
-app.post('/createArtist', cookieJwtAuth.Auth, async (req,res)=> {
+app.post('/createArtist', Auth, async (req,res)=> {
     console.log("REQUEST TO CREATE ARTIST",req.body)
     const benutzername = req.headers['auth']['benutzername']
     const email = req.headers['auth']['email']
@@ -247,7 +247,7 @@ app.post('/createArtist', cookieJwtAuth.Auth, async (req,res)=> {
     else res.status(500).send("FAILED TO CREATE ARTIST "+ toString(artist.error))
 })    // creates a new Artist
 
-app.post('/createEndnutzer', cookieJwtAuth.Auth, async (req,res) => {
+app.post('/createEndnutzer', Auth, async (req,res) => {
     console.log("REQUEST TO CREATE ARTIST",req.body)
     const benutzername = req.headers['auth']['benutzername']
     const email = req.headers['auth']['email']
@@ -259,11 +259,11 @@ app.post('/createEndnutzer', cookieJwtAuth.Auth, async (req,res) => {
     })
 })
 
-app.post('/createEvent', cookieJwtAuth.Auth, async (req,res)=> {
+app.post('/createEvent', Auth, async (req,res)=> {
     console.log("REQUEST TO CREATE EVENT",req.body)
     let userid
     try {
-        userid = cookieJwtAuth.getUser(req.headers["auth"])["id"]
+        userid = getUser(req.headers["auth"])["id"]
         if (userid == undefined) throw new Error("INVALID TOKEN")
     } catch(err) {
         console.error(err)
@@ -276,11 +276,11 @@ app.post('/createEvent', cookieJwtAuth.Auth, async (req,res)=> {
     else res.status(500).send("FAILED TO CREATE EVENT " + toString(result.error))
 })    // creates a new events
 
-app.post('/createLocation', cookieJwtAuth.Auth, async (req,res)=> {
+app.post('/createLocation', Auth, async (req,res)=> {
     console.log("REQUEST TO CREATE LOCATION",req.body)
     let userid
     try {
-        userid = cookieJwtAuth.getUser(req.headers["auth"])["id"]
+        userid = getUser(req.headers["auth"])["id"]
         if (userid == undefined) throw new Error("INVALID TOKEN")
     } catch(err) {
         console.error(err)
@@ -341,8 +341,8 @@ app.post('/testloc',async (req,res)=>{
 
 })
 
-app.get("/MyPage",cookieJwtAuth.Auth, (req,res)=>{     // test function
-    const user = cookieJwtAuth.getUser(req);
+app.get("/MyPage",Auth, (req,res)=>{     // test function
+    const user = getUser(req);
     res.status(200).send("Welcome "+user.id);
 })
 
