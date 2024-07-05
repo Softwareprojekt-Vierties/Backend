@@ -1067,9 +1067,13 @@ async function getMails(req, res) {
                     ELSE NULL
                 END AS datum,
                 CASE 
-                    WHEN mail.eventid IS NOT NULL THEN event.uhrzeit
+                    WHEN mail.eventid IS NOT NULL THEN event.startuhrzeit
                     ELSE NULL
-                END AS uhrzeit,
+                END AS startuhrzeit,
+                CASE 
+                    WHEN mail.eventid IS NOT NULL THEN event.enduhrzeit
+                    ELSE NULL
+                END AS enduhrzeit,
                 CASE 
                     WHEN mail.eventid IS NOT NULL THEN event.dauer
                     ELSE NULL
