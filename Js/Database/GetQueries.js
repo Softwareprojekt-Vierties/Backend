@@ -877,7 +877,7 @@ async function getEndUserById(req,res){
                 a.beschreibung,
                 a.region,
                 a.sterne,
-                a.id as userid
+                a.id as userid,
                 bild.data AS profilbild
             FROM endnutzer e
             JOIN app_user a ON a.email = e.emailfk
