@@ -698,6 +698,7 @@ async function getEventById(req,res){
                 e.*,
                 l.adresse,
                 l.name as locationname,
+                l.openair
                 CASE
                     WHEN e.bildid IS NOT NULL THEN bild.data
                     ELSE NULL
@@ -856,6 +857,14 @@ async function getArtistByID(req,res){
 }
 
 async function getEndUserById(req,res){
+    let userid
+    try {
+        userid = jwt.verify(req.headers["auth"], SECRET)["id"]
+        if (userid == undefined) throw new Error("INVALID TOKEN")
+    } catch(err) {
+        console.error(err)
+        return res.status(400).send(toString(err))
+    }
     try {
         const id = req.params["id"]
         const user = await pool.query(
@@ -868,6 +877,7 @@ async function getEndUserById(req,res){
                 a.beschreibung,
                 a.region,
                 a.sterne,
+                a.id as userid
                 bild.data AS profilbild
             FROM endnutzer e
             JOIN app_user a ON a.email = e.emailfk
@@ -915,6 +925,7 @@ async function getEndUserById(req,res){
         )
 
         return res.status(200).send({
+            isMe : userid === user.rows[0]['userid'] ? true : false,
             user : user,
             locations : location,
             owenevents : owenevent,
@@ -1118,6 +1129,31 @@ async function getMails(req, res) {
     }
 }
 
+async function getFriendId(req,res){
+    let userid
+    try {
+        userid = jwt.verify(req.headers["auth"], SECRET)["id"]
+        if (userid == undefined) throw new Error("INVALID TOKEN")
+    } catch(err) {
+        console.error(err)
+        return res.status(400).send(toString(err))
+    } 
+    try {
+        const result = await pool.query(
+            `select * from app_user a JOIN friend f on a.id = user1 or a.id = user2 
+	            Where (f.user1 = $1::int
+	            or f.user2 = $1::int)
+                And 
+	            a.id != $1::int`,
+            [userid]
+        )
+        return res.status(200).send(result)
+    } catch (err) {
+        console.error(err)
+        return res.status(500).send(toString(err))
+    }
+}
+
 // -------------------- PRIVATE -------------------- //
 
 async function getArtistByEvent(id){
@@ -1193,6 +1229,7 @@ module.exports = {
     getMails,
     getBookedTicketsDate,
     getPartybilderFromUser,
+    getFriendId,
     // SEARCHES
     searchEvent, 
     searchLocaiton,

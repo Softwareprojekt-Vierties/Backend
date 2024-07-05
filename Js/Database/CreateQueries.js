@@ -636,6 +636,26 @@ async function createPartybild(userid, bildid) {
     }
 }
 
+async function createFriend(userid,friendid){
+    try {
+        const partybild = await pool.query(
+            `INSERT INTO friend (user1, user2) VALUES ($1::integer, $2::integer)`,
+            [userid, friendid]
+        )
+        console.log("FRIEND CREATED")
+        return {
+            success: true,
+            error: null
+        }
+    } catch (err) {
+        console.error(err)
+        return {
+            success: false,
+            error: err
+        }
+    }
+}
+
 module.exports = {
     createEndUser, 
     createArtist, 
@@ -652,5 +672,6 @@ module.exports = {
     createPlaylistInhalt, 
     createTicket,
     createBild,
-    createPartybild
+    createPartybild,
+    createFriend
 }

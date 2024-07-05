@@ -917,6 +917,49 @@ async function deletePartybilderById(id) {
     }
 }
 
+async function deletefriend(req,res)
+{
+    const friendid = req.params["id"]
+    let userid
+    try {
+        userid = jwt.verify(req.headers["auth"], SECRET)["id"]
+        if (userid == undefined) throw new Error("INVALID TOKEN")
+    } catch(err) {
+        console.error(err)
+        return res.status(400).send(toString(err))
+    } 
+    try {
+        const result = await pool.query(
+            `Delete from friend
+            Where (user1 = $1::int
+	            or user2 = $1::int)
+                And (user1 = $2::int
+                or user2 = $2::int)` ,
+            [userid,friendid]
+        )
+        if (result.rows.length === 0) {
+            return {
+                success: true,
+                data: null,
+                error: null
+            }
+        } else {
+            return {
+                sucess: true,
+                data: result.rows,
+                error: null
+            }
+        }
+    } catch (err) {
+        console.error("AN ERROR OCCURED WHILE TRYING TO DELETE friend", err)
+        return {
+            sucess: false,
+            data: null,
+            error: err
+        }
+    }
+}
+
 module.exports = {
     deleteAppUserById,
     deleteArtistById,
@@ -933,5 +976,6 @@ module.exports = {
     deleteServiceArtistById,
     deleteServiceCatererById,
     deleteTicketsById,
-    deletePartybilderById
+    deletePartybilderById,
+    deletefriend
 }

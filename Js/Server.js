@@ -45,10 +45,11 @@ app.get("/getUserById/:id",GetQueries.getEndUserById)
 app.get("/getLocationReview/:id",GetQueries.getLocationReviewById)
 app.get("/getEventReview/:id",GetQueries.getEventReviewById)
 app.get("/getPersonReview/:id",GetQueries.getPersonReviewById)
-app.get('/getEventById/:id', GetQueries.getEventById)
 app.get('/playlist/:name', GetQueries.getPlaylistContent)
 app.get('/getPartybilder/:id', GetQueries.getPartybilderFromUser)
 
+app.get('/getfriends',Auth,GetQueries.getFriendId)
+app.get('/getEventById/:id', Auth,GetQueries.getEventById)
 app.get("/getArtistById/:id",Auth,GetQueries.getArtistByID)
 app.get("/getCatererById/:id",Auth,GetQueries.getCatererById)
 app.get("/getTicketDates", Auth, GetQueries.getBookedTicketsDate)
@@ -295,6 +296,21 @@ app.post('/createLocation', Auth, async (req,res)=> {
     else res.status(500).send("FAILED TO CREATE LOCATION " + toString(result.error))
 })    // creates a new Location
 
+app.post("/setFriend",Auth,async (req,res)=>{
+    let userid
+    try {
+        userid = getUser(req.headers["auth"])["id"]
+        if (userid == undefined) throw new Error("INVALID TOKEN")
+    } catch(err) {
+        console.error(err)
+        return res.status(400).send(toString(err))
+    }
+    const freundid = req.body["freundid"]
+    result = await CreateQueries.createFriend(userid,freundid)
+    if (result.success) res.status(200).send("FRIEND CREATED")
+    else res.status(500).send("FAILED TO CREATE FRIEND " + toString(result.error))
+})
+
 // -------------------- TESTS -------------------- // 
 
 app.post('/testSearch', (req,res)=>{
@@ -347,7 +363,8 @@ app.get("/MyPage",Auth, (req,res)=>{     // test function
     const user = getUser(req);
     res.status(200).send("Welcome "+user.id);
 })
-
+// -------------------- DELETE --------------------- //
+app.get("/deleteFriend/:id",Auth,DeleteQueries.deletefriend)
 // -------------------- EXPORTS -------------------- // 
 
 // export things for test
