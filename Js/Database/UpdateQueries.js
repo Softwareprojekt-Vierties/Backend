@@ -257,7 +257,7 @@ async function updateGericht(id, name, beschreibung, bild) {
         )
         console.error("gericht UPDATED")
 
-        await updateBild(result.rows[0], bild)
+        await updateBild(result.rows[0]["bildid"], bild)
 
         return {
             success: true,

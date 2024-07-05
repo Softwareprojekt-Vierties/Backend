@@ -173,7 +173,7 @@ app.post("/updateLocation", cookieJwtAuth.Auth, (req,res)=>{
         UpdateQueries.updateLocation(userid, locationid, adresse, name, beschreibung, privat, kurzbeschreibung, preis, openair, flaeche, bild, kapazitaet).then(result =>{
             if(result.success) {
                 res.status(200).send("Updated Location")
-            } if (result.error === "Unauthorized") {
+            } else if (result.error === "Unauthorized") {
                 res.status(401).send("User is not authorized to edit the given location!")
             } else {
                 res.status(400).send("Update Location failed: " + toString(result.error))
