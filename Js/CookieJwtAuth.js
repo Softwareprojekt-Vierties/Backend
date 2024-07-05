@@ -51,10 +51,10 @@ function getUser(token) {  // returns the user information form the JWT cookie
 async function tempToken(req, res) {
     try {
         const exists = await checkIfAccountIsInUse(req.body.rows[0]['email'], req.body.rows[0]['benutzername'])
-        if (exists.success && exists.exists) {
+        if (exists.success && !exists.exists) {
             const token = jwt.sign(req.body.rows[0], SECRET, {expiresIn: '0.5h'})
             return res.status(200).send(token)
-        } else if (exists.success && !exists.exists) {
+        } else if (exists.success && exists.exists) {
             return res.status(200).send("Account already exists!")
         } else {
             throw new Error(exists.error)
@@ -99,7 +99,5 @@ module.exports = {
     getUser,
     isLogedIn,
     login,
-    tempToken,
-    SECRET,
-    jwt
+    tempToken
 }

@@ -1,7 +1,7 @@
 const { pool } = require('./Database.js')
 const jwt = require('jsonwebtoken');
-const { SECRET } = require('../CookieJwtAuth.js')
 const checkDistance = require('../CheckDistance.js')
+SECRET = "BruhnsmanIsTheBest"
 
 async function checkIfAccountIsInUse(email, benutzername){
     try {
