@@ -3,6 +3,7 @@ const CreateQueries = require('./Database/CreateQueries');
 /**
  * trys to Create a new Account in the Database with Data the Client sended
  * 
+ * @deprecated will be removed later: use /create[UserType]
  * @param {JSON} req - A JSON that Conatins an Email and a Password and a name 
  * @param {JSON} res - the response that is send to the Client 
  * @returns {JSON} Status of the operation 
