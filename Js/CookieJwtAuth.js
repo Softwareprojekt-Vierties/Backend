@@ -94,11 +94,12 @@ async function login(req, res) {
     }
 }
 
-exports.getUser = getUser
-
 module.exports = {
     Auth,
+    getUser,
     isLogedIn,
     login,
-    tempToken
+    tempToken,
+    SECRET,
+    jwt
 }
