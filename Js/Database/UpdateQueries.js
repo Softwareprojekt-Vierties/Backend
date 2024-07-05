@@ -329,7 +329,6 @@ async function updateLocation(userid, locationid, adresse, name, beschreibung, p
             `SELECT ownerid FROM location WHERE id = $1::int`,
             [locationid]
         )
-        console.log(location.rows[0]+" , " + userid)
 
         if (location.rowCount > 0 && location.rows[0]['ownerid'] === userid) {
             const result = await pool.query(
@@ -349,7 +348,7 @@ async function updateLocation(userid, locationid, adresse, name, beschreibung, p
             )
             console.log(`location UPDATED`)
 
-            await updateBild(result.rows[0], bild)
+            await updateBild(result.rows[0]["bildid"], bild)
 
             return {
                 success: true,
