@@ -2,8 +2,7 @@ const { pool } = require('./Database.js')
 const cookieJwtAuth = require('../CookieJwtAuth')
 const checkDistance = require('../CheckDistance')
 
-async function checkIfAccountIsInUse(req, res){
-    const {email, benutzername} = req.body 
+async function checkIfAccountIsInUse(email, benutzername){
     try {
         const result = await pool.query(
             `SELECT EXISTS (
@@ -14,14 +13,18 @@ async function checkIfAccountIsInUse(req, res){
             )`,
             [email, benutzername]
         )
-        if(result.rows[0].exists) {
-            return res.status(200).send("1") // account with given credentials does already exist
-        } else {
-            return res.status(200).send("0") // account with given credentials does not exist
+        return {
+            success: true,
+            exists: result.rows[0].exists,
+            error: null
         }
     } catch (err) {
         console.error(err)
-        return res.status(500).send(toString(err))
+        return {
+            success: false,
+            exists: null,
+            error: err
+        }
     }
 }
 

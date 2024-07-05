@@ -1,8 +1,6 @@
 const express = require("express"); // import express for REST API
 const cookieParser = require("cookie-parser"); // import cookie parser for cookies
-const { login, tempToken} = require('./Login'); // import login.js file
 const cookieJwtAuth = require('./CookieJwtAuth'); // import CookieJwtAuth.js file
-const registration = require('./Registration'); // import Registration.js file
 const cors = require('cors')
 const checkDistance = require('./CheckDistance')
 
@@ -36,11 +34,8 @@ const server = app.listen(port, (error) => {           // starts the server on t
     console.log("Server is running on port", port);
 });
 
-app.post('/login', cookieJwtAuth.isLogedIn,login);      // to log a user in
-app.post('/register', registration);    // register a user
-app.post('/tempToken', tempToken)
-
-app.post('/checkAccount',GetQueries.checkIfAccountIsInUse)
+app.post('/login', cookieJwtAuth.isLogedIn,login)      // to log a user in
+app.post('/tempToken', cookieJwtAuth.tempToken)
 
 // -------------------- GETS -------------------- //
 
