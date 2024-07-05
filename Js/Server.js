@@ -39,7 +39,7 @@ app.post('/tempToken', tempToken)
 
 // -------------------- GETS -------------------- //
 
-app.get("/getArtistById/:id",GetQueries.getArtistByID)
+
 
 app.get("/getUserById/:id",GetQueries.getEndUserById)
 app.get("/getLocationReview/:id",GetQueries.getLocationReviewById)
@@ -49,6 +49,7 @@ app.get('/getEventById/:id', GetQueries.getEventById)
 app.get('/playlist/:name', GetQueries.getPlaylistContent)
 app.get('/getPartybilder/:id', GetQueries.getPartybilderFromUser)
 
+app.get("/getArtistById/:id",Auth,GetQueries.getArtistByID)
 app.get("/getCatererById/:id",Auth,GetQueries.getCatererById)
 app.get("/getTicketDates", Auth, GetQueries.getBookedTicketsDate)
 app.get('/tickets', Auth, GetQueries.getAllTicketsFromUser)
