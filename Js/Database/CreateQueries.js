@@ -317,7 +317,7 @@ async function createReview(inhalt, sterne, ownerid, id, intention) {
  */
 async function createEvent(name, datum, uhrzeit, eventgroesse, preis, altersfreigabe, privat, kurzbeschreibung, beschreibung, bild, ownerid, locationid){
     try {
-        const picture = await createBild(profilbild)
+        const picture = await createBild(bild)
 
         if (!picture.success) throw new Error("COULDN'T SAVE PICTURE ON THE DATABASE!")
         
