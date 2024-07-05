@@ -79,10 +79,10 @@ async function searchEvent(req,res){
                 break
             case 'uhrzeit':
                 paramIndex++
-                additionalFilter += "e.startuhrzeit >= $"+paramIndex+" AND "
+                additionalFilter += "e.startuhrzeit BETWEEN $"+paramIndex+" AND "
                 param.push((req.body[key])[0] == '' ? "00:00" : (req.body[key])[0])
                 paramIndex++
-                additionalFilter += "e.enduhrzeit <= $"+paramIndex+""
+                additionalFilter += "$"+paramIndex+""
                 param.push((req.body[key])[1] == '' ? "23:59" : (req.body[key])[1])
                 break
             case 'eventgroesse':
