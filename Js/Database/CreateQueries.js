@@ -322,7 +322,7 @@ async function createEvent(name, datum, uhrzeit, eventgroesse, preis, altersfrei
         if (!picture.success) throw new Error("COULDN'T SAVE PICTURE ON THE DATABASE!")
         
         const event = await pool.query(
-            `INSERT INTO event (name, datum, uhrzeit, eventgroesse, freietickets, preis, altersfreigabe, privat, kurzbeschreibung, beschreibung, bild, ownerid, locationid)
+            `INSERT INTO event (name, datum, uhrzeit, eventgroesse, freietickets, preis, altersfreigabe, privat, kurzbeschreibung, beschreibung, bildid, ownerid, locationid)
             VALUES ($1::text, $2, $3::int, $4::int, $5::int, $6::int, $7::int, $8::bool, $9::text, $10::text, $11::integer, $12::int, $13::int) RETURNING id`,
             [name,datum,uhrzeit,eventgroesse,eventgroesse,preis,altersfreigabe,privat,kurzbeschreibung,beschreibung,picture.id,ownerid,locationid]
         )
