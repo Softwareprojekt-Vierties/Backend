@@ -842,7 +842,7 @@ async function getArtistByID(req,res){
         )
 
         return res.status(200).send({
-            isOwner : userid === result.rows[0]['userid'] ? true : false,
+            isOwner : userid === art.rows[0]['userid'] ? true : false,
             artist: art,
             lieder: lied,
             events : event
