@@ -360,7 +360,7 @@ async function updateLocation(userid, locationid, adresse, name, beschreibung, p
             }
             else
             {
-                await createQueries.createBild(profilbild)
+                await createQueries.createBild(bild)
             }
 
             return {
