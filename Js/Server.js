@@ -39,7 +39,7 @@ app.post('/tempToken', tempToken)
 
 // -------------------- DELETES -------------------- //
 
-app.get("/deleteEndUser/:id", Auth, async (req,res) => {
+app.get("/deleteEndUser", Auth, async (req,res) => {
     console.log("REQUEST TO DELETE enduser",req.body)
     let user
     try {
@@ -74,7 +74,7 @@ app.get("/deleteEndUser/:id", Auth, async (req,res) => {
     res.status(200).send("Account deleted!")
 })
 
-app.get("/deleteArtist/:id", Auth, async (req, res) => {
+app.get("/deleteArtist", Auth, async (req, res) => {
     console.log("REQUEST TO DELETE enduser",req.body)
     let user
     try {
@@ -110,7 +110,9 @@ app.get("/deleteArtist/:id", Auth, async (req, res) => {
     res.status(200).send("Account deleted!")
 })
 
-app.get("/delete")
+app.get("/deleteCaterer", Auth, async (req,res) => {
+
+})
 
 // -------------------- GETS -------------------- //
 
@@ -285,9 +287,9 @@ app.post("/updateMail", Auth, async (req, res) => {
 
 app.post('/createCaterer', Auth, async (req,res)=> {
     console.log("REQUEST TO CREATE CATERER",req.body)
-    const benutzername = req.headers['auth']['benutzername']
-    const email = req.headers['auth']['email']
-    const password = req.headers['auth']['password']
+    const benutzername = getUser(req.headers['auth'])['benutzername']
+    const email = getUser(req.headers['auth'])['email']
+    const password = getUser(req.headers['auth'])['password']
     const {profilname, profilbild, kurzbeschreibung, beschreibung, region, adresse, preis, kategorie, erfahrung, gerichte} = req.body
     const caterer = await CreateQueries.createCaterer(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, adresse + ", " + region, preis, kategorie, erfahrung)
 
@@ -305,9 +307,9 @@ app.post('/createCaterer', Auth, async (req,res)=> {
 
 app.post('/createArtist', Auth, async (req,res)=> {
     console.log("REQUEST TO CREATE ARTIST",req.body)
-    const benutzername = req.headers['auth']['benutzername']
-    const email = req.headers['auth']['email']
-    const password = req.headers['auth']['password']
+    const benutzername = getUser(req.headers['auth'])['benutzername']
+    const email = getUser(req.headers['auth'])['email']
+    const password = getUser(req.headers['auth'])['password']
     const {profilname, profilbild, kurzbeschreibung, beschreibung, region, adresse, preis, kategorie, erfahrung, songs} = req.body
     const artist = await CreateQueries.createArtist(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, adresse + ", " + region, preis, kategorie, erfahrung)
     
