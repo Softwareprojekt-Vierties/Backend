@@ -324,10 +324,11 @@ app.post('/createArtist', Auth, async (req,res)=> {
 })    // creates a new Artist
 
 app.post('/createEndnutzer', Auth, async (req,res) => {
-    console.log("REQUEST TO CREATE endnutzer",req.body, req.headers['auth'])
+    console.log("REQUEST TO CREATE endnutzer",req.body)
     const benutzername = req.headers['auth']['benutzername']
     const email = req.headers['auth']['email']
     const password = req.headers['auth']['password']
+    console.log("Benutzername", benutzername, (req.headers['auth'])['benutzername'])
     const {profilname, profilbild, kurzbeschreibung, beschreibung, region, alter, arten, lied, gericht, geschlecht} = req.body
     await CreateQueries.createEndUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, alter, arten, lied, gericht, geschlecht).then(result => {
         if(result.success) return res.status(200).send("User created")
