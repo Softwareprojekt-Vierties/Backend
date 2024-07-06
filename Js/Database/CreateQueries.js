@@ -315,10 +315,10 @@ async function createReview(inhalt, sterne, ownerid, id, intention) {
  * - id: [id of the created event, null if creation failed]
  * - error: [the error, if one occured]
  */
-async function createEvent(name, datum, startuhrzeit,enduhrzeit, eventgroesse, preis, altersfreigabe, privat, kurzbeschreibung, beschreibung, bild, ownerid, locationid){
-    try {
-        const picture = await createBild(bild)
+async function createEvent(name, datum, startuhrzeit,enduhrzeit, eventgroesse, preis, altersfreigabe, privat, kurzbeschreibung, beschreibung, bild, ownerid, locationid, serviceProviders){
+    const picture = await createBild(bild)
 
+    try {
         if (!picture.success) throw new Error("COULDN'T SAVE PICTURE ON THE DATABASE!")
         
         const event = await pool.query(
@@ -327,16 +327,56 @@ async function createEvent(name, datum, startuhrzeit,enduhrzeit, eventgroesse, p
             [name,datum,startuhrzeit,enduhrzeit,eventgroesse,eventgroesse,preis,altersfreigabe,privat,kurzbeschreibung,beschreibung,picture.id,ownerid,locationid]
         )
         console.log("event CREATED")
+
+        // Send mail to providers
+        let providerInfos = ""
+        for (let provider of serviceProviders) {
+            if (provider['type'] === 'artist') {
+                const app_userIdOfArtist = await pool.query(
+                    `SELECT a.id FROM app_user a
+                    JOIN artist ar ON a.email = ar.emailfk
+                    WHERE ar.id = $1::int`,
+                    [provider['id']]
+                )
+                const service = await CreateQueries.createMail(ownerid, app_userIdOfArtist.rows[0]['id'], 'service', event.rows[0]['id'])
+                service.success ? providerInfos.concat(`Send email to artist ${provider['id']}: true\n`) : providerInfos.concat(`Send email to ${provider['id']}: false ==> ${service.error}\n`)
+            } else if (provider['type'] === 'caterer') {
+                const app_userIdOfCaterer = await pool.query(
+                    `SELECT a.id FROM app_user a
+                    JOIN caterer ca ON a.email = ca.emailfk
+                    WHERE ca.id = $1::int`,
+                    [provider['id']]
+                )
+                const service = await CreateQueries.createMail(ownerid, app_userIdOfCaterer.rows[0]['id'], 'service', event.rows[0]['id'])
+                service.success ? providerInfos.concat(`Send email to caterer ${provider['id']}: true\n`) : providerInfos.concat(`Send email to ${provider['id']}: false ==> ${service.error}\n`)
+            } else {
+                providerInfos.concat(`Invalid provider type '${provider['type']}' for id '${provider['id']}'\n`)
+            }
+        }
+
+        const app_userIdOfLocationOwner = await pool.query(
+            `SELECT ownerid FROM location WHERE id = $1::int RETURNING ownerid`,
+            [locationid]
+        )
+        if (app_userIdOfLocationOwner.rows[0]['ownerid'] !== null) {
+            const service = await CreateQueries.createMail(ownerid, app_userIdOfLocationOwner.rows[0]['ownerid'], 'location', event.rows[0]['id'])
+            service.success ? providerInfos.concat(`Send email to location owner ${app_userIdOfLocationOwner.rows[0]['ownerid']}: true\n`) : providerInfos.concat(`Send email to ${app_userIdOfLocationOwner.rows[0]['ownerid']}: false ==> ${service.error}\n`)
+        } else providerInfos.concat(`Location is not owned by anybody! Considers this as location accepted!\n`)
+
         return {
             success: true,
             id: event.rows[0],
+            providerInfo: providerInfos,
             error: null
         }
     } catch(err) {
         console.error("FAILED TO CREATE AN event",err)
+        // delete picture ->  don't fill t he DB with deprecated data!
+        if (picture.success) DeleteQueries.deleteBildById(picture.id)
         return {
             success: false,
             id: null,
+            providerInfo: null,
             error: err
         }
     }

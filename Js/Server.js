@@ -273,9 +273,12 @@ app.post('/createEvent', Auth, async (req,res)=> {
         return res.status(400).send(toString(err))
     } 
 
-    const {name,datum,startuhrzeit,enduhrzeit,eventgroesse,preis,altersfreigabe,privat,kurzbeschreibung,beschreibung,bild,locationid} = req.body
-    const result = await CreateQueries.createEvent(name,datum,startuhrzeit,enduhrzeit,eventgroesse,preis,altersfreigabe,privat,kurzbeschreibung,beschreibung,bild,userid,locationid)
-    if (result.success) res.status(200).send("EVENT CREATED")
+    const {name,datum,startuhrzeit,enduhrzeit,eventgroesse,preis,altersfreigabe,privat,kurzbeschreibung,beschreibung,bild,locationid, serviceProviders} = req.body
+    const result = await CreateQueries.createEvent(name,datum,startuhrzeit,enduhrzeit,eventgroesse,preis,altersfreigabe,privat,kurzbeschreibung,beschreibung,bild,userid,locationid, serviceProviders)
+    if (result.success) res.status(200).send({
+        message: "EVENT CREATED",
+        providerInfo: result.providerInfo
+    })
     else res.status(500).send("FAILED TO CREATE EVENT " + toString(result.error))
 })    // creates a new events
 

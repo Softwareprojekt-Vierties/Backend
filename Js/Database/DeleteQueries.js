@@ -977,5 +977,6 @@ module.exports = {
     deleteServiceCatererById,
     deleteTicketsById,
     deletePartybilderById,
-    deletefriend
+    deletefriend,
+    deleteBildById
 }
