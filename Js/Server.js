@@ -101,8 +101,8 @@ app.get("/deleteArtist/:id", Auth, async (req, res) => {
     }                         
     DeleteQueries.deleteReviewById(user['id'], 'userid')                            //review (for user)
     DeleteQueries.deleteReviewById(user['id'], 'ownerid')                           //review (from user)
-    DeleteQueries.deleteServiceArtistById(event['id'], 'eventid')               //serviceartist
-    DeleteQueries.deleteServiceCatererById(event['id'], 'eventid')              //servicecaterer
+    DeleteQueries.deleteServiceArtistById(user['id'], 'artistid')                   //serviceartist(from user)
+    DeleteQueries.deleteLiedById(user['id'], 'ownerid')                             //lied
     DeleteQueries.deleteArtistById(user['email'], 'email')                          //artist
     DeleteQueries.deleteAppUserById(user['id'], 'id')                               //app_user
     DeleteQueries.deletePasswordById(user['password'])                              //password
