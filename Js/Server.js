@@ -111,7 +111,39 @@ app.get("/deleteArtist", Auth, async (req, res) => {
 })
 
 app.get("/deleteCaterer", Auth, async (req,res) => {
+    console.log("REQUEST TO DELETE enduser",req.body)
+    let user
+    try {
+        user = getUser(req.headers["auth"])
+        if (user == undefined) throw new Error("INVALID TOKEN")
+    } catch(err) {
+        console.error(err)
+        return res.status(400).send(toString(err))
+    } 
 
+    DeleteQueries.deleteTicketsById(user['id'], 'ownerid')                          //tickets
+    DeleteQueries.deleteBildById(user['bildid'])                                    //bild
+    DeleteQueries.deleteFavorites(user['id'])                                       //favorit_*
+    DeleteQueries.deleteFriends(user['id'])                                         //friend
+    DeleteQueries.deleteMails(user['id'])                                           //mail
+    for (let event of await DeleteQueries.deleteEventById(user['id'], 'ownerid')) { //event
+        DeleteQueries.deleteTicketsById(event['id'], 'eventid')                     //tickets
+        DeleteQueries.deleteServiceArtistById(event['id'], 'eventid')               //serviceartist(from event)
+        DeleteQueries.deleteServiceCatererById(event['id'], 'eventid')              //servicecaterer(from event)
+        DeleteQueries.deleteReviewById(event['id'], 'eventid')                      //review (for event)
+    }
+    for (let location of await DeleteQueries.deleteLocationById(user['id'], 'ownerid')) {//location
+        DeleteQueries.deleteReviewById(location['id'], 'locationid')                //review (for location)
+    }                         
+    DeleteQueries.deleteReviewById(user['id'], 'userid')                            //review (for user)
+    DeleteQueries.deleteReviewById(user['id'], 'ownerid')                           //review (from user)
+    DeleteQueries.deleteServiceCatererById(user['id'], 'catererid')                 //servicecaterer(from user)
+    //DeleteQueries.deleteGerichtById(user['id'], 'ownerid')                          //gericht
+    DeleteQueries.deleteArtistById(user['email'], 'email')                          //artist
+    DeleteQueries.deleteAppUserById(user['id'], 'id')                               //app_user
+    DeleteQueries.deletePasswordById(user['password'])                              //password
+    console.log("Delete Cylce done!")
+    res.status(200).send("Account deleted!")
 })
 
 // -------------------- GETS -------------------- //
