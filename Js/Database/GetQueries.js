@@ -789,7 +789,7 @@ async function getCatererById(req,res){
         )
 
         return res.status(200).send({
-            isOwner : userid === cater.rows[0]['userid'] ? true : false,
+            isOwner : userid === cater.rows[0]['id'] ? true : false,
             caterer: cater,
             gerichte: gericht,
             events : event
@@ -855,7 +855,7 @@ async function getArtistByID(req,res){
         )
 
         return res.status(200).send({
-            isOwner : userid === art.rows[0]['userid'] ? true : false,
+            isOwner : userid === art.rows[0]['id'] ? true : false,
             artist: art,
             lieder: lied,
             events : event
@@ -935,7 +935,7 @@ async function getEndUserById(req,res){
         )
 
         return res.status(200).send({
-            isMe : userid === user.rows[0]['userid'] ? true : false,
+            isMe : userid === user.rows[0]['id'] ? true : false,
             user : user,
             locations : location,
             owenevents : owenevent,
