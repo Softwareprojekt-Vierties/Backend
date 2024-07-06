@@ -353,7 +353,7 @@ async function createEvent(name, datum, startuhrzeit,enduhrzeit, eventgroesse, p
                     WHERE ar.id = $1::int`,
                     [provider['id']]
                 )
-                const service = await CreateQueries.createMail(ownerid, app_userIdOfArtist.rows[0]['id'], 'service', event.rows[0]['id'])
+                const service = await createMail(ownerid, app_userIdOfArtist.rows[0]['id'], 'service', event.rows[0]['id'])
                 service.success ? providerInfos.concat(`Send email to artist ${provider['id']}: true\n`) : providerInfos.concat(`Send email to ${provider['id']}: false ==> ${service.error}\n`)
             } else if (provider['type'] === 'caterer') {
                 const app_userIdOfCaterer = await pool.query(
@@ -362,7 +362,7 @@ async function createEvent(name, datum, startuhrzeit,enduhrzeit, eventgroesse, p
                     WHERE ca.id = $1::int`,
                     [provider['id']]
                 )
-                const service = await CreateQueries.createMail(ownerid, app_userIdOfCaterer.rows[0]['id'], 'service', event.rows[0]['id'])
+                const service = await createMail(ownerid, app_userIdOfCaterer.rows[0]['id'], 'service', event.rows[0]['id'])
                 service.success ? providerInfos.concat(`Send email to caterer ${provider['id']}: true\n`) : providerInfos.concat(`Send email to ${provider['id']}: false ==> ${service.error}\n`)
             } else {
                 providerInfos.concat(`Invalid provider type '${provider['type']}' for id '${provider['id']}'\n`)
@@ -374,9 +374,14 @@ async function createEvent(name, datum, startuhrzeit,enduhrzeit, eventgroesse, p
             [locationid]
         )
         if (app_userIdOfLocationOwner.rows[0]['ownerid'] !== null) {
-            const service = await CreateQueries.createMail(ownerid, app_userIdOfLocationOwner.rows[0]['ownerid'], 'location', event.rows[0]['id'])
+            const service = await createMail(ownerid, app_userIdOfLocationOwner.rows[0]['ownerid'], 'location', event.rows[0]['id'])
             service.success ? providerInfos.concat(`Send email to location owner ${app_userIdOfLocationOwner.rows[0]['ownerid']}: true\n`) : providerInfos.concat(`Send email to ${app_userIdOfLocationOwner.rows[0]['ownerid']}: false ==> ${service.error}\n`)
         } else providerInfos.concat(`Location is not owned by anybody! Considers this as location accepted!\n`)
+
+        // inform friends, that an event has been created
+        for (let friend of await pool.query(`SELECT user2 AS friendid FROM friend WHERE user1 = $1::int`,[ownerid])) {
+            await createMail(ownerid, friend.rows[0]['friendid'], 'info', event.rows[0]['id'])
+        }
 
         return {
             success: true,
@@ -386,7 +391,7 @@ async function createEvent(name, datum, startuhrzeit,enduhrzeit, eventgroesse, p
         }
     } catch(err) {
         console.error("FAILED TO CREATE AN event",err)
-        // delete picture ->  don't fill t he DB with deprecated data!
+        // delete picture ->  don't fill the DB with deprecated data!
         if (picture.success) DeleteQueries.deleteBildById(picture.id)
         return {
             success: false,
@@ -605,8 +610,8 @@ async function createTicket(userid,eventid){
  * Creates a mail on the database.
  * @param {!number} sender - the app_user id of the sender
  * @param {!number} empfaenger - the app_user id of the reciever
- * @param {!string} anfrage - must be one of [location, service, freundschaft]
- * @param {number} eventid - the event id if anfrage is [location, service], standard null
+ * @param {!string} anfrage - must be one of [location, service, freundschaft, info]
+ * @param {number} eventid - the event id if anfrage is [location, service, info], standard null
  * @returns {!Object}  
  * - success: [true if successful, false otherwise]
  * - error: [the error, if one occured]
@@ -615,8 +620,8 @@ async function createMail(sender, empfaenger, anfrage, eventid = null) {
     try {
         let sqlQuery, params
 
-        if (anfrage === 'location' || anfrage === 'service') {
-            if (eventid === null) throw new Error('Cannot create mail for location or service without eventid')
+        if (anfrage === 'location' || anfrage === 'service' || anfrage === 'info') {
+            if (eventid == null) throw new Error('Cannot create mail for location or service without eventid')
             sqlQuery = `INSERT INTO mail (sender, empfaenger, anfrage, eventid) VALUES ($1::int, $2::int, $3::text, $4::int)`
             params = [sender, empfaenger, anfrage, eventid]
         } else if (anfrage === 'freundschaft') {
