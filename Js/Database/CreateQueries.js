@@ -323,7 +323,7 @@ async function createEvent(name, datum, startuhrzeit,enduhrzeit, eventgroesse, p
         
         const event = await pool.query(
             `INSERT INTO event (name, datum, startuhrzeit, enduhrzeit , eventgroesse, freietickets, preis, altersfreigabe, privat, kurzbeschreibung, beschreibung, bildid, ownerid, locationid)
-            VALUES ($1::text, $2, $3::int, $4::int ,$5::int, $6::int, $7::int, $8::int, $9::bool, $10::text, $11::text, $12::integer, $13::int, $14::int) RETURNING id`,
+            VALUES ($1::text, $2, $3, $4 ,$5::int, $6::int, $7::int, $8::int, $9::bool, $10::text, $11::text, $12::integer, $13::int, $14::int) RETURNING id`,
             [name,datum,startuhrzeit,enduhrzeit,eventgroesse,eventgroesse,preis,altersfreigabe,privat,kurzbeschreibung,beschreibung,picture.id,ownerid,locationid]
         )
         console.log("event CREATED")
