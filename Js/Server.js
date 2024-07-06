@@ -110,6 +110,8 @@ app.get("/deleteArtist/:id", Auth, async (req, res) => {
     res.status(200).send("Account deleted!")
 })
 
+app.get("/delete")
+
 // -------------------- GETS -------------------- //
 
 app.get("/getUserById/:id",GetQueries.getEndUserById)
@@ -322,7 +324,7 @@ app.post('/createArtist', Auth, async (req,res)=> {
 })    // creates a new Artist
 
 app.post('/createEndnutzer', Auth, async (req,res) => {
-    console.log("REQUEST TO CREATE ARTIST",req.body)
+    console.log("REQUEST TO CREATE endnutzer",req.body, req.headers['auth'])
     const benutzername = req.headers['auth']['benutzername']
     const email = req.headers['auth']['email']
     const password = req.headers['auth']['password']
