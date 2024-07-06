@@ -54,7 +54,6 @@ function getUser(token) {  // returns the user information form the JWT cookie
 async function tempToken(req, res) {
     try {
         const exists = await checkIfAccountIsInUse(req.body['email'], req.body['benutzername'])
-        console.log("TEMPTOKEN",req.body)
         if (exists.success && !exists.exists) {
             const token = jwt.sign(req.body, SECRET, {expiresIn: '0.5h'})
             return res.status(200).send(token)
