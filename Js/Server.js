@@ -39,7 +39,7 @@ app.post('/tempToken', tempToken)
 
 // -------------------- DELETES -------------------- //
 
-app.get("/deleteEndUser/:id", Auth, async (req,res) => {
+app.get("/deleteEndUser/:id", Auth, (req,res) => {
     console.log("REQUEST TO DELETE enduser",req.body)
     let user
     try {
@@ -56,7 +56,7 @@ app.get("/deleteEndUser/:id", Auth, async (req,res) => {
     DeleteQueries.deleteFavorites(user['id'])
     DeleteQueries.deleteFriends(user['id'])
     DeleteQueries.deleteMails(user['id'])
-    const events = await DeleteQueries.deleteEventById(user['id'], 'ownerid')
+    DeleteQueries.deleteEventById(user['id'], 'ownerid')
     DeleteQueries.deleteLocationById(user['id'], 'ownerid')
     
 })
