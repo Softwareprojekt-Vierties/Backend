@@ -362,8 +362,8 @@ app.post('/createEndnutzer', Auth, async (req,res) => {
     const benutzername = getUser(req.headers['auth'])['benutzername']
     const email = getUser(req.headers['auth'])['email']
     const password = getUser(req.headers['auth'])['password']
-    const {profilname, profilbild, kurzbeschreibung, beschreibung, region, alter, arten, lied, gericht, geschlecht} = req.body
-    await CreateQueries.createEndUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, alter, arten, lied, gericht, geschlecht).then(result => {
+    const {profilname, profilbild, kurzbeschreibung, beschreibung, region, alter, arten, lied, gericht, geschlecht, partybilder} = req.body
+    await CreateQueries.createEndUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, alter, arten, lied, gericht, geschlecht, partybilder).then(result => {
         if(result.success) return res.status(200).send("User created")
         else return res.status(500).send("User not created: " + result.error)
     })

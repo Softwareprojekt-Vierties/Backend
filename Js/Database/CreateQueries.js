@@ -34,13 +34,14 @@ async function createAppUser(benutzername, profilname, email, password, profilbi
         if (!picture.success) throw new Error("COULDN'T SAVE PICTURE ON THE DATABASE!")
         
         // then create the app_user
-        await pool.query(
+        const app_user = await pool.query(
             `INSERT INTO app_user (benutzername, profilname, email, password, bildid, kurzbeschreibung, beschreibung, region) 
-            VALUES ($1::text, $2::text, $3::text, $4::integer, $5::integer, $6::text, $7::text, $8::text)`,
+            VALUES ($1::text, $2::text, $3::text, $4::integer, $5::integer, $6::text, $7::text, $8::text) RETURNING id`,
             [benutzername, profilname, email, passwordID['id'], picture.id, kurzbeschreibung, beschreibung, region])
         console.log("app_user CREATED")
         return {
             success: true,
+            id: app_user.rows[0]['id'],
             error: null
         }
     } catch (err) {
@@ -49,6 +50,7 @@ async function createAppUser(benutzername, profilname, email, password, profilbi
         console.error("FAILED TO CREATE app_user",err)
         return {
             success: false,
+            id: null,
             error: err
         }
     }
@@ -73,7 +75,7 @@ async function createAppUser(benutzername, profilname, email, password, profilbi
  * - success: [true if successful, false otherwise]
  * - error: [the error, if one occured]
  */
-async function createEndUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, alter, arten, lied, gericht, geschlecht){
+async function createEndUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, alter, arten, lied, gericht, geschlecht, partybilder){
     // create app_user first
     const app_user = await createAppUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region)
 
@@ -89,6 +91,18 @@ async function createEndUser(benutzername, profilname, email, password, profilbi
             [email, alter, arten, lied, gericht, geschlecht]
         )
         console.log("enduser CREATED")
+
+        if (partybilder != undefined) {
+            for(let partybild of partybilder) {
+                const bildid = createBild(partybild)
+                if (bildid.success) {
+                    CreateQueries.createPartybild(app_user.id, bildid.id)
+                } else {
+                    console.warn("FAILED TO SAFE ONE bild!")
+                }
+            }
+        }
+
         return {
             success: true,
             error: null

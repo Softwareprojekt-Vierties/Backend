@@ -788,6 +788,8 @@ async function getCatererById(req,res){
             [id]
         )
 
+        if (cater.rowCount == 0) return res.status(400).send("No caterer found")
+
         return res.status(200).send({
             isOwner : userid === cater.rows[0]['userid'] ? true : false,
             caterer: cater,
@@ -853,6 +855,8 @@ async function getArtistByID(req,res){
             WHERE sa.artistid = $1::int`,
             [id]
         )
+
+        if (art.rowCount == 0) return res.status(400).send("No artist found")
 
         return res.status(200).send({
             isOwner : userid === art.rows[0]['userid'] ? true : false,
@@ -934,7 +938,7 @@ async function getEndUserById(req,res){
             [id]
         )
 
-        console.log(user)
+        if (user.rowCount == 0) return res.status(400).send("No user found")
 
         return res.status(200).send({
             isMe : userid === user.rows[0]['userid'] ? true : false,
