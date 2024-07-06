@@ -315,6 +315,7 @@ async function searchCaterer(req,res){
             a.bildid,
             a.kurzbeschreibung,
             a.sterne,
+            a.id AS app_user_id,
             fu.userid AS favorit,
             bild.data AS profilbild
         FROM caterer c 
@@ -426,6 +427,7 @@ async function searchArtist(req,res){
             a.kategorie,
             a.erfahrung,
             a.id,
+            ap.id AS app_user_id,
             ap.region,
             ap.profilname as name,
             ap.sterne,
@@ -539,7 +541,8 @@ async function searchEndUser(req,res){
     let query = 
         `SELECT 
             e.*,
-            ap.profilname as name,
+            ap.id AS app_user_id,
+            ap.profilname AS name,
             ap.region,
             fu.userid AS favorit,
             ap.bildid,
