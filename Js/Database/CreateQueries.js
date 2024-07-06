@@ -21,9 +21,10 @@ async function createAppUser(benutzername, profilname, email, password, profilbi
     try {
         // first save the password
         const salt = await bcrypt.genSalt(10)
+        const hash = await bcrypt.hash(password, salt)
         passwordID = await pool.query(
             `INSERT INTO password (salt, hash) VALUES ($1, $2) RETURNING id`,
-            [salt, await bcrypt.hash(password, salt)]
+            [salt, hash]
         ).then(res => {return res.rows[0]})
 
         if (passwordID === undefined) throw new Error("COULDN'T SAVE PASSWORD ON THE DATABASE!")
