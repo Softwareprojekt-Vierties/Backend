@@ -638,7 +638,7 @@ async function createPartybild(userid, bildid) {
 
 async function createFriend(userid,friendid){
     try {
-        const partybild = await pool.query(
+        const friend = await pool.query(
             `INSERT INTO friend (user1, user2) VALUES ($1::integer, $2::integer)`,
             [userid, friendid]
         )
@@ -656,7 +656,105 @@ async function createFriend(userid,friendid){
     }
 }
 
+async function createFavoritEvent(userid,eventid){
+    try {
+        const favorit = await pool.query(
+            `INSERT INTO favorit_event (userid, eventid) VALUES ($1::integer, $2::integer)`,
+            [userid, eventid]
+        )
+        console.log("FAVORIT CREATED")
+        return {
+            success: true,
+            error: null
+        }
+    } catch (err) {
+        console.error(err)
+        return {
+            success: false,
+            error: err
+        }
+    }
+}
 
+async function createFavoritLocation(userid,eventid){
+    try {
+        const favorit = await pool.query(
+            `INSERT INTO favorit_location (userid, locationid) VALUES ($1::integer, $2::integer)`,
+            [userid, locationid]
+        )
+        console.log("FAVORIT CREATED")
+        return {
+            success: true,
+            error: null
+        }
+    } catch (err) {
+        console.error(err)
+        return {
+            success: false,
+            error: err
+        }
+    }
+}
+
+async function createFavoritEndUser(userid,enduserid){
+    try {
+        const favorit = await pool.query(
+            `INSERT INTO favorit_user (userid, enduserid) VALUES ($1::integer, $2::integer)`,
+            [userid, enduserid]
+        )
+        console.log("FAVORIT CREATED")
+        return {
+            success: true,
+            error: null
+        }
+    } catch (err) {
+        console.error(err)
+        return {
+            success: false,
+            error: err
+        }
+    }
+}
+
+async function createFavoritArtist(userid,artistid){
+    try {
+        const favorit = await pool.query(
+            `INSERT INTO favorit_user (userid, artistid) VALUES ($1::integer, $2::integer)`,
+            [userid, artistid]
+        )
+        console.log("FAVORIT CREATED")
+        return {
+            success: true,
+            error: null
+        }
+    } catch (err) {
+        console.error(err)
+        return {
+            success: false,
+            error: err
+        }
+    }
+}
+
+async function createFavoritCaterer(userid,catereid){
+    try {
+        const favorit = await pool.query(
+            `INSERT INTO favorit_user (userid, catereid) VALUES ($1::integer, $2::integer)`,
+            [userid, catereid]
+        )
+        console.log("FAVORIT CREATED")
+        return {
+            success: true,
+            error: null
+        }
+    } catch (err) {
+        console.error(err)
+        return {
+            success: false,
+            error: err
+        }
+    }
+}
 
 module.exports = {
     createEndUser, 
@@ -675,5 +773,10 @@ module.exports = {
     createTicket,
     createBild,
     createPartybild,
-    createFriend
+    createFriend,
+    createFavoritEvent,
+    createFavoritLocation,
+    createFavoritEndUser,
+    createFavoritArtist,
+    createFavoritCaterer
 }

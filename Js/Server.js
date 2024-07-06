@@ -325,6 +325,81 @@ app.post("/createTicket",Auth,async (req,res)=>{
     if (result.success) res.status(200).send("TICKET CREATED")
     else res.status(500).send("FAILED TO CREATE TICKET " + toString(result.error))
 })
+
+app.post("/createFavouritEvent",Auth,async (req,res)=>{
+    let userid
+    try {
+        userid = getUser(req.headers["auth"])["id"]
+        if (userid == undefined) throw new Error("INVALID TOKEN")
+    } catch(err) {
+        console.error(err)
+        return res.status(400).send(toString(err))
+    }
+    const eventid = req.body["eventid"]
+    result = await CreateQueries.createFavoritEvent(userid,eventid)
+    if (result.success) res.status(200).send("FAVORIT CREATED")
+    else res.status(500).send("FAILED TO CREATE FAVORIT " + toString(result.error))
+})
+
+app.post("/createFavouritLocation",Auth,async (req,res)=>{
+    let userid
+    try {
+        userid = getUser(req.headers["auth"])["id"]
+        if (userid == undefined) throw new Error("INVALID TOKEN")
+    } catch(err) {
+        console.error(err)
+        return res.status(400).send(toString(err))
+    }
+    const locataionid = req.body["locationid"]
+    result = await CreateQueries.createFavoritLocation(userid,locataionid)
+    if (result.success) res.status(200).send("FAVORIT CREATED")
+    else res.status(500).send("FAILED TO CREATE FAVORIT " + toString(result.error))
+})
+
+app.post("/createFavouritEndUser",Auth,async (req,res)=>{
+    let userid
+    try {
+        userid = getUser(req.headers["auth"])["id"]
+        if (userid == undefined) throw new Error("INVALID TOKEN")
+    } catch(err) {
+        console.error(err)
+        return res.status(400).send(toString(err))
+    }
+    const enduserid = req.body["enduserid"]
+    result = await CreateQueries.createFavoritEndUser(userid,enduserid)
+    if (result.success) res.status(200).send("FAVORIT CREATED")
+    else res.status(500).send("FAILED TO CREATE FAVORIT " + toString(result.error))
+})
+
+app.post("/createFavouritArtist",Auth,async (req,res)=>{
+    let userid
+    try {
+        userid = getUser(req.headers["auth"])["id"]
+        if (userid == undefined) throw new Error("INVALID TOKEN")
+    } catch(err) {
+        console.error(err)
+        return res.status(400).send(toString(err))
+    }
+    const artistid = req.body["artistid"]
+    result = await CreateQueries.createFavoritArtist(userid,artistid)
+    if (result.success) res.status(200).send("FAVORIT CREATED")
+    else res.status(500).send("FAILED TO CREATE FAVORIT " + toString(result.error))
+})
+
+app.post("/createFavouritCaterer",Auth,async (req,res)=>{
+    let userid
+    try {
+        userid = getUser(req.headers["auth"])["id"]
+        if (userid == undefined) throw new Error("INVALID TOKEN")
+    } catch(err) {
+        console.error(err)
+        return res.status(400).send(toString(err))
+    }
+    const catererid = req.body["catererid"]
+    result = await CreateQueries.createFavoritCaterer(userid,catererid)
+    if (result.success) res.status(200).send("FAVORIT CREATED")
+    else res.status(500).send("FAILED TO CREATE FAVORIT " + toString(result.error))
+})
 // -------------------- TESTS -------------------- // 
 
 app.post('/testSearch', (req,res)=>{
