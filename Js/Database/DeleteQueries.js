@@ -889,7 +889,7 @@ async function deleteBildById(id) {
 
 async function deletePartybilderById(id) {
     try {
-        console.warn("TRYING TO DELETE ALL partybildee OF endnutzer", id)
+        console.warn("TRYING TO DELETE ALL partybilder OF app_user", id)
         const result = await pool.query(
             `DELETE FROM partybilder WHERE userid = $1::int RETURNING *`,
             [id]
@@ -917,8 +917,50 @@ async function deletePartybilderById(id) {
     }
 }
 
-async function deletefriend(req,res)
-{
+async function deleteFavorites(userid) {
+    try {
+        await pool.query(
+            `DELETE FROM favorit_event WHERE userid = $1::int`,
+            [userid]
+        )
+        await pool.query(
+            `DELETE FROM favorit_location WHERE userid = $1::int`,
+            [userid]
+        )
+        await pool.query(
+            `DELETE FROM favorit_user WHERE userid = $1::int`,
+            [userid]
+        )
+    } catch(err) {
+        console.error("ERROR WHILE TRYING TO DELETE favorites", err)
+    }
+}
+
+async function deleteFriends(userid) {
+    try {
+        console.warn("TRYING TO DELETE ALL friends OF app_user", userid)
+        await pool.query(
+            `DELETE FROM friend WHERE user1 = $1::int OR user2 = $1::int`,
+            [userid]
+        )
+    } catch(err) {
+        console.error("AN ERROR OCCURED WHILE TRYING TO DELETE friends", err)
+    }
+}
+
+async function deleteMails(userid) {
+    try {
+        console.warn("TRYING TO DELETE ALL mails OF app_user", userid)
+        await pool.query(
+            `DELETE FROM mail WHERE sender = $1::int OR empfaenger = $1::int`,
+            [userid]
+        )
+    } catch(err) {
+        console.error("AN ERROR OCCURED WHILE TRYING TO DELETE mails", err)
+    }
+}
+
+async function deletefriend(req,res) {
     const friendid = req.params["id"]
     let userid
     try {
@@ -930,11 +972,11 @@ async function deletefriend(req,res)
     } 
     try {
         const result = await pool.query(
-            `Delete from friend
-            Where (user1 = $1::int
-	            or user2 = $1::int)
-                And (user1 = $2::int
-                or user2 = $2::int)` ,
+            `DELETE FROM friend
+            WHERE (user1 = $1::int
+	            OR user2 = $1::int)
+                AND (user1 = $2::int
+                OR user2 = $2::int)` ,
             [userid,friendid]
         )
         if (result.rows.length === 0) {
@@ -961,6 +1003,9 @@ async function deletefriend(req,res)
 }
 
 module.exports = {
+    deleteMails,
+    deleteFriends,
+    deleteFavorites,
     deleteAppUserById,
     deleteArtistById,
     deleteCatererById,

@@ -37,9 +37,32 @@ const server = app.listen(port, (error) => {           // starts the server on t
 app.post('/login', isLogedIn, login)      // to log a user in
 app.post('/tempToken', tempToken)
 
+// -------------------- DELETES -------------------- //
+
+app.get("/deleteEndUser/:id", Auth, async (req,res) => {
+    console.log("REQUEST TO DELETE enduser",req.body)
+    let user
+    try {
+        user = getUser(req.headers["auth"])
+        if (user == undefined) throw new Error("INVALID TOKEN")
+    } catch(err) {
+        console.error(err)
+        return res.status(400).send(toString(err))
+    } 
+
+    DeleteQueries.deleteTicketsById(user['id'], 'ownerid')
+    DeleteQueries.deleteBildById(user['bildid'])
+    DeleteQueries.deletePartybilderById(user['id'])
+    DeleteQueries.deleteFavorites(user['id'])
+    DeleteQueries.deleteFriends(user['id'])
+    DeleteQueries.deleteMails(user['id'])
+    const events = await DeleteQueries.deleteEventById(user['id'], 'ownerid')
+    DeleteQueries.deleteLocationById(user['id'], 'ownerid')
+    
+})
+
+
 // -------------------- GETS -------------------- //
-
-
 
 app.get("/getUserById/:id",GetQueries.getEndUserById)
 app.get("/getLocationReview/:id",GetQueries.getLocationReviewById)

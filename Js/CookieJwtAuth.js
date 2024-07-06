@@ -53,6 +53,7 @@ function getUser(token) {  // returns the user information form the JWT cookie
 
 async function tempToken(req, res) {
     try {
+        console.log(req)
         const exists = await checkIfAccountIsInUse(req.body.rows[0]['email'], req.body.rows[0]['benutzername'])
         if (exists.success && !exists.exists) {
             const token = jwt.sign(req.body.rows[0], SECRET, {expiresIn: '0.5h'})
@@ -63,6 +64,7 @@ async function tempToken(req, res) {
             throw new Error(exists.error)
         }
     } catch(err) {
+        console.error(err)
         return res.status(500).send("Failed to create a temporary token: " + err)
     }
 }
