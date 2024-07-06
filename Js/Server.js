@@ -39,7 +39,7 @@ app.post('/tempToken', tempToken)
 
 // -------------------- DELETES -------------------- //
 
-app.get("/deleteEndUser/:id", Auth, (req,res) => {
+app.get("/deleteEndUser/:id", Auth, async (req,res) => {
     console.log("REQUEST TO DELETE enduser",req.body)
     let user
     try {
@@ -50,15 +50,28 @@ app.get("/deleteEndUser/:id", Auth, (req,res) => {
         return res.status(400).send(toString(err))
     } 
 
-    DeleteQueries.deleteTicketsById(user['id'], 'ownerid')
-    DeleteQueries.deleteBildById(user['bildid'])
-    DeleteQueries.deletePartybilderById(user['id'])
-    DeleteQueries.deleteFavorites(user['id'])
-    DeleteQueries.deleteFriends(user['id'])
-    DeleteQueries.deleteMails(user['id'])
-    DeleteQueries.deleteEventById(user['id'], 'ownerid')
-    DeleteQueries.deleteLocationById(user['id'], 'ownerid')
-    
+    DeleteQueries.deleteTicketsById(user['id'], 'ownerid')                          //tickets
+    DeleteQueries.deleteBildById(user['bildid'])                                    //bild
+    DeleteQueries.deletePartybilderById(user['id'])                                 //partybilder
+    DeleteQueries.deleteFavorites(user['id'])                                       //favorit_*
+    DeleteQueries.deleteFriends(user['id'])                                         //friend
+    DeleteQueries.deleteMails(user['id'])                                           //mail
+    for (let event of await DeleteQueries.deleteEventById(user['id'], 'ownerid')) { //event
+        DeleteQueries.deleteTicketsById(event['id'], 'eventid')                     //tickets
+        DeleteQueries.deleteServiceArtistById(event['id'], 'eventid')               //serviceartist
+        DeleteQueries.deleteServiceCatererById(event['id'], 'eventid')              //servicecaterer
+        DeleteQueries.deleteReviewById(event['id'], 'eventid')                      //review (for event)
+    }
+    for (let location of await DeleteQueries.deleteLocationById(user['id'], 'ownerid')) {//location
+        DeleteQueries.deleteReviewById(location['id'], 'locationid')                //review (for location)
+    }                         
+    DeleteQueries.deleteReviewById(user['id'], 'userid')                            //review (for user)
+    DeleteQueries.deleteReviewById(user['id'], 'ownerid')                           //review (from user)
+    DeleteQueries.deleteEndnutzerById(user['email'], 'email')                       //endnutzer
+    DeleteQueries.deleteAppUserById(user['id'], 'id')                               //app_user
+    DeleteQueries.deletePasswordById(user['password'])                              //password
+    console.log("Delete Cylce done!")
+    res.status(200).send("Account deleted!")
 })
 
 

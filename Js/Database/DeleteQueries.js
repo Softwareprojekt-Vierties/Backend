@@ -638,7 +638,7 @@ async function deleteEventById(id, deleteBy) {
 * - any[]: data - The data returned from the deletion operation, can be null
 * - any: error - The error that occoured if something failed, only written if success = false
 */
-async function deleteAppUserById(id) {
+async function deleteAppUserById(id, deleteBy) {
     try {
         console.warn("TRYING TO DELETE AN app_user OF", id)
         let query
@@ -698,7 +698,7 @@ async function deleteAppUserById(id) {
 * - any[]: data - The data returned from the deletion operation, can be null
 * - any: error - The error that occoured if something failed, only written if success = false
 */
-async function deleteEndnutzerById(id) {
+async function deleteEndnutzerById(id, deleteBy) {
     try {
         console.warn("TRYING TO DELETE AN endnutzer OF", id)
         let query
@@ -894,6 +894,9 @@ async function deletePartybilderById(id) {
             `DELETE FROM partybilder WHERE userid = $1::int RETURNING *`,
             [id]
         )
+        for (let partybild of result['bildid']) {
+            await deleteBildById(partybild)
+        }
         if (result.rows.length === 0) {
             return {
                 success: true,
