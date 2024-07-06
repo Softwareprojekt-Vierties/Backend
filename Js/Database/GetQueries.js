@@ -692,6 +692,15 @@ async function getLocationById(req,res){
 
 async function getEventById(req,res){
     try {
+        let userid
+        try {
+            userid = jwt.verify(req.headers["auth"], SECRET)["id"]
+            if (userid == undefined) throw new Error("INVALID TOKEN")
+        } catch(err) {
+            console.error(err)
+            return res.status(400).send(toString(err))
+        } 
+
         const id = req.params["id"]
         const event = await pool.query(
             `SELECT 
@@ -714,7 +723,8 @@ async function getEventById(req,res){
         return res.status(200).send({
             event: event,
             artists: artist,
-            caterers : caterer
+            caterers : caterer,
+            isOwner: userid === event.rows[0]['ownerid'] ? true : false
         })
     } catch (err) {
         console.error(err)
