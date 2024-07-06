@@ -311,6 +311,20 @@ app.post("/setFriend",Auth,async (req,res)=>{
     else res.status(500).send("FAILED TO CREATE FRIEND " + toString(result.error))
 })
 
+app.post("/createTicket",Auth,async (req,res)=>{
+    let userid
+    try {
+        userid = getUser(req.headers["auth"])["id"]
+        if (userid == undefined) throw new Error("INVALID TOKEN")
+    } catch(err) {
+        console.error(err)
+        return res.status(400).send(toString(err))
+    }
+    const eventid = req.body["eventid"]
+    result = await CreateQueries.createTicket(userid,eventid)
+    if (result.success) res.status(200).send("TICKET CREATED")
+    else res.status(500).send("FAILED TO CREATE TICKET " + toString(result.error))
+})
 // -------------------- TESTS -------------------- // 
 
 app.post('/testSearch', (req,res)=>{
