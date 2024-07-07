@@ -236,7 +236,7 @@ app.post("/changeFavorite",Auth,async (req,res)=>{
                 }
                 else
                 {
-                    result = await DeleteQueries.deleteFavoritUser(id,"endnutzer",userid)
+                    result = await DeleteQueries.deleteFavoritUser(id,"enduser",userid)
                     if (result.success) res.status(200).send("FAVORIT DELETED")
                     else res.status(500).send("FAILED TO DELETE FAVORIT " + toString(result.error))
                 }
