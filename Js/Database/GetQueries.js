@@ -668,6 +668,11 @@ async function searchEndUser(req,res){
 
 // -------------------- GETS -------------------- //
 
+/**
+ * Gets all partybilder from an app_user
+ * @param {!JSON} req 
+ * @param {!JSON} res 
+ */
 async function getPartybilderFromUser(req, res) {
     try {
         const result = await pool.query(
@@ -686,6 +691,11 @@ async function getPartybilderFromUser(req, res) {
     }
 }
 
+/**
+ * Gets a specific location via its id
+ * @param {!JSON} req 
+ * @param {!JSON} res 
+ */
 async function getLocationById(req,res){
     let userid
     try {
@@ -715,6 +725,11 @@ async function getLocationById(req,res){
     }
 }
 
+/**
+ * Gets a specific event via its id
+ * @param {!JSON} req 
+ * @param {!JSON} res 
+ */
 async function getEventById(req,res){
     try {
         let userid
@@ -757,6 +772,11 @@ async function getEventById(req,res){
     }
 }
 
+/**
+ * Gets a specific caterer via its id
+ * @param {!JSON} req 
+ * @param {!JSON} res 
+ */
 async function getCatererById(req,res){
     const id = req.params["id"]
     let userid
@@ -827,6 +847,11 @@ async function getCatererById(req,res){
     }
 }
 
+/**
+ * Gets a specific artist via its id
+ * @param {!JSON} req 
+ * @param {!JSON} res 
+ */
 async function getArtistByID(req,res){
     const id = req.params["id"]
     let userid
@@ -895,6 +920,11 @@ async function getArtistByID(req,res){
     }
 }
 
+/**
+ * Gets a specific endnutzer via its id
+ * @param {!JSON} req 
+ * @param {!JSON} res 
+ */
 async function getEndUserById(req,res){
     let userid
     try {
@@ -978,6 +1008,11 @@ async function getEndUserById(req,res){
     }
 }
 
+/**
+ * Gets all tickets from a user
+ * @param {!JSON} req 
+ * @param {!JSON} res 
+ */
 async function getAllTicketsFromUser(req,res){
     let userid
     try {
@@ -1000,6 +1035,11 @@ async function getAllTicketsFromUser(req,res){
     }
 }
 
+/**
+ * Gets all dates of events where tickets have been booked
+ * @param {!JSON} req 
+ * @param {!JSON} res 
+ */
 async function getBookedTicketsDate(req, res) {
     let user
     try
@@ -1032,6 +1072,11 @@ async function getBookedTicketsDate(req, res) {
     }
 }
 
+/**
+ * Gets all the songs from a playlist
+ * @param {!JSON} req 
+ * @param {!JSON} res 
+ */
 async function getPlaylistContent(req, res) {
     try {
         const result = await pool.query(
@@ -1045,6 +1090,11 @@ async function getPlaylistContent(req, res) {
     }
 }
 
+/**
+ * Gets all reviews for a location via the locationid
+ * @param {!JSON} req 
+ * @param {!JSON} res 
+ */
 async function getLocationReviewById(req,res){
     try {
         const result = await pool.query(
@@ -1058,6 +1108,11 @@ async function getLocationReviewById(req,res){
     }
 }
 
+/**
+ * Gets all reviews for an event via the eventid
+ * @param {!JSON} req 
+ * @param {!JSON} res 
+ */
 async function getEventReviewById(req,res){
     try {
         const result = await pool.query(
@@ -1071,6 +1126,11 @@ async function getEventReviewById(req,res){
     }
 }
 
+/**
+ * Gets all reviews for an app_user via the app_userid
+ * @param {!JSON} req 
+ * @param {!JSON} res 
+ */
 async function getPersonReviewById(req,res){
     try {
         const result = await pool.query(
@@ -1084,6 +1144,11 @@ async function getPersonReviewById(req,res){
     }
 }
 
+/**
+ * Gets all mails from a user
+ * @param {!JSON} req 
+ * @param {!JSON} res 
+ */
 async function getMails(req, res) {
     let userid
     try {
@@ -1170,7 +1235,12 @@ async function getMails(req, res) {
     }
 }
 
-async function getFriendId(req,res){
+/**
+ * Gets all friends from a user
+ * @param {*} req 
+ * @param {*} res 
+ */
+async function getFriends(req,res){
     let userid
     try {
         userid = jwt.verify(req.headers["auth"], SECRET)["id"]
@@ -1181,10 +1251,23 @@ async function getFriendId(req,res){
     } 
     try {
         const result = await pool.query(
-            `select * from app_user a JOIN friend f on a.id = user1 or a.id = user2 
-	            Where (f.user1 = $1::int
-	            or f.user2 = $1::int)
-                And 
+            `SELECT 
+                a.id,
+                a.benutzername,
+                a.profilname,
+                a.email,
+                a.kurzbeschreibung,
+                a.beschreibung,
+                a.region,
+                a.sterne,
+                a.bildid,
+                b.data AS profilbild
+            FROM app_user a 
+            JOIN friend f ON a.id = user2
+            LEFT JOIN bild b ON a.bildid = b.id
+	        WHERE 
+                f.user1 = $1::int
+                AND
 	            a.id != $1::int`,
             [userid]
         )
@@ -1269,7 +1352,7 @@ module.exports = {
     getMails,
     getBookedTicketsDate,
     getPartybilderFromUser,
-    getFriendId,
+    getFriendId: getFriends,
     // SEARCHES
     searchEvent, 
     searchLocaiton: searchLocation, // to not destroy the code by mistakes in refactoring, just point it to the right function
