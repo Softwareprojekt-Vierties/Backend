@@ -80,7 +80,7 @@ async function searchEvent(req,res){
             case 'search':
                 console.log("DEBUG: key", key, "; body with key", req.body[key])
                 paramIndex++
-                additionalFilter += "UPPER(e.name) LIKE UPPER ($"+paramIndex+")"
+                additionalFilter += "UPPER(e.name) LIKE UPPER ('$"+paramIndex+"')"
                 param.push(`%${req.body[key]}%`)
                 console.log("DEBUG: index",paramIndex, "; with", param.at(paramIndex-1))
                 break
@@ -109,7 +109,7 @@ async function searchEvent(req,res){
                 break
             case 'region':
                 paramIndex++
-                additionalFilter += "UPPER(l.adresse) LIKE UPPER ($"+paramIndex+")"
+                additionalFilter += "UPPER(l.adresse) LIKE UPPER ('$"+paramIndex+"')"
                 param.push(`%${req.body[key]}%`)
                 break
             case 'distanz':
@@ -240,12 +240,12 @@ async function searchLocation(req,res){
                 break
             case 'search':
                 paramIndex++
-                additionalFilter += "UPPER(name) LIKE UPPER ($"+paramIndex+")"
+                additionalFilter += "UPPER(name) LIKE UPPER ('$"+paramIndex+"')"
                 param.push(`%${req.body[key]}%`)
                 break
             case 'region':
                 paramIndex++
-                additionalFilter += "UPPER(adresse) LIKE UPPER ($"+paramIndex+")"
+                additionalFilter += "UPPER(adresse) LIKE UPPER ('$"+paramIndex+"')"
                 param.push(`%${req.body[key]}%`)
                 break
             case 'preis':
@@ -371,12 +371,12 @@ async function searchCaterer(req,res){
                 break
             case 'profilname':
                 paramIndex++
-                additionalFilter += "UPPER(a.profilname) LIKE UPPER ($"+paramIndex+")"
+                additionalFilter += "UPPER(a.profilname) LIKE UPPER ('$"+paramIndex+"')"
                 param.push(`%${req.body[key]}%`)
                 break
             case 'region':
                 paramIndex++
-                additionalFilter += "UPPER(a.region) LIKE UPPER ($"+paramIndex+")"
+                additionalFilter += "UPPER(a.region) LIKE UPPER ('$"+paramIndex+"')"
                 param.push(`%${req.body[key]}%`)
                 break
             case 'preis':
@@ -392,7 +392,7 @@ async function searchCaterer(req,res){
                 break
             case 'kategorie':
                 paramIndex++
-                additionalFilter += "UPPER(c.kategorie) LIKE UPPER ($"+paramIndex+")"
+                additionalFilter += "UPPER(c.kategorie) LIKE UPPER ('$"+paramIndex+"')"
                 param.push(`%${req.body[key]}%`)
                 break
             case 'istfavorit':
@@ -486,12 +486,12 @@ async function searchArtist(req,res){
         switch (key) {
             case 'profilname':
                 paramIndex++
-                additionalFilter += "UPPER(ap.profilname) LIKE UPPER ($"+paramIndex+")"
+                additionalFilter += "UPPER(ap.profilname) LIKE UPPER ('$"+paramIndex+"')"
                 param.push(`%${req.body[key]}%`)
                 break
             case 'region':
                 paramIndex++
-                additionalFilter += "UPPER(ap.region) LIKE UPPER ($"+paramIndex+")"
+                additionalFilter += "UPPER(ap.region) LIKE UPPER ('$"+paramIndex+"')"
                 param.push(`%${req.body[key]}%`)
                 break
             case 'preis':
@@ -507,7 +507,7 @@ async function searchArtist(req,res){
                 break
             case 'kategorie':
                 paramIndex++
-                additionalFilter += "UPPER(a.kategorie) LIKE UPPER ($"+paramIndex+")"
+                additionalFilter += "UPPER(a.kategorie) LIKE UPPER ('$"+paramIndex+"')"
                 param.push(`%${req.body[key]}%`)
                 break
             case 'bewertung':
@@ -600,17 +600,17 @@ async function searchEndUser(req,res){
         switch (key) {
             case 'search':
                 paramIndex++
-                additionalFilter += "UPPER(ap.profilname) LIKE UPPER ($"+paramIndex+")"
+                additionalFilter += "UPPER(ap.profilname) LIKE UPPER ('$"+paramIndex+"')"
                 param.push(`%${req.body[key]}%`)
                 break
             case 'region':
                 paramIndex++
-                additionalFilter += "UPPER(ap.region) LIKE UPPER ($"+paramIndex+")"
+                additionalFilter += "UPPER(ap.region) LIKE UPPER ('$"+paramIndex+"')"
                 param.push(`%${req.body[key]}%`)
                 break
             case 'geschelcht':
                 paramIndex++
-                additionalFilter += "UPPER(e.geschlecht) LIKE UPPER ($"+paramIndex+")"
+                additionalFilter += "UPPER(e.geschlecht) LIKE UPPER ('$"+paramIndex+"')"
                 param.push(`%${req.body[key]}%`)
                 break
             case 'alter':
