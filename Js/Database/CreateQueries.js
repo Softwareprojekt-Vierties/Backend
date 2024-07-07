@@ -524,62 +524,6 @@ async function createGericht(ownerid,name,beschreibung,bild=null){
 }
 
 /**
- * Creates a playlist on the database.
- * @param {!string} name 
- * @param {!number} artistid
- * @returns {!Object} 
- * - success: [true if successful, false otherwise]
- * - error: [the error, if one occured]
- */
-async function createPlaylist(name,artistid){
-    try {
-        await pool.query(
-            "INSERT INTO playlist (name, artistid) VALUES ($1::text, $2::int)",
-            [name, artistid]
-        )
-        console.log("playlist CREATED")
-        return {
-            success: true,
-            error: null
-        }
-    } catch(err) {
-        console.error("FAILED TO CREATE playlist",err)
-        return {
-            success: false,
-            error: err
-        }
-    }
-}
-
-/**
- * Creates a playlistinhalt on the database.
- * @param {!number} playlistid
- * @param {!number} liedid 
- * @returns {!Object} 
- * - success: [true if successful, false otherwise]
- * - error: [the error, if one occured]
- */
-async function createPlaylistInhalt(playlistid,liedid){
-    try {
-        await pool.query(
-            "INSERT INTO playlistinhalt (playlistid,liedid) VALUES ($1::int, $2::int)",
-            [playlistid, liedid]
-        )
-        console.log("playlistinhalt CREATED")
-        return {
-            success: true,
-            error: null
-        }
-    } catch(err) {
-        console.error("FAILED TO CREATE playlistinhalt",err)
-        return {
-            success: false,
-            error: err
-        }
-    }
-}
-
-/**
  * Creates a ticket on the database.
  * @param {!number} userid 
  * @param {!number} eventid 
@@ -599,7 +543,7 @@ async function createTicket(userid,eventid){
             error: null
         }
     } catch(err) {
-        console.error("FAILED TO CREATE playlistinhalt",err)
+        console.error("FAILED TO CREATE ticket",err)
         return {
             success: false,
             error: err
@@ -896,9 +840,7 @@ module.exports = {
     createServiceCaterer, 
     createLied, 
     createMail,
-    createGericht, 
-    createPlaylist, 
-    createPlaylistInhalt, 
+    createGericht,
     createTicket,
     createBild,
     createPartybild,

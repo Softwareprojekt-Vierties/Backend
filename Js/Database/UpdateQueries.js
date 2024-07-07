@@ -437,14 +437,6 @@ async function updatePassword(token, oldPassword, newPassword) {
     }
 }
 
-async function updatePlaylist() {
-    console.error("UPDATE PLAYLIST NOT YET IMPLEMENTED")
-    return {
-        success: false,
-        error: null
-    }
-}
-
 /**
  * Updates a mail.
  * @param {!int} id 
@@ -524,6 +516,5 @@ module.exports = {
     updateLied,
     updateLocation,
     updatePassword,
-    updatePlaylist,
     updateMail
 }

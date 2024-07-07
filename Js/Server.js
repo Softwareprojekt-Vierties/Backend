@@ -45,7 +45,6 @@ app.get("/getUserById/:id",GetQueries.getEndUserById)
 app.get("/getLocationReview/:id",GetQueries.getLocationReviewById)
 app.get("/getEventReview/:id",GetQueries.getEventReviewById)
 app.get("/getPersonReview/:id",GetQueries.getPersonReviewById)
-app.get('/playlist/:name', GetQueries.getPlaylistContent)
 app.get('/getPartybilder/:id', GetQueries.getPartybilderFromUser)
 
 app.get('/getfriends',Auth,GetQueries.getFriendId)

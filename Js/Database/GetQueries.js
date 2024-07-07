@@ -1073,24 +1073,6 @@ async function getBookedTicketsDate(req, res) {
 }
 
 /**
- * Gets all the songs from a playlist
- * @param {!JSON} req 
- * @param {!JSON} res 
- */
-async function getPlaylistContent(req, res) {
-    try {
-        const result = await pool.query(
-            "SELECT p.name AS playlistname, l.name AS liedname FROM playlist p JOIN playlistinhalt pi ON p.id = pi.playlistid JOIN lied l ON pi.liedid = l.id WHERE UPPER(p.name) LIKE UPPER($1)",
-            [`%${req.params['name']}%`]
-        )
-        return res.status(200).send(result)
-    } catch (err) {
-        console.error(err)
-        return res.status(500).send(toString(err))
-    }
-}
-
-/**
  * Gets all reviews for a location via the locationid
  * @param {!JSON} req 
  * @param {!JSON} res 
@@ -1344,7 +1326,6 @@ module.exports = {
     getArtistByID, 
     getEndUserById,
     getAllTicketsFromUser,
-    getPlaylistContent,
     getLocationReviewById,
     getEventReviewById,
     getPersonReviewById,

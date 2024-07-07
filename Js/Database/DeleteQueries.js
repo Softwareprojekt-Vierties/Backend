@@ -236,119 +236,6 @@ async function deleteReviewById(id, deleteBy) {
 }
 
 /**
-* Deletes playlistinhalt from the DB using an id.
-*
-* @param {number} id - the id, dictates what should be deleted
-* @param {string} deleteBy - the origin of the id, should be one of the following:
-*
-* - 'playlistid' - deletes ALL playlistinhalt based on that the id is from a playlist
-* - 'liedid' - deletes ALL playlistinhalt based on that the id is from a lied
-* - 'id' - deletes a SINGLE playlistinhalt based on the id
-* - anything else will result in a fail
-*
-* @returns {Object} An object containing the following:
-*
-* - boolean: sucess - If the deletion was successful or not
-* - any[]: data - The data returned from the deletion operation, can be null
-* - any: error - The error that occoured if something failed, only written if success = false
-*/
-async function deletePlaylistInhaltById(id, deleteBy) {
-    try {
-        console.warn("TRYING TO DELETE A playlistinhalt OF", id, deleteBy)
-        let query
-
-        if (deleteBy.matchAll('playlistid')) {
-            query = `DELETE FROM playlistinhalt WHERE playlistid = $1::int RETURNING *`
-        } else if (deleteBy.matchAll('liedid')) {
-            query = `DELETE FROM playlistinhalt WHERE liedid = $1::int RETURNING *`
-        } else if (deleteBy.matchAll('id')) {
-            query = `DELETE FROM playlistinhalt WHERE id = $1::int RETURNING *`
-        } else {
-            return {
-                sucess: false,
-                error: new Error("INVALID deleteBy: " + deleteBy)
-            }
-        }
-
-        const result = await pool.query(query, [id])
-        if (result.rows.length === 0) { // if nothing was found to be deleted
-            return {
-                success: true,
-                data: null
-            }
-        }
-        else {
-            return {
-                sucess: true,
-                data: result.rows
-            }
-        }
-    } catch (err) {
-        console.error("AN ERROR OCCURRED WHILE TRYING TO DELETE A playlistinhalt", err)
-        return {
-            success: false,
-            data: null,
-            error: err
-        }
-    }
-}
-
-/**
-* Deletes a playlist from the DB using an id.
-*
-* @param {number} id - the id, dictates what should be deleted
-* @param {number} deleteBy - the origin of the id, should be one of the following:
-*
-* - 'playlistid' - deletes a SINGLE playlist based on the id
-* - 'artistid' - deletes ALL playlist based on that the id is from the artist
-* - anything else will result in a fail
-*
-* @returns {Object} An object containing the following:
-*
-* - boolean: sucess - If the deletion was successful or not
-* - any[]: data - The data returned from the deletion operation, can be null
-* - any: error - The error that occoured if something failed, only written if success = false
-*/
-async function deletePlaylistById(id, deleteBy) {
-    try {
-        console.warn("TRYING TO DELETE A playlist OF", id, deleteBy)
-        let query
-
-        if (deleteBy.matchAll('locationid')) {
-            query = `DELETE FROM playlist WHERE id = $1::int RETURNING *`
-        } else if (deleteBy.matchAll('ownerid')) {
-            query = `DELETE FROM playlist WHERE artistid = $1::int RETURNING *`
-        } else {
-            return {
-                sucess: false,
-                error: new Error("INVALID deleteBy: " + deleteBy)
-            }
-        }
-
-        const result = await pool.query(query, [id])
-        if (result.rows.length === 0) { // if nothing was found to be deleted
-            return {
-                success: true,
-                data: null
-            }
-        }
-        else {
-            return {
-                sucess: true,
-                data: result.rows
-            }
-        }
-    } catch (err) {
-        console.error("AN ERROR OCCURRED WHILE TRYING TO DELETE A playlist", err)
-        return {
-            success: false,
-            data: null,
-            error: err
-        }
-    }
-}
-
-/**
 * Deletes a passwort from the DB using an id.
 *
 * @param {number} id - the id of the password, dictates what should be deleted
@@ -362,7 +249,7 @@ async function deletePlaylistById(id, deleteBy) {
 async function deletePasswordById(id) {
     try {
         console.warn("TRYING TO DELETE A password OF", id)
-        let query = `DELETE FROM playlist WHERE id = $1::int RETURNING *`
+        let query = `DELETE FROM password WHERE id = $1::int RETURNING *`
 
         const result = await pool.query(query, [id])
         if (result.rows.length === 0) { // if nothing was found to be deleted
@@ -1073,8 +960,6 @@ module.exports = {
     deleteLiedById,
     deleteLocationById,
     deletePasswordById,
-    deletePlaylistById,
-    deletePlaylistInhaltById,
     deleteReviewById,
     deleteServiceArtistById,
     deleteServiceCatererById,
