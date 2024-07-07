@@ -1,7 +1,7 @@
-const { pool } = require('./Database.js')
-const createQueries = require("./CreateQueries.js")  
+const { pool } = require('./Database.js') 
 const DeleteQueries = require("./DeleteQueries.js")
 const CreateQueries = require("./CreateQueries.js")
+const GetQueries = require("./GetQueries.js")
 const bcrypt = require('bcrypt')
 const cookieJwtAuth = require('../CookieJwtAuth')
 
@@ -34,7 +34,7 @@ async function updateApp_user(profilname, profilbild, kurzbeschreibung, beschrei
         console.log(`app_user UPDATED`)
         
         if (result.rows[0]['bildid'] == undefined && profilbild != undefined) { // create new profilbild for user
-            const newBild = await createQueries.createBild(profilbild)
+            const newBild = await CreateQueries.createBild(profilbild)
             if (!newBild.success) throw new Error(newBild.error)
             
             await pool.query(
@@ -263,7 +263,7 @@ async function updateGericht(id, name, beschreibung, bild) {
         }
         else
         {
-            await createQueries.createBild(bild)
+            await CreateQueries.createBild(bild)
         }
         return {
             success: true,
@@ -360,7 +360,7 @@ async function updateLocation(userid, locationid, adresse, name, beschreibung, p
             }
             else
             {
-                const id = await createQueries.createBild(bild)
+                const id = await CreateQueries.createBild(bild)
                 if(!id.success) throw new Error(id.error)
                 await pool.query(
                     `UPDATE location SET
@@ -449,11 +449,12 @@ async function updatePassword(token, oldPassword, newPassword) {
 async function updateMail(userid, id, gelesen, angenommen = null) {
     try {
         const mail = await pool.query(
-            `SELECT empfaenger FROM mail WHERE id = $1::int`,
+            `SELECT sender, empfaenger, eventid, anfrage FROM mail WHERE id = $1::int`,
             [id]
         )
 
         if (mail.rows.length > 0 && mail.rows[0]['empfaenger'] === userid) {
+            // update mail
             await pool.query(
                 `UPDATE mail SET
                 gelesen = $2::boolean,
@@ -462,6 +463,37 @@ async function updateMail(userid, id, gelesen, angenommen = null) {
                 [id, gelesen, angenommen]
             )
             console.log("UPDATED mail")
+
+            // add artist/caterer to the service of the event
+            if (mail.rows[0]['anfrage'] === 'service' && angenommen == true) {
+                // get email of the empfaenger
+                const app_user = await pool.query(
+                    `SELECT email FROM app_user WHERE id = $1::int`,
+                    [mail.rows[0]['empfaenger']]
+                )
+                // find out if the user is an artist or caterer
+                const userType = await pool.query(
+                    `SELECT id, true AS isArtist
+                    FROM artist
+                    WHERE emailfk = $1::text'
+
+                    UNION ALL
+
+                    SELECT id, false AS isArtist
+                    FROM caterer
+                    WHERE emailfk = $1::text`,
+                    [app_user.rows[0]['email']]
+                )
+                // add artist or caterer to the event
+                userType.rows[0]['isArtist'] ? 
+                    await CreateQueries.createServiceArtist(mail.rows[0]['eventid'], userType.rows[0]['id']) :
+                    await CreateQueries.createServiceCaterer(mail.rows[0]['eventid'], userType.rows[0]['id'])
+            } 
+            // add to friends if the user accepted friend request
+            else if (mail.rows[0]['anfrage'] === 'freundschaft' && angenommen == true) {
+                CreateQueries.createFriend(mail.rows[0]['sender'], mail.rows[0]['empfaenger'])
+            }
+
             return {
                 success: true,
                 error: null
