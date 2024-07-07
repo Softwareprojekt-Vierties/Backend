@@ -82,6 +82,7 @@ async function searchEvent(req,res){
                 paramIndex++
                 additionalFilter += "UPPER(e.name) LIKE UPPER ($"+paramIndex+")"
                 param.push(`%${req.body[key]}%`)
+                console.log("DEBUG: index",paramIndex, "; with", param.at(paramIndex))
                 break
             case 'datum':
                 paramIndex++
