@@ -177,6 +177,7 @@ async function searchEvent(req, res) {
         console.log("QUERY SEARCH", sqlstring);
         const result = await pool.query(sqlstring, param);
         for (let i = 0; i < result.rowCount; i++) {
+            result.rows[i]["ownerid"]==userid ? result.rows[i]["isOwner"] = true : result.rows[i]["isOwner"] = false
             if (Object.hasOwn(result.rows[i], "favorit")) {
                 result.rows[i]["favorit"] = result.rows[i]["favorit"] == userid;
             }
@@ -297,6 +298,7 @@ async function searchLocation(req, res) {
     try {
         const result = await pool.query(sqlstring, params);
         for (let i = 0; i < result.rowCount; i++) {
+            result.rows[i]["ownerid"]==userid ? result.rows[i]["isOwner"] = true : result.rows[i]["isOwner"] = false
             if (Object.hasOwn(result.rows[i], "favorit")) {
                 result.rows[i]["favorit"] = result.rows[i]["favorit"] == userid;
             }
@@ -414,6 +416,7 @@ async function searchCaterer(req, res) {
         const result = await pool.query(sqlstring, param);
 
         for (let i = 0; i < result.rowCount; i++) {
+            result.rows[i]["app_user_id"]==userid ? result.rows[i]["isyou"] = true : result.rows[i]["isyou"] = false
             if (Object.hasOwn(result.rows[i], "favorit")) {
                 result.rows[i]["favorit"] = result.rows[i]["favorit"] === user;
             }
@@ -531,6 +534,7 @@ async function searchArtist(req, res) {
         const result = await pool.query(sqlstring, param);
 
         for (let i = 0; i < result.rowCount; i++) {
+            result.rows[i]["app_user_id"]==userid ? result.rows[i]["isyou"] = true : result.rows[i]["isyou"] = false
             if (Object.hasOwn(result.rows[i], "favorit")) {
                 result.rows[i]["favorit"] = result.rows[i]["favorit"] === user;
             }
@@ -635,6 +639,7 @@ async function searchEndUser(req, res) {
         const result = await pool.query(sqlstring, param);
 
         for (let i = 0; i < result.rowCount; i++) {
+            result.rows[i]["app_user_id"]==userid ? result.rows[i]["isyou"] = true : result.rows[i]["isyou"] = false
             if (Object.hasOwn(result.rows[i], "favorit")) {
                 result.rows[i]["favorit"] = result.rows[i]["favorit"] === user;
             }
