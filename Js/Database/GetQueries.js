@@ -34,11 +34,11 @@ async function checkIfAccountIsInUse(email, benutzername){
 
 async function searchEvent(req,res){
     console.log("REQUEST searchEvent",req.body)
-    let user
+    let userid
     try
     {
-        user = jwt.verify(req.headers["auth"], SECRET)["id"]
-        if (user == undefined) throw new Error("INVALID TOKEN")
+        userid = jwt.verify(req.headers["auth"], SECRET)["id"]
+        if (userid == undefined) throw new Error("INVALID TOKEN")
     }
     catch(err)
     {
@@ -106,7 +106,7 @@ async function searchEvent(req,res){
             case 'istbesitzer':
                 paramIndex++
                 additionalFilter += "e.ownerid >= $"+paramIndex+"::int"
-                param.push(user)
+                param.push(userid)
                 break
             case 'dauer':
                 paramIndex+=2
@@ -118,12 +118,12 @@ async function searchEvent(req,res){
                 paramIndex++
                 ticktjoin +=" JOIN tickets t ON e.id = t.eventid" 
                 additionalFilter += "t.userid = $"+paramIndex+"::int"
-                param.push(user)
+                param.push(userid)
                 break
             case 'istfavorit':
                 paramIndex++
                 additionalFilter+="fe.userid = $"+paramIndex+"::int"
-                param.push(user) 
+                param.push(userid) 
                 break
             case 'preis':
                 paramIndex+=2
@@ -139,7 +139,21 @@ async function searchEvent(req,res){
         if (doAND) additionalFilter += " AND "
     }
 
-    additionalFilter = additionalFilter.substring(0,additionalFilter.length-5) // remove the last ' AND '
+    // filter private events out, unless owner is friend with the user or the user is the owner of the event
+    paramIndex++
+    additionalFilter += 
+        `e.privat = false
+        OR e.ownerid = $${paramIndex}::int
+        OR (
+            e.privat = true
+            AND EXISTS (
+                SELECT 1
+                    FROM friend f
+                    WHERE f.user1 = $${paramIndex}::int
+                    AND f.user2 = e.ownerid
+            )
+        )`
+    param.push(userid)
     paramIndex == 0 ? sqlstring = query + istfavorit : sqlstring = query + istfavorit + ticktjoin + " WHERE " + additionalFilter
 
     try {
@@ -147,7 +161,7 @@ async function searchEvent(req,res){
         for (let i=0;i<result.rowCount;i++)
         {
             //checks if the Event is a users Favorit
-            if(Object.hasOwn(result.rows[i],"favorit")) {result.rows[i]["favorit"] == user ? result.rows[i]["favorit"] = true : result.rows[i]["favorit"] = false}
+            if(Object.hasOwn(result.rows[i],"favorit")) {result.rows[i]["favorit"] == userid ? result.rows[i]["favorit"] = true : result.rows[i]["favorit"] = false}
         }
         if(Object.hasOwn(req.body,"distanz"))
         {
