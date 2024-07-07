@@ -887,6 +887,17 @@ async function deleteBildById(id) {
     }
 }
 
+/**
+ * Deletes all partybilder from the DB using an id.
+ * 
+ * @param {number} id - the id, dictates what should be deleted
+ * @returns {Object} An object containing the following:
+*
+* - boolean: sucess - If the deletion was successful or not
+* - any[]: data - The data returned from the deletion operation, can be null
+* - any: error - The error that occoured if something failed, only written if success = false
+ */
+
 async function deletePartybilderById(id) {
     try {
         console.warn("TRYING TO DELETE ALL partybilder OF app_user", id)
@@ -920,6 +931,17 @@ async function deletePartybilderById(id) {
     }
 }
 
+/**
+ * Deletes all Favorites from the DB using an id.
+ * 
+ * @param {number} userid - the id, dictates what should be deleted
+ * @returns {Object} An object containing the following:
+*
+* - boolean: sucess - If the deletion was successful or not
+* - any[]: data - The data returned from the deletion operation, can be null
+* - any: error - The error that occoured if something failed, only written if success = false
+ */
+
 async function deleteFavorites(userid) {
     try {
         await pool.query(
@@ -939,6 +961,17 @@ async function deleteFavorites(userid) {
     }
 }
 
+/**
+ * Deletes all Friends from the DB using an id.
+ * 
+ * @param {number} id - the id, dictates what should be deleted
+ * @returns {Object} An object containing the following:
+*
+* - boolean: sucess - If the deletion was successful or not
+* - any[]: data - The data returned from the deletion operation, can be null
+* - any: error - The error that occoured if something failed, only written if success = false
+ */
+
 async function deleteFriends(userid) {
     try {
         console.warn("TRYING TO DELETE ALL friends OF app_user", userid)
@@ -951,6 +984,17 @@ async function deleteFriends(userid) {
     }
 }
 
+/**
+ * Deletes all Mails from the DB using an id.
+ * 
+ * @param {number} id - the id, dictates what should be deleted
+ * @returns {Object} An object containing the following:
+*
+* - boolean: sucess - If the deletion was successful or not
+* - any[]: data - The data returned from the deletion operation, can be null
+* - any: error - The error that occoured if something failed, only written if success = false
+ */
+
 async function deleteMails(userid) {
     try {
         console.warn("TRYING TO DELETE ALL mails OF app_user", userid)
@@ -962,6 +1006,17 @@ async function deleteMails(userid) {
         console.error("AN ERROR OCCURED WHILE TRYING TO DELETE mails", err)
     }
 }
+
+/**
+ * Deletes a friend from the DB using an id.
+ * 
+ * @param {JSON} req - a send JSON from the Client that contains an id parameter
+ * @returns {JSON} An object containing the following:
+*
+* - boolean: sucess - If the deletion was successful or not
+* - any[]: data - The data returned from the deletion operation, can be null
+* - any: error - The error that occoured if something failed, only written if success = false
+ */
 
 async function deletefriend(req,res) {
     const friendid = req.params["id"]
