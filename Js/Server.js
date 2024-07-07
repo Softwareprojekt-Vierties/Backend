@@ -39,117 +39,6 @@ if (process.env.NODE_ENV !== 'test') {
 app.post('/login', isLogedIn, login)      // to log a user in
 app.post('/tempToken', tempToken)
 
-// -------------------- DELETES -------------------- //
-
-app.get("/deleteFriend/:id",Auth,DeleteQueries.deletefriend)
-
-app.get("/deleteEndUser", Auth, async (req,res) => {
-    console.log("REQUEST TO DELETE enduser",req.body)
-    let user
-    try {
-        user = getUser(req.headers["auth"])
-        if (user == undefined) throw new Error("INVALID TOKEN")
-    } catch(err) {
-        console.error(err)
-        return res.status(400).send(toString(err))
-    } 
-
-    DeleteQueries.deleteTicketsById(user['id'], 'ownerid')                          //tickets
-    DeleteQueries.deleteBildById(user['bildid'])                                    //bild
-    DeleteQueries.deletePartybilderById(user['id'])                                 //partybilder
-    DeleteQueries.deleteFavorites(user['id'])                                       //favorit_*
-    DeleteQueries.deleteFriends(user['id'])                                         //friend
-    DeleteQueries.deleteMails(user['id'])                                           //mail
-    for (let event of await DeleteQueries.deleteEventById(user['id'], 'ownerid')) { //event
-        DeleteQueries.deleteTicketsById(event['id'], 'eventid')                     //tickets
-        DeleteQueries.deleteServiceArtistById(event['id'], 'eventid')               //serviceartist
-        DeleteQueries.deleteServiceCatererById(event['id'], 'eventid')              //servicecaterer
-        DeleteQueries.deleteReviewById(event['id'], 'eventid')                      //review (for event)
-    }
-    for (let location of await DeleteQueries.deleteLocationById(user['id'], 'ownerid')) {//location
-        DeleteQueries.deleteReviewById(location['id'], 'locationid')                //review (for location)
-    }                         
-    DeleteQueries.deleteReviewById(user['id'], 'userid')                            //review (for user)
-    DeleteQueries.deleteReviewById(user['id'], 'ownerid')                           //review (from user)
-    DeleteQueries.deleteEndnutzerById(user['email'], 'email')                       //endnutzer
-    DeleteQueries.deleteAppUserById(user['id'], 'id')                               //app_user
-    DeleteQueries.deletePasswordById(user['password'])                              //password
-    console.log("Delete Cylce done!")
-    res.status(200).send("Account deleted!")
-})
-
-app.get("/deleteArtist", Auth, async (req, res) => {
-    console.log("REQUEST TO DELETE enduser",req.body)
-    let user
-    try {
-        user = getUser(req.headers["auth"])
-        if (user == undefined) throw new Error("INVALID TOKEN")
-    } catch(err) {
-        console.error(err)
-        return res.status(400).send(toString(err))
-    } 
-
-    DeleteQueries.deleteTicketsById(user['id'], 'ownerid')                          //tickets
-    DeleteQueries.deleteBildById(user['bildid'])                                    //bild
-    DeleteQueries.deleteFavorites(user['id'])                                       //favorit_*
-    DeleteQueries.deleteFriends(user['id'])                                         //friend
-    DeleteQueries.deleteMails(user['id'])                                           //mail
-    for (let event of await DeleteQueries.deleteEventById(user['id'], 'ownerid')) { //event
-        DeleteQueries.deleteTicketsById(event['id'], 'eventid')                     //tickets
-        DeleteQueries.deleteServiceArtistById(event['id'], 'eventid')               //serviceartist(from event)
-        DeleteQueries.deleteServiceCatererById(event['id'], 'eventid')              //servicecaterer(from event)
-        DeleteQueries.deleteReviewById(event['id'], 'eventid')                      //review (for event)
-    }
-    for (let location of await DeleteQueries.deleteLocationById(user['id'], 'ownerid')) {//location
-        DeleteQueries.deleteReviewById(location['id'], 'locationid')                //review (for location)
-    }                         
-    DeleteQueries.deleteReviewById(user['id'], 'userid')                            //review (for user)
-    DeleteQueries.deleteReviewById(user['id'], 'ownerid')                           //review (from user)
-    DeleteQueries.deleteServiceArtistById(user['id'], 'artistid')                   //serviceartist(from user)
-    DeleteQueries.deleteLiedById(user['id'], 'ownerid')                             //lied
-    DeleteQueries.deleteArtistById(user['email'], 'email')                          //artist
-    DeleteQueries.deleteAppUserById(user['id'], 'id')                               //app_user
-    DeleteQueries.deletePasswordById(user['password'])                              //password
-    console.log("Delete Cylce done!")
-    res.status(200).send("Account deleted!")
-})
-
-app.get("/deleteCaterer", Auth, async (req,res) => {
-    console.log("REQUEST TO DELETE enduser",req.body)
-    let user
-    try {
-        user = getUser(req.headers["auth"])
-        if (user == undefined) throw new Error("INVALID TOKEN")
-    } catch(err) {
-        console.error(err)
-        return res.status(400).send(toString(err))
-    } 
-
-    DeleteQueries.deleteTicketsById(user['id'], 'ownerid')                          //tickets
-    DeleteQueries.deleteBildById(user['bildid'])                                    //bild
-    DeleteQueries.deleteFavorites(user['id'])                                       //favorit_*
-    DeleteQueries.deleteFriends(user['id'])                                         //friend
-    DeleteQueries.deleteMails(user['id'])                                           //mail
-    for (let event of await DeleteQueries.deleteEventById(user['id'], 'ownerid')) { //event
-        DeleteQueries.deleteTicketsById(event['id'], 'eventid')                     //tickets
-        DeleteQueries.deleteServiceArtistById(event['id'], 'eventid')               //serviceartist(from event)
-        DeleteQueries.deleteServiceCatererById(event['id'], 'eventid')              //servicecaterer(from event)
-        DeleteQueries.deleteReviewById(event['id'], 'eventid')                      //review (for event)
-    }
-    for (let location of await DeleteQueries.deleteLocationById(user['id'], 'ownerid')) {//location
-        DeleteQueries.deleteReviewById(location['id'], 'locationid')                //review (for location)
-    }                         
-    DeleteQueries.deleteReviewById(user['id'], 'userid')                            //review (for user)
-    DeleteQueries.deleteReviewById(user['id'], 'ownerid')                           //review (from user)
-    DeleteQueries.deleteServiceCatererById(user['id'], 'catererid')                 //servicecaterer(from user)
-    DeleteQueries.deleteGerichtById(user['id'], 'ownerid')                          //gericht
-    DeleteQueries.deleteCatererById(user['email'], 'email')                         //artist
-    DeleteQueries.deleteAppUserById(user['id'], 'id')                               //app_user
-    DeleteQueries.deletePasswordById(user['password'])                              //password
-    console.log("Delete Cylce done!")
-    res.status(200).send("Account deleted!")
-})
-
 // -------------------- GETS -------------------- //
 
 app.get("/getUserById/:id",GetQueries.getEndUserById)
@@ -173,151 +62,6 @@ app.post('/searchLoacation',Auth,GetQueries.searchLocaiton)  // searchs Location
 app.post('/searchCaterer',Auth,GetQueries.searchCaterer)  // searchs Caterer with filter param
 app.post('/searchArtist',Auth,GetQueries.searchArtist)  // searchs Artist with filter param
 app.post('/searchEndnutzer',Auth,GetQueries.searchEndUser)  // searchs Endnutzer with filter param
-
-// -------------------- UPDATES -------------------- // 
-
-app.post("/updateArtist", Auth, async (req,res)=>{
-    console.log("REQUEST TO UPDATE ARTIST",req.body)
-    let userEmail
-    try {
-        userEmail = getUser(req.headers["auth"])["email"]
-        if (userEmail == undefined) throw new Error("INVALID TOKEN")
-    } catch(err) {
-        console.error(err)
-        return res.status(400).send(toString(err))
-    } 
-
-    const {profilname, profilbild, kurzbeschreibung, beschreibung, region, preis, kategorie, erfahrung, songs} = req.body
-    try {
-        const resultArtist = await UpdateQueries.updateArtist(profilname, profilbild, kurzbeschreibung, beschreibung, region, userEmail, preis, kategorie, erfahrung)
-        let message = ""
-
-        if (songs != null) {
-            for(let song of songs) {
-                const resultLied = await UpdateQueries.updateLied(song['id'], song['songName'], song['songLength'], song['songYear'])
-                if (resultLied) message.concat(", UPDATED lied", song['songName'])
-                else message.concat(", FAILED TO UPDATE lied", song['songName'])
-            }
-        }
-        
-        if (resultArtist.success) res.status(200).send("UPDATED artist" + message)
-        else res.status(400).send("FAILED TO UPDATE artist! " + resultArtist.error + ", " + message)
-    }
-    catch(err) {
-        console.error(err)
-        res.status(500).send("Server error! " + toString(err))
-    }
-})
-
-app.post("/updateCaterer", Auth, async (req,res)=>{
-    console.log("REQUEST TO UPDATE CATETER",req.body)
-    let userEmail
-    try {
-        userEmail = getUser(req.headers["auth"])["email"]
-        if (userEmail == undefined) throw new Error("INVALID TOKEN")
-    } catch(err) {
-        console.error(err)
-        return res.status(400).send(toString(err))
-    } 
-
-    const {profilname, profilbild, kurzbeschreibung, beschreibung, region, preis, kategorie, erfahrung, gerichte} = req.body
-    try {
-        const resultCaterer = await UpdateQueries.updateCaterer(profilname, profilbild, kurzbeschreibung, beschreibung, region, userEmail, preis, kategorie, erfahrung)
-        let message = ""
-
-        if (gerichte != null) {
-            for(let gericht of gerichte) {
-                const resultGericht = await UpdateQueries.updateGericht(gericht['id'], gericht['dishName'], gericht['info1']+", "+gericht['info2'], gericht['imagePreview'])
-                if (resultGericht.success) message.concat(", UPDATED gericht", gericht['dishName'])
-                else message.concat(", FAILED TO UPDATE gericht", gericht['dishName'])
-            }
-        }
-
-        if (resultCaterer.success) res.status(200).send("UPDATED CATERER" + message)
-        else res.status(400).send("FAILED TO UPDATE caterer! " + resultCaterer.error + ", " + message)
-    }
-    catch(err) {
-        console.error(err)
-        res.status(500).send("Server error! " + toString(err))
-    }
-})
-
-app.post("/updateEndnutzer", Auth, async (req,res)=>{
-    console.log("REQUEST TO UPDATE Endnutzer",req.body)
-    let userEmail
-    try {
-        userEmail = getUser(req.headers["auth"])["email"]
-        if (userEmail == undefined) throw new Error("INVALID TOKEN")
-    } catch(err) {
-        console.error(err)
-        return res.status(400).send(toString(err))
-    } 
-
-    const {profilname, profilbild, kurzbeschreibung, beschreibung, region, alter, arten, lied, gericht, geschlecht, partybilder} = req.body
-    try {
-        const resultEndnutzer = await UpdateQueries.updateEndnutzer(profilname, profilbild, kurzbeschreibung, beschreibung, region, userEmail, alter, arten, lied, gericht, geschlecht, partybilder)
-        if (resultEndnutzer.success) res.status(200).send("UPDATED Endnutzer")
-        else res.status(400).send("FAILED TO UPDATE Endnutzer! " + resultEndnutzer.error + ",")
-    }
-    catch(err) {
-        console.error(err)
-        res.status(500).send("Server error! " + toString(err))
-    }
-})
-
-app.post("/updateLocation", Auth, (req,res)=>{
-    console.log(req.body)
-    let userid
-    try {
-        userid = getUser(req.headers["auth"])["id"]
-        if (userid == undefined) throw new Error("INVALID TOKEN")
-    } catch(err) {
-        console.error(err)
-        return res.status(400).send(toString(err))
-    } 
-
-    const {locationid, adresse, name, beschreibung, privat, kurzbeschreibung, preis, openair, flaeche, bild, kapazitaet} = req.body
-    try
-    {
-        UpdateQueries.updateLocation(userid, locationid, adresse, name, beschreibung, privat, kurzbeschreibung, preis, openair, flaeche, bild, kapazitaet).then(result =>{
-            if(result.success) {
-                res.status(200).send("Updated Location")
-            } else if (result.error === "Unauthorized") {
-                res.status(401).send("User is not authorized to edit the given location!")
-            } else {
-                res.status(400).send("Update Location failed: " + toString(result.error))
-            }
-        })
-    }
-    catch(err)
-    {
-        console.error(err)
-        res.status(500).send("Server error! " + toString(err))
-    }
-})
-
-app.post("/updateMail", Auth, async (req, res) => {
-    console.log("REQUEST TO UPDATE mail")
-    let userid
-    try {
-        userid = getUser(req.headers["auth"])["id"]
-        if (userid == undefined) throw new Error("INVALID TOKEN")
-    } catch(err) {
-        console.error(err)
-        return res.status(400).send(toString(err))
-    } 
-    const {id, gelesen, angenommen} = req.body
-
-    try {
-        let result
-        if (angenommen === undefined) result = await UpdateQueries.updateMail(userid, id, gelesen)
-        else result = await UpdateQueries.updateMail(userid, id, true, angenommen)
-        if (result.success) res.status(200).send("Updated mail")
-        else res.status(200).send("Didn't update any mail")
-    } catch (err) {
-        res.status(500).send("INTERNAL SERVER ERROR WHILE TRYING TO UPDATE mail!")
-    }
-})
 
 // -------------------- CREATES -------------------- // 
 
@@ -513,6 +257,262 @@ app.post("/createFavouritCaterer",Auth,async (req,res)=>{
     result = await CreateQueries.createFavoritCaterer(userid,catererid)
     if (result.success) res.status(200).send("FAVORIT CREATED")
     else res.status(500).send("FAILED TO CREATE FAVORIT " + toString(result.error))
+})
+
+// -------------------- UPDATES -------------------- // 
+
+app.post("/updateArtist", Auth, async (req,res)=>{
+    console.log("REQUEST TO UPDATE ARTIST",req.body)
+    let userEmail
+    try {
+        userEmail = getUser(req.headers["auth"])["email"]
+        if (userEmail == undefined) throw new Error("INVALID TOKEN")
+    } catch(err) {
+        console.error(err)
+        return res.status(400).send(toString(err))
+    } 
+
+    const {profilname, profilbild, kurzbeschreibung, beschreibung, region, preis, kategorie, erfahrung, songs} = req.body
+    try {
+        const resultArtist = await UpdateQueries.updateArtist(profilname, profilbild, kurzbeschreibung, beschreibung, region, userEmail, preis, kategorie, erfahrung)
+        let message = ""
+
+        if (songs != null) {
+            for(let song of songs) {
+                const resultLied = await UpdateQueries.updateLied(song['id'], song['songName'], song['songLength'], song['songYear'])
+                if (resultLied) message.concat(", UPDATED lied", song['songName'])
+                else message.concat(", FAILED TO UPDATE lied", song['songName'])
+            }
+        }
+        
+        if (resultArtist.success) res.status(200).send("UPDATED artist" + message)
+        else res.status(400).send("FAILED TO UPDATE artist! " + resultArtist.error + ", " + message)
+    }
+    catch(err) {
+        console.error(err)
+        res.status(500).send("Server error! " + toString(err))
+    }
+})
+
+app.post("/updateCaterer", Auth, async (req,res)=>{
+    console.log("REQUEST TO UPDATE CATETER",req.body)
+    let userEmail
+    try {
+        userEmail = getUser(req.headers["auth"])["email"]
+        if (userEmail == undefined) throw new Error("INVALID TOKEN")
+    } catch(err) {
+        console.error(err)
+        return res.status(400).send(toString(err))
+    } 
+
+    const {profilname, profilbild, kurzbeschreibung, beschreibung, region, preis, kategorie, erfahrung, gerichte} = req.body
+    try {
+        const resultCaterer = await UpdateQueries.updateCaterer(profilname, profilbild, kurzbeschreibung, beschreibung, region, userEmail, preis, kategorie, erfahrung)
+        let message = ""
+
+        if (gerichte != null) {
+            for(let gericht of gerichte) {
+                const resultGericht = await UpdateQueries.updateGericht(gericht['id'], gericht['dishName'], gericht['info1']+", "+gericht['info2'], gericht['imagePreview'])
+                if (resultGericht.success) message.concat(", UPDATED gericht", gericht['dishName'])
+                else message.concat(", FAILED TO UPDATE gericht", gericht['dishName'])
+            }
+        }
+
+        if (resultCaterer.success) res.status(200).send("UPDATED CATERER" + message)
+        else res.status(400).send("FAILED TO UPDATE caterer! " + resultCaterer.error + ", " + message)
+    }
+    catch(err) {
+        console.error(err)
+        res.status(500).send("Server error! " + toString(err))
+    }
+})
+
+app.post("/updateEndnutzer", Auth, async (req,res)=>{
+    console.log("REQUEST TO UPDATE Endnutzer",req.body)
+    let userEmail
+    try {
+        userEmail = getUser(req.headers["auth"])["email"]
+        if (userEmail == undefined) throw new Error("INVALID TOKEN")
+    } catch(err) {
+        console.error(err)
+        return res.status(400).send(toString(err))
+    } 
+
+    const {profilname, profilbild, kurzbeschreibung, beschreibung, region, alter, arten, lied, gericht, geschlecht, partybilder} = req.body
+    try {
+        const resultEndnutzer = await UpdateQueries.updateEndnutzer(profilname, profilbild, kurzbeschreibung, beschreibung, region, userEmail, alter, arten, lied, gericht, geschlecht, partybilder)
+        if (resultEndnutzer.success) res.status(200).send("UPDATED Endnutzer")
+        else res.status(400).send("FAILED TO UPDATE Endnutzer! " + resultEndnutzer.error + ",")
+    }
+    catch(err) {
+        console.error(err)
+        res.status(500).send("Server error! " + toString(err))
+    }
+})
+
+app.post("/updateLocation", Auth, (req,res)=>{
+    console.log(req.body)
+    let userid
+    try {
+        userid = getUser(req.headers["auth"])["id"]
+        if (userid == undefined) throw new Error("INVALID TOKEN")
+    } catch(err) {
+        console.error(err)
+        return res.status(400).send(toString(err))
+    } 
+
+    const {locationid, adresse, name, beschreibung, privat, kurzbeschreibung, preis, openair, flaeche, bild, kapazitaet} = req.body
+    try
+    {
+        UpdateQueries.updateLocation(userid, locationid, adresse, name, beschreibung, privat, kurzbeschreibung, preis, openair, flaeche, bild, kapazitaet).then(result =>{
+            if(result.success) {
+                res.status(200).send("Updated Location")
+            } else if (result.error === "Unauthorized") {
+                res.status(401).send("User is not authorized to edit the given location!")
+            } else {
+                res.status(400).send("Update Location failed: " + toString(result.error))
+            }
+        })
+    }
+    catch(err)
+    {
+        console.error(err)
+        res.status(500).send("Server error! " + toString(err))
+    }
+})
+
+app.post("/updateMail", Auth, async (req, res) => {
+    console.log("REQUEST TO UPDATE mail")
+    let userid
+    try {
+        userid = getUser(req.headers["auth"])["id"]
+        if (userid == undefined) throw new Error("INVALID TOKEN")
+    } catch(err) {
+        console.error(err)
+        return res.status(400).send(toString(err))
+    } 
+    const {id, gelesen, angenommen} = req.body
+
+    try {
+        let result
+        if (angenommen === undefined) result = await UpdateQueries.updateMail(userid, id, gelesen)
+        else result = await UpdateQueries.updateMail(userid, id, true, angenommen)
+        if (result.success) res.status(200).send("Updated mail")
+        else res.status(200).send("Didn't update any mail")
+    } catch (err) {
+        res.status(500).send("INTERNAL SERVER ERROR WHILE TRYING TO UPDATE mail!")
+    }
+})
+
+// -------------------- DELETES -------------------- //
+
+app.get("/deleteFriend/:id",Auth,DeleteQueries.deletefriend)
+
+app.get("/deleteEndUser", Auth, async (req,res) => {
+    console.log("REQUEST TO DELETE enduser",req.body)
+    let user
+    try {
+        user = getUser(req.headers["auth"])
+        if (user == undefined) throw new Error("INVALID TOKEN")
+    } catch(err) {
+        console.error(err)
+        return res.status(400).send(toString(err))
+    } 
+
+    DeleteQueries.deleteTicketsById(user['id'], 'ownerid')                          //tickets
+    DeleteQueries.deleteBildById(user['bildid'])                                    //bild
+    DeleteQueries.deletePartybilderById(user['id'])                                 //partybilder
+    DeleteQueries.deleteFavorites(user['id'])                                       //favorit_*
+    DeleteQueries.deleteFriends(user['id'])                                         //friend
+    DeleteQueries.deleteMails(user['id'])                                           //mail
+    for (let event of await DeleteQueries.deleteEventById(user['id'], 'ownerid')) { //event
+        DeleteQueries.deleteTicketsById(event['id'], 'eventid')                     //tickets
+        DeleteQueries.deleteServiceArtistById(event['id'], 'eventid')               //serviceartist
+        DeleteQueries.deleteServiceCatererById(event['id'], 'eventid')              //servicecaterer
+        DeleteQueries.deleteReviewById(event['id'], 'eventid')                      //review (for event)
+    }
+    for (let location of await DeleteQueries.deleteLocationById(user['id'], 'ownerid')) {//location
+        DeleteQueries.deleteReviewById(location['id'], 'locationid')                //review (for location)
+    }                         
+    DeleteQueries.deleteReviewById(user['id'], 'userid')                            //review (for user)
+    DeleteQueries.deleteReviewById(user['id'], 'ownerid')                           //review (from user)
+    DeleteQueries.deleteEndnutzerById(user['email'], 'email')                       //endnutzer
+    DeleteQueries.deleteAppUserById(user['id'], 'id')                               //app_user
+    DeleteQueries.deletePasswordById(user['password'])                              //password
+    console.log("Delete Cylce done!")
+    res.status(200).send("Account deleted!")
+})
+
+app.get("/deleteArtist", Auth, async (req, res) => {
+    console.log("REQUEST TO DELETE enduser",req.body)
+    let user
+    try {
+        user = getUser(req.headers["auth"])
+        if (user == undefined) throw new Error("INVALID TOKEN")
+    } catch(err) {
+        console.error(err)
+        return res.status(400).send(toString(err))
+    } 
+
+    DeleteQueries.deleteTicketsById(user['id'], 'ownerid')                          //tickets
+    DeleteQueries.deleteBildById(user['bildid'])                                    //bild
+    DeleteQueries.deleteFavorites(user['id'])                                       //favorit_*
+    DeleteQueries.deleteFriends(user['id'])                                         //friend
+    DeleteQueries.deleteMails(user['id'])                                           //mail
+    for (let event of await DeleteQueries.deleteEventById(user['id'], 'ownerid')) { //event
+        DeleteQueries.deleteTicketsById(event['id'], 'eventid')                     //tickets
+        DeleteQueries.deleteServiceArtistById(event['id'], 'eventid')               //serviceartist(from event)
+        DeleteQueries.deleteServiceCatererById(event['id'], 'eventid')              //servicecaterer(from event)
+        DeleteQueries.deleteReviewById(event['id'], 'eventid')                      //review (for event)
+    }
+    for (let location of await DeleteQueries.deleteLocationById(user['id'], 'ownerid')) {//location
+        DeleteQueries.deleteReviewById(location['id'], 'locationid')                //review (for location)
+    }                         
+    DeleteQueries.deleteReviewById(user['id'], 'userid')                            //review (for user)
+    DeleteQueries.deleteReviewById(user['id'], 'ownerid')                           //review (from user)
+    DeleteQueries.deleteServiceArtistById(user['id'], 'artistid')                   //serviceartist(from user)
+    DeleteQueries.deleteLiedById(user['id'], 'ownerid')                             //lied
+    DeleteQueries.deleteArtistById(user['email'], 'email')                          //artist
+    DeleteQueries.deleteAppUserById(user['id'], 'id')                               //app_user
+    DeleteQueries.deletePasswordById(user['password'])                              //password
+    console.log("Delete Cylce done!")
+    res.status(200).send("Account deleted!")
+})
+
+app.get("/deleteCaterer", Auth, async (req,res) => {
+    console.log("REQUEST TO DELETE enduser",req.body)
+    let user
+    try {
+        user = getUser(req.headers["auth"])
+        if (user == undefined) throw new Error("INVALID TOKEN")
+    } catch(err) {
+        console.error(err)
+        return res.status(400).send(toString(err))
+    } 
+
+    DeleteQueries.deleteTicketsById(user['id'], 'ownerid')                          //tickets
+    DeleteQueries.deleteBildById(user['bildid'])                                    //bild
+    DeleteQueries.deleteFavorites(user['id'])                                       //favorit_*
+    DeleteQueries.deleteFriends(user['id'])                                         //friend
+    DeleteQueries.deleteMails(user['id'])                                           //mail
+    for (let event of await DeleteQueries.deleteEventById(user['id'], 'ownerid')) { //event
+        DeleteQueries.deleteTicketsById(event['id'], 'eventid')                     //tickets
+        DeleteQueries.deleteServiceArtistById(event['id'], 'eventid')               //serviceartist(from event)
+        DeleteQueries.deleteServiceCatererById(event['id'], 'eventid')              //servicecaterer(from event)
+        DeleteQueries.deleteReviewById(event['id'], 'eventid')                      //review (for event)
+    }
+    for (let location of await DeleteQueries.deleteLocationById(user['id'], 'ownerid')) {//location
+        DeleteQueries.deleteReviewById(location['id'], 'locationid')                //review (for location)
+    }                         
+    DeleteQueries.deleteReviewById(user['id'], 'userid')                            //review (for user)
+    DeleteQueries.deleteReviewById(user['id'], 'ownerid')                           //review (from user)
+    DeleteQueries.deleteServiceCatererById(user['id'], 'catererid')                 //servicecaterer(from user)
+    DeleteQueries.deleteGerichtById(user['id'], 'ownerid')                          //gericht
+    DeleteQueries.deleteCatererById(user['email'], 'email')                         //artist
+    DeleteQueries.deleteAppUserById(user['id'], 'id')                               //app_user
+    DeleteQueries.deletePasswordById(user['password'])                              //password
+    console.log("Delete Cylce done!")
+    res.status(200).send("Account deleted!")
 })
 
 // -------------------- EXPORTS -------------------- // 
