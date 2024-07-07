@@ -183,7 +183,7 @@ app.post("/createTicket",Auth,async (req,res)=>{
     else res.status(500).send("FAILED TO CREATE TICKET " + toString(result.error))
 })
 
-app.post("/changeFavouritEvent",Auth,async (req,res)=>{
+app.post("/changeFavourit",Auth,async (req,res)=>{
     let userid
     try {
         userid = getUser(req.headers["auth"])["id"]
@@ -192,116 +192,87 @@ app.post("/changeFavouritEvent",Auth,async (req,res)=>{
         console.error(err)
         return res.status(400).send(toString(err))
     }
-    const {eventid,isfav} = req.body
-    if(isfav) 
+    const {type,id,isfav} = req.body
+    switch(type)
     {
-        result = await CreateQueries.createFavoritEvent(userid,eventid)
-        if (result.success) res.status(200).send("FAVORIT CREATED")
-        else res.status(500).send("FAILED TO CREATE FAVORIT " + toString(result.error))
-    }
-    else
-    {
-        result = await DeleteQueries.deleteFavoritEvent(eventid,userid)
-        if (result.success) res.status(200).send("FAVORIT DELETED")
-        else res.status(500).send("FAILED TO DELETE FAVORIT " + toString(result.error))
+        case "events":
+            
+            if(isfav) 
+            {
+                result = await CreateQueries.createFavoritEvent(userid,id)
+                if (result.success) res.status(200).send("FAVORIT CREATED")
+                else res.status(500).send("FAILED TO CREATE FAVORIT " + toString(result.error))
+                break
+            }
+            else
+            {
+                result = await DeleteQueries.deleteFavoritEvent(id,userid)
+                if (result.success) res.status(200).send("FAVORIT DELETED")
+                else res.status(500).send("FAILED TO DELETE FAVORIT " + toString(result.error))
+                break
+            }
+        case "location":
+            if(isfav) 
+                {
+                    result = await CreateQueries.createFavoritLocation(userid,id)
+                    if (result.success) res.status(200).send("FAVORIT CREATED")
+                    else res.status(500).send("FAILED TO CREATE FAVORIT " + toString(result.error))
+                    break
+                }
+                else
+                {
+                    result = await DeleteQueries.deleteFavoritLocation(id,userid)
+                    if (result.success) res.status(200).send("FAVORIT DELETED")
+                    else res.status(500).send("FAILED TO DELETE FAVORIT " + toString(result.error))
+                    break
+                }
+            
+        case "person":
+            if(isfav) 
+                {
+                    result = await CreateQueries.createFavoritEndUser(userid,id)
+                    if (result.success) res.status(200).send("FAVORIT CREATED")
+                    else res.status(500).send("FAILED TO CREATE FAVORIT " + toString(result.error))
+                }
+                else
+                {
+                    result = await DeleteQueries.deleteFavoritUser(id,"endnutzer",userid)
+                    if (result.success) res.status(200).send("FAVORIT DELETED")
+                    else res.status(500).send("FAILED TO DELETE FAVORIT " + toString(result.error))
+                }
+            break
+        case "artist":
+            if(isfav) 
+                {
+                    result = await CreateQueries.createFavoritArtist(userid,id)
+                    if (result.success) res.status(200).send("FAVORIT CREATED")
+                    else res.status(500).send("FAILED TO CREATE FAVORIT " + toString(result.error))
+                }
+                else
+                {
+                    result = await DeleteQueries.deleteFavoritUser(id,"artist",userid)
+                    if (result.success) res.status(200).send("FAVORIT DELETED")
+                    else res.status(500).send("FAILED TO DELETE FAVORIT " + toString(result.error))
+                }
+            break
+        case "caterer":
+            if(isfav) 
+                {
+                    result = await CreateQueries.createFavoritCaterer(userid,id)
+                    if (result.success) res.status(200).send("FAVORIT CREATED")
+                    else res.status(500).send("FAILED TO CREATE FAVORIT " + toString(result.error))
+                }
+                else
+                {
+                    result = await DeleteQueries.deleteFavoritUser(id,"catere",userid)
+                    if (result.success) res.status(200).send("FAVORIT DELETED")
+                    else res.status(500).send("FAILED TO DELETE FAVORIT " + toString(result.error))
+                }
+            break
+            
     }
     
-})
-
-app.post("/changeFavouritLocation",Auth,async (req,res)=>{
-    let userid
-    try {
-        userid = getUser(req.headers["auth"])["id"]
-        if (userid == undefined) throw new Error("INVALID TOKEN")
-    } catch(err) {
-        console.error(err)
-        return res.status(400).send(toString(err))
-    }
-    const {locationid,isfav} = req.body
-    if(isfav) 
-    {
-        result = await CreateQueries.createFavoritLocation(userid,locationid)
-        if (result.success) res.status(200).send("FAVORIT CREATED")
-        else res.status(500).send("FAILED TO CREATE FAVORIT " + toString(result.error))
-    }
-    else
-    {
-        result = await DeleteQueries.deleteFavoritLocation(locationid,userid)
-        if (result.success) res.status(200).send("FAVORIT DELETED")
-        else res.status(500).send("FAILED TO DELETE FAVORIT " + toString(result.error))
-    }
-})
-
-app.post("/changeFavouritEndUser",Auth,async (req,res)=>{
-    let userid
-    try {
-        userid = getUser(req.headers["auth"])["id"]
-        if (userid == undefined) throw new Error("INVALID TOKEN")
-    } catch(err) {
-        console.error(err)
-        return res.status(400).send(toString(err))
-    }
-    const {enduserid,isfav} = req.body
-    if(isfav) 
-    {
-        result = await CreateQueries.createFavoritEndUser(userid,enduserid)
-        if (result.success) res.status(200).send("FAVORIT CREATED")
-        else res.status(500).send("FAILED TO CREATE FAVORIT " + toString(result.error))
-    }
-    else
-    {
-        result = await DeleteQueries.deleteFavoritUser(enduserid,"endnutzer",userid)
-        if (result.success) res.status(200).send("FAVORIT DELETED")
-        else res.status(500).send("FAILED TO DELETE FAVORIT " + toString(result.error))
-    }
-})
-
-app.post("/changeFavouritArtist",Auth,async (req,res)=>{
-    let userid
-    try {
-        userid = getUser(req.headers["auth"])["id"]
-        if (userid == undefined) throw new Error("INVALID TOKEN")
-    } catch(err) {
-        console.error(err)
-        return res.status(400).send(toString(err))
-    }
-    const {artistid,isfav} = req.body
-    if(isfav) 
-    {
-        result = await CreateQueries.createFavoritArtist(userid,artistid)
-        if (result.success) res.status(200).send("FAVORIT CREATED")
-        else res.status(500).send("FAILED TO CREATE FAVORIT " + toString(result.error))
-    }
-    else
-    {
-        result = await DeleteQueries.deleteFavoritUser(artistid,"artist",userid)
-        if (result.success) res.status(200).send("FAVORIT DELETED")
-        else res.status(500).send("FAILED TO DELETE FAVORIT " + toString(result.error))
-    }
-})
-
-app.post("/changeFavouritCaterer",Auth,async (req,res)=>{
-    let userid
-    try {
-        userid = getUser(req.headers["auth"])["id"]
-        if (userid == undefined) throw new Error("INVALID TOKEN")
-    } catch(err) {
-        console.error(err)
-        return res.status(400).send(toString(err))
-    }
-    const {catererid,isfav} = req.body
-    if(isfav) 
-    {
-        result = await CreateQueries.createFavoritCaterer(userid,catererid)
-        if (result.success) res.status(200).send("FAVORIT CREATED")
-        else res.status(500).send("FAILED TO CREATE FAVORIT " + toString(result.error))
-    }
-    else
-    {
-        result = await DeleteQueries.deleteFavoritUser(catererid,"catere",userid)
-        if (result.success) res.status(200).send("FAVORIT DELETED")
-        else res.status(500).send("FAILED TO DELETE FAVORIT " + toString(result.error))
-    }
+    
 })
 
 // -------------------- UPDATES -------------------- // 
