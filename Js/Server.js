@@ -192,12 +192,12 @@ app.post("/changeFavorite",Auth,async (req,res)=>{
         console.error(err)
         return res.status(400).send(toString(err))
     }
-    const {type,id,isfav} = req.body
+    const {type,id,istfav} = req.body
     switch(type)
     {
         case "events":
             
-            if(isfav) 
+            if(istfav) 
             {
                 result = await CreateQueries.createFavoritEvent(userid,id)
                 if (result.success) res.status(200).send("FAVORIT CREATED")
@@ -212,7 +212,7 @@ app.post("/changeFavorite",Auth,async (req,res)=>{
                 break
             }
         case "location":
-            if(isfav) 
+            if(istfav) 
                 {
                     result = await CreateQueries.createFavoritLocation(userid,id)
                     if (result.success) res.status(200).send("FAVORIT CREATED")
@@ -228,7 +228,7 @@ app.post("/changeFavorite",Auth,async (req,res)=>{
                 }
             
         case "person":
-            if(isfav) 
+            if(istfav) 
                 {
                     result = await CreateQueries.createFavoritEndUser(userid,id)
                     if (result.success) res.status(200).send("FAVORIT CREATED")
@@ -242,7 +242,7 @@ app.post("/changeFavorite",Auth,async (req,res)=>{
                 }
             break
         case "artist":
-            if(isfav) 
+            if(istfav) 
                 {
                     result = await CreateQueries.createFavoritArtist(userid,id)
                     if (result.success) res.status(200).send("FAVORIT CREATED")
@@ -256,7 +256,7 @@ app.post("/changeFavorite",Auth,async (req,res)=>{
                 }
             break
         case "caterer":
-            if(isfav) 
+            if(istfav) 
                 {
                     result = await CreateQueries.createFavoritCaterer(userid,id)
                     if (result.success) res.status(200).send("FAVORIT CREATED")
