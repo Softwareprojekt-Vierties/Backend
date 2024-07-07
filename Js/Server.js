@@ -11,9 +11,9 @@ const UpdateQueries = require("./Database/UpdateQueries.js")
 const GetQueries = require("./Database/GetQueries.js")
 
 const app = express(); // create app used for the Server 
-const port = 5000; // connection port
+const port =  process.env.PORT || 5000; // connection port
 const corsOption= {
-    Credential: true
+    credentials: true
 }
 const maxRequestBodySize = '10mb'
 
@@ -27,12 +27,14 @@ app.use((req, res, next) => {
     next();
   })
 
-const server = app.listen(port, (error) => {           // starts the server on the port
-    if (error) {
-        console.log("Error running the server");
-    }
-    console.log("Server is running on port", port);
-});
+let server
+
+if (process.env.NODE_ENV !== 'test') {
+    server = app.listen(port, (error) => {           // starts the server on the port
+        if (error) console.log("Error running the server", error)
+        console.log("Server is running on port", port)
+    })
+}
 
 app.post('/login', isLogedIn, login)      // to log a user in
 app.post('/tempToken', tempToken)

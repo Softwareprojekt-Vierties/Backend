@@ -1,17 +1,33 @@
 const request = require("supertest")
-const app = require("../Js/Server")
+const { app } = require("../Js/Server")
 const jwt = require("jsonwebtoken")
 const database = require("../Js/Database/Database.js")
 const CreateQueries = require("../Js/Database/CreateQueries.js")
 const GetQueries = require("../Js/Database/GetQueries.js")
 SECRET = "BruhnsmanIsTheBest"
 
-afterAll(done =>{
-    app.server.close(done);
-})
-
 jest.mock("../Js/Database/Database.js")
 jest.mock("../Js/Database/GetQueries.js")
+
+let testServer
+
+beforeAll((done) => {
+    testServer = app.listen(5000, (error) => {
+        if (error) {
+            console.error(error)
+            testServer.close(done)
+        }
+        console.log('Server started on port 5000')
+        // Suppress console.error and console.log during tests
+        jest.spyOn(console, 'error').mockImplementation(() => {})
+        jest.spyOn(console, 'log').mockImplementation(() => {})
+        done()
+    })
+}, 15000)
+
+afterAll(done =>{
+    testServer.close(done)
+})
 
 describe('POST /tempToken', () => {
     it('should return a temporary JWT token if account does not exist', async () => {
@@ -34,7 +50,7 @@ describe('POST /tempToken', () => {
             .post('/tempToken')
             .send(message)
 
-        expect(res.status).toBe(200);
+        expect(res.status).toBe(200)
 
         const decodedResToken = jwt.verify(res.text, SECRET)
         const decodedToken = jwt.verify(token, SECRET)
@@ -42,7 +58,7 @@ describe('POST /tempToken', () => {
         expect(decodedResToken.email).toEqual(decodedToken.email)
         expect(decodedResToken.benutzername).toEqual(decodedToken.benutzername)
         expect(decodedResToken.password).toEqual(decodedToken.password)
-    })
+    }, 2000)
 
     it('should return "Account already exists!" if the account already exists', async () => {
         const message = {
@@ -64,14 +80,14 @@ describe('POST /tempToken', () => {
 
         expect(res.status).toBe(200)
         expect(res.text).toEqual("Account already exists!")
-    })
+    }, 2500)
 
     it('should return an error message if there is an issue checking the account', async () => {
         const message = {
             email: 'error@gmx.de',
             benutzername: 'errorUser',
             password: 'testPassword'
-        };
+        }
 
         // simulate an error
         GetQueries.checkIfAccountIsInUse.mockResolvedValue({
@@ -86,11 +102,11 @@ describe('POST /tempToken', () => {
 
         expect(res.status).toBe(500)
         expect(res.text).toContain("Failed to create a temporary token: ")
-    })
+    }, 2000)
 })
 
-describe('POST /login',()=>{
-    it('Should return a jwt token',async () => {
+describe('POST /login', () => {
+    it('should return a jwt token', async () => {
         const message = {
             body: {
                 email: 'test@gmx.de',
@@ -101,46 +117,52 @@ describe('POST /login',()=>{
         const fakeUser = {
             success: true,
             user: {
-                id: 1, 
+                id: 1,
                 email: message.body["email"],
                 pass: message.body["pass"]
             },
             error: null
         }
 
-        database.comparePassword.mockImplementation((email, password)=>{return fakeUser}) // simulation of response for valid user login
-        const token = jwt.sign(fakeUser["user"],SECRET,{expiresIn: '3h'})
+        database.comparePassword.mockImplementation((email, password) => {
+            return fakeUser;
+        }) // simulation of response for valid user login
+        const token = jwt.sign(fakeUser["user"], SECRET, { expiresIn: '3h' })
 
         try {
-            const res = await request(app.app).post('/login').send(message)
-            expect(res.status).toBe(200)
-            expect(res.text).toEqual(token)
-        } catch(err) {
-            console.error(err)
+            const res = await request(app)
+                .post('/login')
+                .send(message);
+            expect(res.status).toBe(200);
+            expect(res.text).toEqual(token);
+        } catch (err) {
+            console.error(err);
             throw err
         }
-    },10000)
+    }, 5000)
 })
 
 // this one is outdated, but I want to keep it, because there was a lot of effort put into it :D
-xdescribe('POST /register',()=>{
-    it('should return a User created',async () => {
+xdescribe('POST /register', () => {
+    it('should return a User created', async () => {
         const message = {
-            body:{
+            body: {
                 email: 'test@gmx.de',
                 pass: 'test',
-                name:'testUser'
+                name: 'testUser'
             }
         }
 
-        jest.spyOn(CreateQueries,'createEndUser').mockResolvedValue(true)
+        jest.spyOn(CreateQueries, 'createEndUser').mockResolvedValue(true)
         try {
-            const res = await request(app.app).post('/register').send(message)
+            const res = await request(app)
+                .post('/register')
+                .send(message)
             expect(res.status).toBe(200)
             expect(res.text).toEqual("User created")
-        } catch(err) {
+        } catch (err) {
             console.error(err)
             throw err
         }
-    },10000)
+    }, 10000)
 })
