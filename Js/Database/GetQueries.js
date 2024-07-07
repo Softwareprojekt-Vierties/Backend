@@ -369,7 +369,7 @@ async function searchCaterer(req, res) {
                 additionalFilter += `(c.openair = $${paramIndex}::boolean)`;
                 param.push(req.body[key]);
                 break;
-            case 'profilname':
+            case 'search':
                 paramIndex++;
                 additionalFilter += `(UPPER(a.profilname) LIKE UPPER($${paramIndex}))`;
                 param.push(`%${req.body[key]}%`);
@@ -481,7 +481,7 @@ async function searchArtist(req, res) {
     for (let key in req.body) {
         doAND = true;
         switch (key) {
-            case 'profilname':
+            case 'search':
                 paramIndex++;
                 additionalFilter += `(UPPER(ap.profilname) LIKE UPPER($${paramIndex}))`;
                 param.push(`%${req.body[key]}%`);
