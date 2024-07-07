@@ -668,20 +668,6 @@ async function searchEndUser(req,res){
 
 // -------------------- GETS -------------------- //
 
-async function getStuffbyName(req){
-    try {
-        const result = await pool.query(
-            "SELECT * FROM $1::text WHERE UPPER(name) LIKE UPPER($2)",
-            [req.body["table"], req.body["value"]]
-        )
-        console.log(result)
-        return result
-    } catch (err) {
-        console.error(err)
-        return null
-    }
-}
-
 async function getPartybilderFromUser(req, res) {
     try {
         const result = await pool.query(
@@ -1269,8 +1255,7 @@ async function getCatererByEvent(id){
 
 module.exports = {
     // GETS 
-    checkIfAccountIsInUse, 
-    getStuffbyName, 
+    checkIfAccountIsInUse,
     getLocationById,  
     getCatererById ,
     getArtistByID, 

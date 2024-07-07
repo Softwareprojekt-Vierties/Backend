@@ -514,58 +514,6 @@ app.post("/createFavouritCaterer",Auth,async (req,res)=>{
     if (result.success) res.status(200).send("FAVORIT CREATED")
     else res.status(500).send("FAILED TO CREATE FAVORIT " + toString(result.error))
 })
-// -------------------- TESTS -------------------- // 
-
-app.post('/testSearch', (req,res)=>{
-    try
-    {
-        GetQueries.getStuffbyName(req).then(result =>{
-            res.status(200).send(result);
-        });
-        
-    }
-    catch (err)
-    {
-        res.status(500).send(err)
-    }
-});
-
-app.get('/test/:id', (req,res)=>{    // test get function
-    const {id} = req.params;
-    if(id >= 10)
-     {
-        res.status(200).send("lets goo");
-     }
-     else
-     {
-         res.status(200).send("ur id is: ",id);
-     }
- });
- 
- app.post('/testpost/:id', (req,res)=>{
-     const {id} = req.params;
-     const {servus} = req.body;
-     res.status(200).send("ur id is: "+id+" and ur body is: "+servus);
- });
-
-app.post('/testloc',async (req,res)=>{
-    const {location1,location2,maxdis} = req.body
-    try
-    {
-        const good = await checkDistance(location1,location2,maxdis)
-        res.send(good) 
-    }
-    catch(err)
-    {
-        res.send(err)
-    }
-
-})
-
-app.get("/MyPage",Auth, (req,res)=>{     // test function
-    const user = getUser(req);
-    res.status(200).send("Welcome "+user.id);
-})
 
 // -------------------- EXPORTS -------------------- // 
 
