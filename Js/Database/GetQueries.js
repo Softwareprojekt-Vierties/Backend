@@ -172,7 +172,7 @@ async function searchEvent(req, res) {
     }
 
     let sqlstring = query + istfavorit + ticktjoin + (additionalFilter ? " WHERE " + additionalFilter : "");
-
+    console.log("Event SQL:\n",sqlstring,"\nWith DATA:", param)
     try {
         console.log("QUERY SEARCH", sqlstring);
         const result = await pool.query(sqlstring, param);
@@ -287,13 +287,13 @@ async function searchLocation(req, res) {
     paramIndex++;
     additionalFilter += `(location.privat = false OR location.ownerid = $${paramIndex}::int)`;
     params.push(userid);
-
+    
     if (additionalFilter.endsWith(" AND ")) {
         additionalFilter = additionalFilter.slice(0, -5);
     }
 
     sqlstring = query + istfavorit + (additionalFilter ? " WHERE " + additionalFilter : "");
-
+    console.log("Location SQL:\n",sqlstring,"\nWith DATA:", param)
     try {
         const result = await pool.query(sqlstring, params);
         for (let i = 0; i < result.rowCount; i++) {
@@ -409,7 +409,7 @@ async function searchCaterer(req, res) {
 
     additionalFilter = additionalFilter.slice(0, -5); // remove the last ' AND '
     let sqlstring = paramIndex === 0 ? query + istfavorit : query + istfavorit + " WHERE " + additionalFilter;
-
+    console.log("caterer SQL:\n",sqlstring,"\nWith DATA:", param)
     try {
         const result = await pool.query(sqlstring, param);
 
@@ -526,7 +526,7 @@ async function searchArtist(req, res) {
 
     additionalFilter = additionalFilter.slice(0, -5); // remove the last ' AND '
     let sqlstring = paramIndex === 0 ? query + istfavorit : query + istfavorit + " WHERE " + additionalFilter;
-
+    console.log("Artist SQL:\n",sqlstring,"\nWith DATA:", param)
     try {
         const result = await pool.query(sqlstring, param);
 
@@ -635,7 +635,7 @@ async function searchEndUser(req, res) {
     additionalFilter = additionalFilter.slice(0, -5); // remove the last ' AND '
     let sqlstring = paramIndex === 0 ? query + istfavorit + isfriend : query + istfavorit + isfriend + "WHERE " + additionalFilter;
 
-    console.log("SQL:\n",sqlstring,"\nWith DATA:", param)
+    console.log("Enduser SQL:\n",sqlstring,"\nWith DATA:", param)
 
     try {
         const result = await pool.query(sqlstring, param);
