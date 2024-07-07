@@ -183,7 +183,7 @@ app.post("/createTicket",Auth,async (req,res)=>{
     else res.status(500).send("FAILED TO CREATE TICKET " + toString(result.error))
 })
 
-app.post("/changeFavourit",Auth,async (req,res)=>{
+app.post("/changeFavorit",Auth,async (req,res)=>{
     let userid
     try {
         userid = getUser(req.headers["auth"])["id"]
