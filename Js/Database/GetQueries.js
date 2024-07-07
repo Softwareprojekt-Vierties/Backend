@@ -1,9 +1,17 @@
 const { pool } = require('./Database.js')
-const jwt = require('jsonwebtoken');
-const checkDistance = require('../CheckDistance.js');
-const { getUser } = require('../CookieJwtAuth.js');
+const jwt = require('jsonwebtoken')
+const checkDistance = require('../CheckDistance.js')
 SECRET = "BruhnsmanIsTheBest"
 
+/**
+ * Checks the DB if an account with the given email or benutzername already exists
+ * @param {!string} email 
+ * @param {!string} benutzername 
+ * @returns {!Object}
+ * - boolean: success - true if successful, false otherwise
+ * - exists: boolean - true if account already exists, false otherwise
+ * - error: error - null if none occoured
+ */
 async function checkIfAccountIsInUse(email, benutzername){
     try {
         const result = await pool.query(
@@ -32,16 +40,18 @@ async function checkIfAccountIsInUse(email, benutzername){
 
 // -------------------- SEARCHES -------------------- //
 
+/**
+ * Searches for events with parameters given in the req.body
+ * @param {!JSON} req 
+ * @param {!JSON} res 
+ */
 async function searchEvent(req,res){
     console.log("REQUEST searchEvent",req.body)
     let userid
-    try
-    {
+    try {
         userid = jwt.verify(req.headers["auth"], SECRET)["id"]
         if (userid == undefined) throw new Error("INVALID TOKEN")
-    }
-    catch(err)
-    {
+    } catch(err) {
         console.error(err)
         return res.status(400).send(toString(err))
     }    
@@ -180,23 +190,25 @@ async function searchEvent(req,res){
                 isokay ? result.rows[i]["distanz"] = true : result.rows[i]["distanz"] = false
             } 
         }
-        return res.send(result)
+        res.status(200).send(result)
     } catch (err) {
         console.error(err)
-        return res.status(500).send(`Error while searching for an Event: ${toString(err)}`)
+        res.status(500).send(`Error while searching for an Event: ${toString(err)}`)
     }
 }
 
+/**
+ * Searches for locations with parameters given in the req.body
+ * @param {!JSON} req 
+ * @param {!JSON} res 
+ */
 async function searchLocation(req,res){
     console.log("REQUEST searchLocaiton",req.body)
     let userid
-    try
-    {
+    try {
         userid = jwt.verify(req.headers["auth"], SECRET)["id"]
         if (userid == undefined) throw new Error("INVALID TOKEN")
-    }
-    catch(err)
-    {
+    } catch(err) {
         console.error(err)
         return res.status(400).send(toString(err))
     }    
@@ -302,23 +314,25 @@ async function searchLocation(req,res){
                     isokay ? result.rows[i]["distanz"] = true : result.rows[i]["distanz"] = false
                 } 
             }
-        return res.send(result)
+        res.status(200).send(result)
     } catch (err) {
         console.error(err)
-        return res.status(500).send(`Error while searching for an location: ${toString(err)}`)
+        res.status(500).send(`Error while searching for an location: ${toString(err)}`)
     }
 }
 
+/**
+ * Searches for caterer with parameters given in the req.body
+ * @param {!JSON} req 
+ * @param {!JSON} res 
+ */
 async function searchCaterer(req,res){
     console.log("REQUEST searchCaterer",req.body)
     let user
-    try
-    {
+    try {
         user = jwt.verify(req.headers["auth"], SECRET)["id"]
         if (user == undefined) throw new Error("INVALID TOKEN")
-    }
-    catch(err)
-    {
+    } catch(err) {
         console.error(err)
         return res.status(400).send(toString(err))
     }    
@@ -419,23 +433,25 @@ async function searchCaterer(req,res){
                     isokay ? result.rows[i]["distanz"] = true : result.rows[i]["distanz"] = false
                 } 
             }
-        return res.send(result)
+        res.status(200).send(result)
     } catch (err) {
         console.error(err)
-        return res.status(500).send(`Error while searching for an Caterer: ${toString(err)}`)
+        res.status(500).send(`Error while searching for an Caterer: ${toString(err)}`)
     }
 }
 
+/**
+ * Searches for artists with parameters given in the req.body
+ * @param {!JSON} req 
+ * @param {!JSON} res 
+ */
 async function searchArtist(req,res){
     console.log("REQUEST searchArtist",req.body)
     let user
-    try
-    {
+    try {
         user = jwt.verify(req.headers["auth"], SECRET)["id"]
         if (user == undefined) throw new Error("INVALID TOKEN")
-    }
-    catch(err)
-    {
+    } catch(err) {
         console.error(err)
         return res.status(400).send(toString(err))
     }    
@@ -536,23 +552,25 @@ async function searchArtist(req,res){
                     isokay ? result.rows[i]["distanz"] = true : result.rows[i]["distanz"] = false
                 } 
             }
-        return res.send(result)
+        res.status(200).send(result)
     } catch (err) {
         console.error(err)
-        return res.status(500).send(`Error while searching for an Artist: ${toString(err)}`)
+        res.status(500).send(`Error while searching for an Artist: ${toString(err)}`)
     }
 }
 
+/**
+ * Searches for endusers with parameters given in the req.body
+ * @param {!JSON} req 
+ * @param {!JSON} res 
+ */
 async function searchEndUser(req,res){
     console.log("REQUEST searchEndUser",req.body)
     let user
-    try
-    {
+    try {
         user = jwt.verify(req.headers["auth"], SECRET)["id"]
         if (user == undefined) throw new Error("INVALID TOKEN")
-    }
-    catch(err)
-    {
+    } catch(err) {
         console.error(err)
         return res.status(400).send(toString(err))
     }    
@@ -641,10 +659,10 @@ async function searchEndUser(req,res){
                     isokay ? result.rows[i]["distanz"] = true : result.rows[i]["distanz"] = false
                 } 
             }
-        return res.send(result)
+        res.status(200).send(result)
     } catch (err) {
         console.error(err)
-        return res.status(500).send(`Error while searching for an enduser: ${toString(err)}`)
+        res.status(500).send(`Error while searching for an enduser: ${toString(err)}`)
     }
 }
 
