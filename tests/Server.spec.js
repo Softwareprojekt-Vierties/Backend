@@ -11,6 +11,7 @@ afterAll(done =>{
 })
 
 jest.mock("../Js/Database/Database.js")
+jest.mock("../Js/Database/GetQueries.js")
 
 describe('POST /tempToken', () => {
     it('should return a temporary JWT token if account does not exist', async () => {
