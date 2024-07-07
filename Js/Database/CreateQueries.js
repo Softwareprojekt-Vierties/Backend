@@ -717,10 +717,15 @@ async function createPartybild(userid, bildid) {
 
 async function createFriend(userid,friendid){
     try {
-        const friend = await pool.query(
+        await pool.query(
             `INSERT INTO friend (user1, user2) VALUES ($1::integer, $2::integer)`,
             [userid, friendid]
         )
+        await pool.query(
+            `INSERT INTO friend (user1, user2) VALUES ($1::integer, $2::integer)`,
+            [friendid, userid]
+        )
+
         console.log("FRIEND CREATED")
         return {
             success: true,
