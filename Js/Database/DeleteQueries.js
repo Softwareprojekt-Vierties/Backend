@@ -1031,10 +1031,10 @@ async function deletefriend(req,res) {
     try {
         const result = await pool.query(
             `DELETE FROM friend
-            WHERE (user1 = $1::int
-	            OR user2 = $1::int)
-                AND (user1 = $2::int
-                OR user2 = $2::int)` ,
+            WHERE
+                (user1 = $1::int AND user2 = $2::int)
+                AND
+                (user1 = $2::int AND user2 = $1::int)`,
             [userid,friendid]
         )
         if (result.rows.length === 0) {
