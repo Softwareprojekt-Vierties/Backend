@@ -39,6 +39,8 @@ app.post('/tempToken', tempToken)
 
 // -------------------- DELETES -------------------- //
 
+app.get("/deleteFriend/:id",Auth,DeleteQueries.deletefriend)
+
 app.get("/deleteEndUser", Auth, async (req,res) => {
     console.log("REQUEST TO DELETE enduser",req.body)
     let user
@@ -562,8 +564,7 @@ app.get("/MyPage",Auth, (req,res)=>{     // test function
     const user = getUser(req);
     res.status(200).send("Welcome "+user.id);
 })
-// -------------------- DELETE --------------------- //
-app.get("/deleteFriend/:id",Auth,DeleteQueries.deletefriend)
+
 // -------------------- EXPORTS -------------------- // 
 
 // export things for test
