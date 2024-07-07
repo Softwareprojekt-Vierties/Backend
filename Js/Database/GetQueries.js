@@ -77,39 +77,39 @@ async function searchEvent(req, res) {
         doAND = true;
         switch (key) {
             case 'openair':
-                additionalFilter += "l.openair = true";
+                additionalFilter += "(l.openair = true)";
                 break;
             case 'search':
                 paramIndex++;
-                additionalFilter += `UPPER(e.name) LIKE UPPER ($${paramIndex})`;
+                additionalFilter += `(UPPER(e.name) LIKE UPPER ($${paramIndex}))`;
                 param.push(`%${req.body[key]}%`);
                 break;
             case 'datum':
                 paramIndex++;
-                additionalFilter += `e.datum = $${paramIndex}::date`;
+                additionalFilter += `(e.datum = $${paramIndex}::date)`;
                 param.push(req.body[key]);
                 break;
             case 'uhrzeit':
                 paramIndex++;
-                additionalFilter += `e.startuhrzeit BETWEEN $${paramIndex} AND `;
+                additionalFilter += `(e.startuhrzeit BETWEEN $${paramIndex} AND `;
                 param.push((req.body[key])[0] === '' ? "00:00" : (req.body[key])[0]);
                 paramIndex++;
-                additionalFilter += `$${paramIndex}`;
+                additionalFilter += `$${paramIndex})`;
                 param.push((req.body[key])[1] === '' ? "23:59" : (req.body[key])[1]);
                 break;
             case 'eventgroesse':
                 paramIndex++;
-                additionalFilter += `e.eventgroesse >= $${paramIndex}::int`;
+                additionalFilter += `(e.eventgroesse >= $${paramIndex}::int)`;
                 param.push(req.body[key]);
                 break;
             case 'altersfreigabe':
                 paramIndex++;
-                additionalFilter += `e.altersfreigabe >= $${paramIndex}::int`;
+                additionalFilter += `(e.altersfreigabe >= $${paramIndex}::int)`;
                 param.push(req.body[key]);
                 break;
             case 'region':
                 paramIndex++;
-                additionalFilter += `UPPER(l.adresse) LIKE UPPER ($${paramIndex})`;
+                additionalFilter += `(UPPER(l.adresse) LIKE UPPER ($${paramIndex}))`;
                 param.push(`%${req.body[key]}%`);
                 break;
             case 'distanz':
@@ -117,12 +117,12 @@ async function searchEvent(req, res) {
                 break;
             case 'istbesitzer':
                 paramIndex++;
-                additionalFilter += `e.ownerid = $${paramIndex}::int`;
+                additionalFilter += `(e.ownerid = $${paramIndex}::int)`;
                 param.push(userid);
                 break;
             case 'dauer':
                 paramIndex += 2;
-                additionalFilter += `e.dauer BETWEEN $${paramIndex - 1}::int AND $${paramIndex}::int`;
+                additionalFilter += `(e.dauer BETWEEN $${paramIndex - 1}::int AND $${paramIndex}::int)`;
                 param.push((req.body[key])[0] === '' ? "0" : (req.body[key])[0],
                             (req.body[key])[1] === '' ? "1000" : (req.body[key])[1]);
                 break;
@@ -134,12 +134,12 @@ async function searchEvent(req, res) {
                 break;
             case 'istfavorit':
                 paramIndex++;
-                additionalFilter += `fe.userid = $${paramIndex}::int`;
+                additionalFilter += `(fe.userid = $${paramIndex}::int)`;
                 param.push(userid);
                 break;
             case 'preis':
                 paramIndex += 2;
-                additionalFilter += `e.preis BETWEEN $${paramIndex - 1}::text AND $${paramIndex}::text`;
+                additionalFilter += `(e.preis BETWEEN $${paramIndex - 1}::text AND $${paramIndex}::text)`;
                 param.push((req.body[key])[0] === '' ? "0" : (req.body[key])[0],
                         (req.body[key])[1] === '' ? "999999" : (req.body[key])[1]);
                 break;
@@ -152,17 +152,19 @@ async function searchEvent(req, res) {
 
     paramIndex++;
     additionalFilter += `
-        e.privat = false
-        OR e.ownerid = $${paramIndex}::int
-        OR (
-            e.privat = true
-            AND EXISTS (
-                SELECT 1
-                FROM friend f
-                WHERE f.user1 = $${paramIndex}::int
-                AND f.user2 = e.ownerid
+        (
+            e.privat = false
+            OR e.ownerid = $${paramIndex}::int
+            OR (
+                e.privat = true
+                AND EXISTS (
+                    SELECT 1
+                    FROM friend f
+                    WHERE f.user1 = $${paramIndex}::int
+                    AND f.user2 = e.ownerid
+                )
             )
-        )`;
+        )`
     param.push(userid);
 
     if (additionalFilter.endsWith(" AND ")) {
@@ -234,27 +236,27 @@ async function searchLocation(req, res) {
         switch (key) {
             case 'openair':
                 paramIndex++;
-                additionalFilter += `openair = $${paramIndex}::boolean`;
+                additionalFilter += `(openair = $${paramIndex}::boolean)`;
                 params.push(req.body[key]);
                 break;
             case 'search':
                 paramIndex++;
-                additionalFilter += `UPPER(name) LIKE UPPER($${paramIndex})`;
+                additionalFilter += `(UPPER(name) LIKE UPPER($${paramIndex}))`;
                 params.push(`%${req.body[key]}%`);
                 break;
             case 'region':
                 paramIndex++;
-                additionalFilter += `UPPER(adresse) LIKE UPPER($${paramIndex})`;
+                additionalFilter += `(UPPER(adresse) LIKE UPPER($${paramIndex}))`;
                 params.push(`%${req.body[key]}%`);
                 break;
             case 'preis':
                 paramIndex++;
-                additionalFilter += `preis >= $${paramIndex}::text`;
+                additionalFilter += `(preis >= $${paramIndex}::text)`;
                 params.push(req.body[key]);
                 break;
             case 'kapazitaet':
                 paramIndex += 2;
-                additionalFilter += `kapazitaet BETWEEN $${paramIndex - 1}::int AND $${paramIndex}::int`;
+                additionalFilter += `(kapazitaet BETWEEN $${paramIndex - 1}::int AND $${paramIndex}::int)`;
                 params.push(req.body[key][0], req.body[key][1]);
                 break;
             case 'distanz':
@@ -262,17 +264,17 @@ async function searchLocation(req, res) {
                 break;
             case 'istfavorit':
                 paramIndex++;
-                additionalFilter += `favorit_location.userid = $${paramIndex}::int`;
+                additionalFilter += `(favorit_location.userid = $${paramIndex}::int)`;
                 params.push(userid);
                 break;
             case 'istbesitzer':
                 paramIndex++;
-                additionalFilter += `ownerid = $${paramIndex}::int`;
+                additionalFilter += `(ownerid = $${paramIndex}::int)`;
                 params.push(userid);
                 break;
             case 'bewertung':
                 paramIndex++;
-                additionalFilter += `sterne >= $${paramIndex}::int`;
+                additionalFilter += `(sterne >= $${paramIndex}::int)`;
                 params.push(req.body[key]);
                 break;
             default:
@@ -283,7 +285,7 @@ async function searchLocation(req, res) {
     }
 
     paramIndex++;
-    additionalFilter += `location.privat = false OR location.ownerid = $${paramIndex}::int`;
+    additionalFilter += `(location.privat = false OR location.ownerid = $${paramIndex}::int)`;
     params.push(userid);
 
     if (additionalFilter.endsWith(" AND ")) {
@@ -364,38 +366,38 @@ async function searchCaterer(req, res) {
         switch (key) {
             case 'openair':
                 paramIndex++;
-                additionalFilter += `c.openair = $${paramIndex}::boolean`;
+                additionalFilter += `(c.openair = $${paramIndex}::boolean)`;
                 param.push(req.body[key]);
                 break;
             case 'profilname':
                 paramIndex++;
-                additionalFilter += `UPPER(a.profilname) LIKE UPPER($${paramIndex})`;
+                additionalFilter += `(UPPER(a.profilname) LIKE UPPER($${paramIndex}))`;
                 param.push(`%${req.body[key]}%`);
                 break;
             case 'region':
                 paramIndex++;
-                additionalFilter += `UPPER(a.region) LIKE UPPER($${paramIndex})`;
+                additionalFilter += `(UPPER(a.region) LIKE UPPER($${paramIndex}))`;
                 param.push(`%${req.body[key]}%`);
                 break;
             case 'preis':
                 paramIndex += 2;
-                additionalFilter += `c.preis BETWEEN $${paramIndex - 1}::text AND $${paramIndex}::text`;
+                additionalFilter += `(c.preis BETWEEN $${paramIndex - 1}::text AND $${paramIndex}::text)`;
                 param.push((req.body[key])[0] === '' ? "0" : (req.body[key])[0]);
                 param.push((req.body[key])[1] === '' ? "9999999" : (req.body[key])[1]);
                 break;
             case 'erfahrung':
                 paramIndex++;
-                additionalFilter += `c.erfahrung >= $${paramIndex}::text`;
+                additionalFilter += `(c.erfahrung >= $${paramIndex}::text)`;
                 param.push(req.body[key]);
                 break;
             case 'kategorie':
                 paramIndex++;
-                additionalFilter += `UPPER(c.kategorie) LIKE UPPER($${paramIndex})`;
+                additionalFilter += `(UPPER(c.kategorie) LIKE UPPER($${paramIndex}))`;
                 param.push(`%${req.body[key]}%`);
                 break;
             case 'istfavorit':
                 paramIndex++;
-                additionalFilter += `fu.userid = $${paramIndex}::int`;
+                additionalFilter += `(fu.userid = $${paramIndex}::int)`;
                 param.push(user);
                 break;
             default:
@@ -481,38 +483,38 @@ async function searchArtist(req, res) {
         switch (key) {
             case 'profilname':
                 paramIndex++;
-                additionalFilter += `UPPER(ap.profilname) LIKE UPPER($${paramIndex})`;
+                additionalFilter += `(UPPER(ap.profilname) LIKE UPPER($${paramIndex}))`;
                 param.push(`%${req.body[key]}%`);
                 break;
             case 'region':
                 paramIndex++;
-                additionalFilter += `UPPER(ap.region) LIKE UPPER($${paramIndex})`;
+                additionalFilter += `(UPPER(ap.region) LIKE UPPER($${paramIndex}))`;
                 param.push(`%${req.body[key]}%`);
                 break;
             case 'preis':
                 paramIndex += 2;
-                additionalFilter += `a.preis BETWEEN $${paramIndex - 1}::text AND $${paramIndex}::text`;
+                additionalFilter += `(a.preis BETWEEN $${paramIndex - 1}::text AND $${paramIndex}::text)`;
                 param.push((req.body[key])[0] === '' ? "0" : (req.body[key])[0]);
                 param.push((req.body[key])[1] === '' ? "9999999" : (req.body[key])[1]);
                 break;
             case 'erfahrung':
                 paramIndex++;
-                additionalFilter += `a.erfahrung >= $${paramIndex}::text`;
+                additionalFilter += `(a.erfahrung >= $${paramIndex}::text)`;
                 param.push(req.body[key]);
                 break;
             case 'kategorie':
                 paramIndex++;
-                additionalFilter += `UPPER(a.kategorie) LIKE UPPER($${paramIndex})`;
+                additionalFilter += `(UPPER(a.kategorie) LIKE UPPER($${paramIndex}))`;
                 param.push(`%${req.body[key]}%`);
                 break;
             case 'bewertung':
                 paramIndex++;
-                additionalFilter += `ap.sterne >= $${paramIndex}::int`;
+                additionalFilter += `(ap.sterne >= $${paramIndex}::int)`;
                 param.push(req.body[key]);
                 break;
             case 'istfavorit':
                 paramIndex++;
-                additionalFilter += `fu.userid = $${paramIndex}::int`;
+                additionalFilter += `(fu.userid = $${paramIndex}::int)`;
                 param.push(user);
                 break;
             default:
@@ -593,27 +595,27 @@ async function searchEndUser(req, res) {
         switch (key) {
             case 'search':
                 paramIndex++;
-                additionalFilter += `UPPER(ap.profilname) LIKE UPPER($${paramIndex})`;
+                additionalFilter += `(UPPER(ap.profilname) LIKE UPPER($${paramIndex}))`;
                 param.push(`%${req.body[key]}%`);
                 break;
             case 'region':
                 paramIndex++;
-                additionalFilter += `UPPER(ap.region) LIKE UPPER($${paramIndex})`;
+                additionalFilter += `(UPPER(ap.region) LIKE UPPER($${paramIndex}))`;
                 param.push(`%${req.body[key]}%`);
                 break;
             case 'geschlecht':
                 paramIndex++;
-                additionalFilter += `UPPER(e.geschlecht) LIKE UPPER($${paramIndex})`;
+                additionalFilter += `(UPPER(e.geschlecht) LIKE UPPER($${paramIndex}))`;
                 param.push(`%${req.body[key]}%`);
                 break;
             case 'alter':
                 paramIndex++;
-                additionalFilter += `e.alter >= $${paramIndex}::int`;
+                additionalFilter += `(e.alter >= $${paramIndex}::int)`;
                 param.push(req.body[key]);
                 break;
             case 'istfavorit':
                 paramIndex++;
-                additionalFilter += `fu.userid = $${paramIndex}::int`;
+                additionalFilter += `(fu.userid = $${paramIndex}::int)`;
                 param.push(user);
                 break;
             case 'istfreund':
