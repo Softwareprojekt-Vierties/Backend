@@ -29,7 +29,7 @@ async function deleteTicketsById(id, deleteBy) {
             query = `DELETE FROM tickets WHERE eventid = $1::int RETURNING *`
         } else {
             return {
-                sucess: false,
+                success: false,
                 error: new Error("INVALID deleteBy: " + deleteBy)
             }
         }
@@ -43,7 +43,7 @@ async function deleteTicketsById(id, deleteBy) {
         }
         else {
             return {
-                sucess: true,
+                success: true,
                 data: result.rows
             }
         }
@@ -86,7 +86,7 @@ async function deleteServiceCatererById(id, deleteBy) {
             query = `DELETE FROM servicecaterer WHERE eventid = $1::int RETURNING *`
         } else {
             return {
-                sucess: false,
+                success: false,
                 error: new Error("INVALID deleteBy: " + deleteBy)
             }
         }
@@ -100,7 +100,7 @@ async function deleteServiceCatererById(id, deleteBy) {
         }
         else {
             return {
-                sucess: true,
+                success: true,
                 data: result.rows
             }
         }
@@ -143,7 +143,7 @@ async function deleteServiceArtistById(id, deleteBy) {
             query = `DELETE FROM serviceartist WHERE eventid = $1::int RETURNING *`
         } else {
             return {
-                sucess: false,
+                success: false,
                 error: new Error("INVALID deleteBy: " + deleteBy)
             }
         }
@@ -157,7 +157,7 @@ async function deleteServiceArtistById(id, deleteBy) {
         }
         else {
             return {
-                sucess: true,
+                success: true,
                 data: result.rows
             }
         }
@@ -207,7 +207,7 @@ async function deleteReviewById(id, deleteBy) {
             query = `DELETE FROM review WHERE locationid = $1::int RETURNING *`
         } else {
             return {
-                sucess: false,
+                success: false,
                 error: new Error("INVALID deleteBy: " + deleteBy)
             }
         }
@@ -221,7 +221,7 @@ async function deleteReviewById(id, deleteBy) {
         }
         else {
             return {
-                sucess: true,
+                success: true,
                 data: result.rows
             }
         }
@@ -260,7 +260,7 @@ async function deletePasswordById(id) {
         }
         else {
             return {
-                sucess: true,
+                success: true,
                 data: result.rows
             }
         }
@@ -301,7 +301,7 @@ async function deleteLocationById(id, deleteBy) {
             query = `DELETE FROM location WHERE ownerid = $1::int RETURNING *`
         } else {
             return {
-                sucess: false,
+                success: false,
                 error: new Error("INVALID deleteBy: " + deleteBy)
             }
         }
@@ -320,7 +320,7 @@ async function deleteLocationById(id, deleteBy) {
             }
 
             return {
-                sucess: true,
+                success: true,
                 data: result.rows
             }
         }
@@ -361,7 +361,7 @@ async function deleteLiedById(id, deleteBy) {
             query = `DELETE FROM lied WHERE ownerid = $1::int RETURNING *`
         } else {
             return {
-                sucess: false,
+                success: false,
                 error: new Error("INVALID deleteBy: " + deleteBy)
             }
         }
@@ -375,7 +375,7 @@ async function deleteLiedById(id, deleteBy) {
         }
         else {
             return {
-                sucess: true,
+                success: true,
                 data: result.rows
             }
         }
@@ -416,7 +416,7 @@ async function deleteGerichtById(id, deleteBy) {
             query = `DELETE FROM gericht WHERE ownerid = $1::int RETURNING *`
         } else {
             return {
-                sucess: false,
+                success: false,
                 error: new Error("INVALID deleteBy: " + deleteBy)
             }
         }
@@ -435,7 +435,7 @@ async function deleteGerichtById(id, deleteBy) {
             }
 
             return {
-                sucess: true,
+                success: true,
                 data: result.rows
             }
         }
@@ -476,7 +476,7 @@ async function deleteEventById(id, deleteBy) {
             query = `DELETE FROM event WHERE ownerid = $1::int RETURNING *`
         } else {
             return {
-                sucess: false,
+                success: false,
                 error: new Error("INVALID deleteBy: " + deleteBy)
             }
         }
@@ -495,7 +495,7 @@ async function deleteEventById(id, deleteBy) {
             }
 
             return {
-                sucess: true,
+                success: true,
                 data: result.rows
             }
         }
@@ -536,7 +536,7 @@ async function deleteAppUserById(id, deleteBy) {
             query = `DELETE FROM endnutzer WHERE email = $1::text RETURNING *`
         } else {
             return {
-                sucess: false,
+                success: false,
                 error: new Error("INVALID deleteBy: " + deleteBy)
             }
         }
@@ -555,7 +555,7 @@ async function deleteAppUserById(id, deleteBy) {
             }
 
             return {
-                sucess: true,
+                success: true,
                 data: result.rows
             }
         }
@@ -596,7 +596,7 @@ async function deleteEndnutzerById(id, deleteBy) {
             query = `DELETE FROM endnutzer WHERE emailfk = $1::text RETURNING *`
         } else {
             return {
-                sucess: false,
+                success: false,
                 error: new Error("INVALID deleteBy: " + deleteBy)
             }
         }
@@ -610,7 +610,7 @@ async function deleteEndnutzerById(id, deleteBy) {
         }
         else {
             return {
-                sucess: true,
+                success: true,
                 data: result.rows
             }
         }
@@ -651,7 +651,7 @@ async function deleteCatererById(id, deleteBy) {
             query = `DELETE FROM caterer WHERE emailfk = $1::text RETURNING *`
         } else {
             return {
-                sucess: false,
+                success: false,
                 error: new Error("INVALID deleteBy: " + deleteBy)
             }
         }
@@ -665,7 +665,7 @@ async function deleteCatererById(id, deleteBy) {
         }
         else {
             return {
-                sucess: true,
+                success: true,
                 data: result.rows
             }
         }
@@ -720,7 +720,7 @@ async function deleteArtistById(id, deleteBy) {
         }
         else {
             return {
-                sucess: true,
+                success: true,
                 data: result.rows
             }
         }
@@ -759,7 +759,7 @@ async function deleteBildById(id) {
             }
         } else {
             return {
-                sucess: true,
+                success: true,
                 data: result.rows,
                 error: null
             }
@@ -803,7 +803,7 @@ async function deletePartybilderById(id) {
             }
         } else {
             return {
-                sucess: true,
+                success: true,
                 data: result.rows,
                 error: null
             }
@@ -832,7 +832,7 @@ async function deleteFavoritEvent(id,userid) {
             }
         } else {
             return {
-                sucess: true,
+                success: true,
                 data: result.rows,
                 error: null
             }
@@ -861,7 +861,7 @@ async function deleteFavoritLocation(id,userid) {
             }
         } else {
             return {
-                sucess: true,
+                success: true,
                 data: result.rows,
                 error: null
             }
@@ -890,7 +890,7 @@ async function deleteFavoritUser(id,type,userid) {
             }
         } else {
             return {
-                sucess: true,
+                success: true,
                 data: result.rows,
                 error: null
             }
@@ -898,7 +898,7 @@ async function deleteFavoritUser(id,type,userid) {
     } catch (err) {
         console.error("AN ERROR OCCURED WHILE TRYING TO DELETE favorit_user", err)
         return {
-            sucess: false,
+            success: false,
             data: null,
             error: err
         }
@@ -1019,7 +1019,7 @@ async function deletefriend(req,res) {
             }
         } else {
             return {
-                sucess: true,
+                success: true,
                 data: result.rows,
                 error: null
             }
@@ -1027,7 +1027,7 @@ async function deletefriend(req,res) {
     } catch (err) {
         console.error("AN ERROR OCCURED WHILE TRYING TO DELETE friend", err)
         return {
-            sucess: false,
+            success: false,
             data: null,
             error: err
         }
