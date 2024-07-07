@@ -586,7 +586,7 @@ async function searchEndUser(req, res) {
 
     let additionalFilter = "";
     let istfavorit = " LEFT OUTER JOIN favorit_user fu ON e.id = fu.enduserid ";
-    let isfriend = " JOIN friend fr ON ap.id = fr.user2 "
+    let isfriend = " LEFT OUTER JOIN friend fr ON ap.id = fr.user2 "
     let param = [];
     let paramIndex = 0;
     let doAND = true;
