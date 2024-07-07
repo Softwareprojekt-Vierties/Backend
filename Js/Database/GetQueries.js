@@ -78,6 +78,7 @@ async function searchEvent(req,res){
                 additionalFilter += "l.openair = true"
                 break
             case 'search':
+                console.log("DEBUG: key", key, "; body with key", req.body[key])
                 paramIndex++
                 additionalFilter += "UPPER(e.name) LIKE UPPER ($"+paramIndex+")"
                 param.push(`%${req.body[key]}%`)
@@ -167,6 +168,7 @@ async function searchEvent(req,res){
     paramIndex == 0 ? sqlstring = query + istfavorit : sqlstring = query + istfavorit + ticktjoin + " WHERE " + additionalFilter
 
     try {
+        console.log("QUERY SEARCH", sqlstring)
         const result = await pool.query(sqlstring,param)
         for (let i=0;i<result.rowCount;i++)
         {
