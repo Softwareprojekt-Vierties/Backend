@@ -605,7 +605,7 @@ async function searchEndUser(req, res) {
                 param.push(`%${req.body[key]}%`);
                 break;
             case 'geschlecht':
-                if (geschlecht == null) break
+                if (req.body[key] == null) break
                 paramIndex++;
                 additionalFilter += `(UPPER(e.geschlecht) LIKE UPPER($${paramIndex}))`;
                 param.push(`%${req.body[key]}%`);
