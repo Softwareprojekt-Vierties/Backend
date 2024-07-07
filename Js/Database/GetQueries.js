@@ -604,13 +604,7 @@ async function searchEndUser(req, res) {
                 additionalFilter += `(UPPER(ap.region) LIKE UPPER($${paramIndex}))`;
                 param.push(`%${req.body[key]}%`);
                 break;
-            case 'geschlecht':
-                if (req.body[key] === null) break
-                paramIndex++;
-                additionalFilter += `(UPPER(e.geschlecht) LIKE UPPER($${paramIndex}))`;
-                param.push(`%${req.body[key]}%`);
-                break;
-            case 'alter':
+            case 'altersfreigabe':
                 paramIndex++;
                 additionalFilter += `(e.alter >= $${paramIndex}::int)`;
                 param.push(req.body[key]);
