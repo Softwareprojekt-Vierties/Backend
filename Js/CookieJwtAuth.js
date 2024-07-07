@@ -36,7 +36,7 @@ function isLogedIn(req,res,next){
     try {
         const token = req.headers["auth"]
         const user = jwt.verify(token, SECRET)
-        res.send("u are already logged in")
+        res.send("You are already logged in")
     } catch {
         next()
     }

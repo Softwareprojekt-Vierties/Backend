@@ -48,7 +48,7 @@ async function comparePassword(email, password) {
         return {
             success: true,
             user: null,
-            error: null
+            error: "Wrong password"
         }
     } catch (err) {
         console.error("FAILED TO COMPARE PASSWORDS",err)
