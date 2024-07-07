@@ -189,11 +189,11 @@ async function searchEvent(req,res){
 
 async function searchLocaiton(req,res){
     console.log("REQUEST searchLocaiton",req.body)
-    let user
+    let userid
     try
     {
-        user = jwt.verify(req.headers["auth"], SECRET)["id"]
-        if (user == undefined) throw new Error("INVALID TOKEN")
+        userid = jwt.verify(req.headers["auth"], SECRET)["id"]
+        if (userid == undefined) throw new Error("INVALID TOKEN")
     }
     catch(err)
     {
@@ -250,12 +250,12 @@ async function searchLocaiton(req,res){
             case 'istfavorit':
                 paramIndex++
                 additionalFilter+="favorit_location.userid = $"+paramIndex+"::int"
-                param.push(user) 
+                param.push(userid) 
                 break
             case 'istbesitzer':
                 paramIndex++
                 additionalFilter += "ownerid = $"+paramIndex+"::int"
-                param.push(user)   
+                param.push(userid)   
                 break
             case 'bewertung':
                 paramIndex++
@@ -270,8 +270,12 @@ async function searchLocaiton(req,res){
         if (doAND) additionalFilter += " AND "
     }
 
-    additionalFilter = additionalFilter.substring(0,additionalFilter.length-5) // remove the last ' AND '
-
+    // filter private locations out, unless the user is the owner of the event
+    paramIndex++
+    additionalFilter += 
+        `location.privat = false
+        OR location.ownerid = $${paramIndex}::int`
+    param.push(userid)
     paramIndex == 0 ? sqlstring = query + istfavorit : sqlstring = query + istfavorit + " WHERE " + additionalFilter
    
     try {
@@ -279,7 +283,7 @@ async function searchLocaiton(req,res){
         for (let i=0;i<result.rowCount;i++)
         {
             //checks if the locataion is a user Favorit
-            if(Object.hasOwn(result.rows[i],"favorit")) {result.rows[i]["favorit"] == user ? result.rows[i]["favorit"] = true : result.rows[i]["favorit"] = false}
+            if(Object.hasOwn(result.rows[i],"favorit")) {result.rows[i]["favorit"] == userid ? result.rows[i]["favorit"] = true : result.rows[i]["favorit"] = false}
         }
         if(Object.hasOwn(req.body,"distanz"))
             {
