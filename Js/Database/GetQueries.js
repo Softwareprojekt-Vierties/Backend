@@ -187,7 +187,7 @@ async function searchEvent(req,res){
     }
 }
 
-async function searchLocaiton(req,res){
+async function searchLocation(req,res){
     console.log("REQUEST searchLocaiton",req.body)
     let userid
     try
@@ -1269,7 +1269,7 @@ module.exports = {
     getFriendId,
     // SEARCHES
     searchEvent, 
-    searchLocaiton,
+    searchLocaiton: searchLocation, // to not destroy the code by mistakes in refactoring, just point it to the right function
     searchCaterer, 
     searchArtist, 
     searchEndUser, 
