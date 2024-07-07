@@ -676,6 +676,15 @@ async function createBild(data) {
     }
 }
 
+/**
+ * Inserts a new Partypicture into the database.
+ * @param {!Number} userid the ID form the user wiche the picture belongs too
+ * @param {!Number} bildid the ID of the Picture that should be added to the partybilder tabel
+ * @returns {!Object} 
+ * - success: [true if successful, false otherwise]
+ * - error: [the error, if one occured]
+ */
+
 async function createPartybild(userid, bildid) {
     try {
         const partybild = await pool.query(
@@ -695,6 +704,15 @@ async function createPartybild(userid, bildid) {
         }
     }
 }
+
+/**
+ * Inserts a new Friend into the database Tabel friend.
+ * @param {!Number} userid the ID of one of the Useres
+ * @param {!Number} friendid the ID of the ohter User
+ * @returns {!Object} 
+ * - success: [true if successful, false otherwise]
+ * - error: [the error, if one occured]
+ */
 
 async function createFriend(userid,friendid){
     try {
@@ -716,6 +734,15 @@ async function createFriend(userid,friendid){
     }
 }
 
+/**
+ * Inserts a new Favorit Event into the database Tabel favorit_event.
+ * @param {!Number} userid the ID of the User
+ * @param {!Number} eventid the ID of the Event
+ * @returns {!Object} 
+ * - success: [true if successful, false otherwise]
+ * - error: [the error, if one occured]
+ */
+
 async function createFavoritEvent(userid,eventid){
     try {
         const favorit = await pool.query(
@@ -736,7 +763,16 @@ async function createFavoritEvent(userid,eventid){
     }
 }
 
-async function createFavoritLocation(userid,eventid){
+/**
+ * Inserts a new Favorit Location into the database Tabel favorit_location.
+ * @param {!Number} userid the ID of the User
+ * @param {!Number} locationid the ID of the location
+ * @returns {!Object} 
+ * - success: [true if successful, false otherwise]
+ * - error: [the error, if one occured]
+ */
+
+async function createFavoritLocation(userid,locationid){
     try {
         const favorit = await pool.query(
             `INSERT INTO favorit_location (userid, locationid) VALUES ($1::integer, $2::integer)`,
@@ -755,6 +791,15 @@ async function createFavoritLocation(userid,eventid){
         }
     }
 }
+
+/**
+ * Inserts a new Favorit Enduser into the database Tabel favorit_user.
+ * @param {!Number} userid the ID of the User
+ * @param {!Number} enduserid the ID of the Enduser
+ * @returns {!Object} 
+ * - success: [true if successful, false otherwise]
+ * - error: [the error, if one occured]
+ */
 
 async function createFavoritEndUser(userid,enduserid){
     try {
@@ -776,6 +821,15 @@ async function createFavoritEndUser(userid,enduserid){
     }
 }
 
+/**
+ * Inserts a new Favorit Artist into the database Tabel favorit_user.
+ * @param {!Number} userid the ID of the User
+ * @param {!Number} artistid the ID of the Artist
+ * @returns {!Object} 
+ * - success: [true if successful, false otherwise]
+ * - error: [the error, if one occured]
+ */
+
 async function createFavoritArtist(userid,artistid){
     try {
         const favorit = await pool.query(
@@ -795,6 +849,15 @@ async function createFavoritArtist(userid,artistid){
         }
     }
 }
+
+/**
+ * Inserts a new Favorit Caterer into the database Tabel favorit_user.
+ * @param {!Number} userid the ID of the User
+ * @param {!Number} catereid the ID of the Caterer
+ * @returns {!Object} 
+ * - success: [true if successful, false otherwise]
+ * - error: [the error, if one occured]
+ */
 
 async function createFavoritCaterer(userid,catereid){
     try {
