@@ -293,7 +293,7 @@ async function searchLocation(req, res) {
     }
 
     sqlstring = query + istfavorit + (additionalFilter ? " WHERE " + additionalFilter : "");
-    console.log("Location SQL:\n",sqlstring,"\nWith DATA:", param)
+    console.log("Location SQL:\n",sqlstring,"\nWith DATA:", params)
     try {
         const result = await pool.query(sqlstring, params);
         for (let i = 0; i < result.rowCount; i++) {
