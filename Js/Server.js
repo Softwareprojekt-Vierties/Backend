@@ -516,20 +516,6 @@ app.post("/createFavouritCaterer",Auth,async (req,res)=>{
 })
 // -------------------- TESTS -------------------- // 
 
-app.post('/testSearch', (req,res)=>{
-    try
-    {
-        GetQueries.getStuffbyName(req).then(result =>{
-            res.status(200).send(result);
-        });
-        
-    }
-    catch (err)
-    {
-        res.status(500).send(err)
-    }
-});
-
 app.get('/test/:id', (req,res)=>{    // test get function
     const {id} = req.params;
     if(id >= 10)
