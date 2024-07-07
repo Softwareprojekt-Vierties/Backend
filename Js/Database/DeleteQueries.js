@@ -818,6 +818,19 @@ async function deletePartybilderById(id) {
     }
 }
 
+/**
+ * Deletes a Favoirt Event from the given User.
+ * 
+ * @param {number} id - the id, dictates what should be deleted
+ * @param {number} userid - the User id
+ * @returns {Object} An object containing the following:
+*
+* - boolean: sucess - If the deletion was successful or not
+* - any[]: data - The data returned from the deletion operation, can be null
+* - any: error - The error that occoured if something failed, only written if success = false
+ */
+
+
 async function deleteFavoritEvent(id,userid) {
     try {
         const result = await pool.query(
@@ -847,6 +860,18 @@ async function deleteFavoritEvent(id,userid) {
     }
 }
 
+/**
+ * Deletes a Favoirt Location from the given User.
+ * 
+ * @param {number} id - the id, dictates what should be deleted
+ * @param {number} userid - the User id
+ * @returns {Object} An object containing the following:
+*
+* - boolean: sucess - If the deletion was successful or not
+* - any[]: data - The data returned from the deletion operation, can be null
+* - any: error - The error that occoured if something failed, only written if success = false
+ */
+
 async function deleteFavoritLocation(id,userid) {
     try {
         const result = await pool.query(
@@ -875,6 +900,19 @@ async function deleteFavoritLocation(id,userid) {
         }
     }
 }
+
+/**
+ * Deletes a Favoirt User from the given User.
+ * 
+ * @param {number} id - the id, dictates what should be deleted
+ * @param {string} type - what type of user is the Favoirt user
+ * @param {number} userid - the User id
+ * @returns {Object} An object containing the following:
+*
+* - boolean: sucess - If the deletion was successful or not
+* - any[]: data - The data returned from the deletion operation, can be null
+* - any: error - The error that occoured if something failed, only written if success = false
+ */
 
 async function deleteFavoritUser(id,type,userid) {
     try {
