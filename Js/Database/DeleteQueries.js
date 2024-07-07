@@ -879,7 +879,7 @@ async function deleteFavoritLocation(id,userid) {
 async function deleteFavoritUser(id,type,userid) {
     try {
         const result = await pool.query(
-            `DELETE FROM favorit_usaer WHERE `+type+`id = $1::int AND userid = $2::int RETURNING *`,
+            `DELETE FROM favorit_user WHERE `+type+`id = $1::int AND userid = $2::int RETURNING *`,
             [id,userid]
         )
         if (result.rows.length === 0) {
