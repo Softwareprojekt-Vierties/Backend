@@ -323,9 +323,9 @@ app.post("/updateMail", Auth, async (req, res) => {
 
 app.post('/createCaterer', Auth, async (req,res)=> {
     console.log("REQUEST TO CREATE CATERER",req.body)
-    const benutzername = getUser(req.headers['auth'])['benutzername']
-    const email = getUser(req.headers['auth'])['email']
-    const password = getUser(req.headers['auth'])['password']
+    const benutzername = await getUser(req.headers['auth'])['benutzername']
+    const email = await getUser(req.headers['auth'])['email']
+    const password = await getUser(req.headers['auth'])['password']
     const {profilname, profilbild, kurzbeschreibung, beschreibung, region, adresse, preis, kategorie, erfahrung, gerichte} = req.body
     const caterer = await CreateQueries.createCaterer(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, adresse + ", " + region, preis, kategorie, erfahrung)
 
@@ -343,9 +343,9 @@ app.post('/createCaterer', Auth, async (req,res)=> {
 
 app.post('/createArtist', Auth, async (req,res)=> {
     console.log("REQUEST TO CREATE ARTIST",req.body)
-    const benutzername = getUser(req.headers['auth'])['benutzername']
-    const email = getUser(req.headers['auth'])['email']
-    const password = getUser(req.headers['auth'])['password']
+    const benutzername = await getUser(req.headers['auth'])['benutzername']
+    const email = await getUser(req.headers['auth'])['email']
+    const password = await getUser(req.headers['auth'])['password']
     const {profilname, profilbild, kurzbeschreibung, beschreibung, region, adresse, preis, kategorie, erfahrung, songs} = req.body
     const artist = await CreateQueries.createArtist(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, adresse + ", " + region, preis, kategorie, erfahrung)
     
@@ -363,10 +363,9 @@ app.post('/createArtist', Auth, async (req,res)=> {
 
 app.post('/createEndnutzer', Auth, async (req,res) => {
     console.log("REQUEST TO CREATE endnutzer",req.body)
-    const benutzername = getUser(req.headers['auth'])['benutzername']
-    const email = getUser(req.headers['auth'])['email']
-    const password = getUser(req.headers['auth'])['password']
-    console.log(benutzername, email, password)
+    const benutzername = await getUser(req.headers['auth'])['benutzername']
+    const email = await getUser(req.headers['auth'])['email']
+    const password = await getUser(req.headers['auth'])['password']
     const {profilname, profilbild, kurzbeschreibung, beschreibung, region, alter, arten, lied, gericht, geschlecht, partybilder} = req.body
     await CreateQueries.createEndUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, alter, arten, lied, gericht, geschlecht, partybilder).then(result => {
         if(result.success) return res.status(200).send("User created")
