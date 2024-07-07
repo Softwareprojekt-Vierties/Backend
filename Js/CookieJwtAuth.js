@@ -31,7 +31,6 @@ function Auth (req, res, next){
  * @param {JSON} res - the response that is send to the Client 
  * @param next - continus the code
  */
-
 function isLogedIn(req,res,next){
     try {
         const token = req.headers["auth"]
@@ -43,14 +42,21 @@ function isLogedIn(req,res,next){
 }
 
 /**
- * gets the User Data out of an JWT Token 
- * 
- * @param {*} token - A JWT token
+ * unpacks a token with the secret
+ * @param {!string} token - A JWT token
+ * @returns {JSON} the accessible information inside the token
  */
-function getUser(token) {  // returns the user information form the JWT cookie
+function unpackToken(token) {
     return jwt.verify(token, SECRET);
 }
 
+/**
+ * creates a temporary token for registration if an account with given
+ * credentials does not already exists
+ * @param {!JSON} req 
+ * @param {!JSON} res 
+ * @returns 
+ */
 async function tempToken(req, res) {
     try {
         const exists = await checkIfAccountIsInUse(req.body['email'], req.body['benutzername'])
@@ -69,11 +75,9 @@ async function tempToken(req, res) {
 }
 
 /**
- * checks if an Account exist whit the given data and sends a JWT token back if successful
- * 
+ * checks if an account exist whit the given data and sends a JWT token back if successful
  * @param {JSON} req - A JSON that Conatins an Email and a Password
  * @param {JSON} res - the response that is send to the Client 
- * @returns {JSON} JWT token for the Client 
  */
 async function login(req, res) {
     const {email, pass} = req.body
@@ -100,7 +104,7 @@ async function login(req, res) {
 
 module.exports = {
     Auth,
-    getUser,
+    getUser: unpackToken,
     isLogedIn,
     login,
     tempToken
