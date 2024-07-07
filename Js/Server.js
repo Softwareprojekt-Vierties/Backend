@@ -138,8 +138,8 @@ app.get("/deleteCaterer", Auth, async (req,res) => {
     DeleteQueries.deleteReviewById(user['id'], 'userid')                            //review (for user)
     DeleteQueries.deleteReviewById(user['id'], 'ownerid')                           //review (from user)
     DeleteQueries.deleteServiceCatererById(user['id'], 'catererid')                 //servicecaterer(from user)
-    //DeleteQueries.deleteGerichtById(user['id'], 'ownerid')                          //gericht
-    DeleteQueries.deleteArtistById(user['email'], 'email')                          //artist
+    DeleteQueries.deleteGerichtById(user['id'], 'ownerid')                          //gericht
+    DeleteQueries.deleteCatererById(user['email'], 'email')                         //artist
     DeleteQueries.deleteAppUserById(user['id'], 'id')                               //app_user
     DeleteQueries.deletePasswordById(user['password'])                              //password
     console.log("Delete Cylce done!")
