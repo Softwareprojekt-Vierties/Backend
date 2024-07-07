@@ -34,7 +34,7 @@ describe('POST /login', () => {
         const message = {
             body: {
                 email: 'test@gmx.de',
-                pass: 'test'
+                password: 'test'
             }
         }
 
@@ -42,8 +42,15 @@ describe('POST /login', () => {
             success: true,
             user: {
                 id: 1,
+                benutzername: 'test',
+                profilname: 'test',
                 email: message.body["email"],
-                pass: message.body["pass"]
+                kurzbeschreibung: 'test',
+                beschreibung: 'test',
+                region: 'Test Straße, 12345 Test',
+                password: message.body["pass"],
+                sterne: 0,
+                bildid: null
             },
             error: null
         }
