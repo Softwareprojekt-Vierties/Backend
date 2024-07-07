@@ -585,7 +585,8 @@ async function searchEndUser(req, res) {
         LEFT JOIN bild ON ap.bildid = bild.id`;
 
     let additionalFilter = "";
-    let istfavorit = " LEFT OUTER JOIN favorit_user fu ON e.id = fu.enduserid";
+    let istfavorit = " LEFT OUTER JOIN favorit_user fu ON e.id = fu.enduserid ";
+    let isfriend = " JOIN friend fr ON ap.id = fr.user1 "
     let param = [];
     let paramIndex = 0;
     let doAND = true;
@@ -620,8 +621,9 @@ async function searchEndUser(req, res) {
                 param.push(user);
                 break;
             case 'istfreund':
-                // to be implemented
-                doAND = false;
+                paramIndex++;
+                additionalFilter += `(fr.user1 = $${paramIndex}::int)`;
+                param.push(user);
                 break;
             default:
                 doAND = false;
@@ -631,7 +633,7 @@ async function searchEndUser(req, res) {
     }
 
     additionalFilter = additionalFilter.slice(0, -5); // remove the last ' AND '
-    let sqlstring = paramIndex === 0 ? query + istfavorit : query + istfavorit + " WHERE " + additionalFilter;
+    let sqlstring = paramIndex === 0 ? query + istfavorit + isfriend : query + istfavorit + isfriend + "WHERE " + additionalFilter;
 
     console.log("SQL:\n",sqlstring,"\nWith DATA:", param)
 
