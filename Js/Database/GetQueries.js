@@ -45,18 +45,19 @@ async function checkIfAccountIsInUse(email, benutzername){
  * @param {!JSON} req 
  * @param {!JSON} res 
  */
-async function searchEvent(req,res){
-    console.log("REQUEST searchEvent",req.body)
-    let userid
+async function searchEvent(req, res) {
+    console.log("REQUEST searchEvent", req.body);
+    let userid;
     try {
-        userid = jwt.verify(req.headers["auth"], SECRET)["id"]
-        if (userid == undefined) throw new Error("INVALID TOKEN")
-    } catch(err) {
-        console.error(err)
-        return res.status(400).send(toString(err))
-    }    
-    let query = 
-        `SELECT 
+        userid = jwt.verify(req.headers["auth"], SECRET)["id"];
+        if (userid === undefined) throw new Error("INVALID TOKEN");
+    } catch (err) {
+        console.error(err);
+        return res.status(400).send(err.toString());
+    }
+
+    let query = `
+        SELECT 
             e.*,
             l.name AS locationname,
             l.adresse as adresse,
@@ -64,139 +65,136 @@ async function searchEvent(req,res){
             bild.data AS bild
         FROM event e 
         JOIN location l ON e.locationid = l.id
-        LEFT JOIN bild ON e.bildid = bild.id`
-    let additionalFilter = ""
-    let param = []
-    let istfavorit = " LEFT OUTER JOIN favorit_event fe ON e.id = fe.eventid"
-    let ticktjoin = ""
+        LEFT JOIN bild ON e.bildid = bild.id`;
+    let additionalFilter = "";
+    let param = [];
+    let istfavorit = " LEFT OUTER JOIN favorit_event fe ON e.id = fe.eventid";
+    let ticktjoin = "";
     let paramIndex = 0;
-    let doAND
+    let doAND;
+
     for (let key in req.body) {
-        doAND = true
+        doAND = true;
         switch (key) {
             case 'openair':
-                additionalFilter += "l.openair = true"
-                break
+                additionalFilter += "l.openair = true";
+                break;
             case 'search':
-                console.log("DEBUG: key", key, "; body with key", req.body[key])
-                paramIndex++
-                additionalFilter += "UPPER(e.name) LIKE UPPER ('$"+paramIndex+"')"
-                param.push(`%${req.body[key]}%`)
-                console.log("DEBUG: index",paramIndex, "; with", param.at(paramIndex-1))
-                break
+                paramIndex++;
+                additionalFilter += `UPPER(e.name) LIKE UPPER ($${paramIndex})`;
+                param.push(`%${req.body[key]}%`);
+                break;
             case 'datum':
-                paramIndex++
-                additionalFilter += "e.datum = $"+paramIndex+"::date"
-                param.push(req.body[key])
-                break
+                paramIndex++;
+                additionalFilter += `e.datum = $${paramIndex}::date`;
+                param.push(req.body[key]);
+                break;
             case 'uhrzeit':
-                paramIndex++
-                additionalFilter += "e.startuhrzeit BETWEEN $"+paramIndex+" AND "
-                param.push((req.body[key])[0] == '' ? "00:00" : (req.body[key])[0])
-                paramIndex++
-                additionalFilter += "$"+paramIndex+""
-                param.push((req.body[key])[1] == '' ? "23:59" : (req.body[key])[1])
-                break
+                paramIndex++;
+                additionalFilter += `e.startuhrzeit BETWEEN $${paramIndex} AND `;
+                param.push((req.body[key])[0] === '' ? "00:00" : (req.body[key])[0]);
+                paramIndex++;
+                additionalFilter += `$${paramIndex}`;
+                param.push((req.body[key])[1] === '' ? "23:59" : (req.body[key])[1]);
+                break;
             case 'eventgroesse':
-                paramIndex++
-                additionalFilter += "e.eventgroesse >= $"+paramIndex+"::int"
-                param.push(req.body[key])
-                break
+                paramIndex++;
+                additionalFilter += `e.eventgroesse >= $${paramIndex}::int`;
+                param.push(req.body[key]);
+                break;
             case 'altersfreigabe':
-                paramIndex++
-                additionalFilter += "e.altersfreigabe >= $"+paramIndex+"::int"
-                param.push(req.body[key])
-                break
+                paramIndex++;
+                additionalFilter += `e.altersfreigabe >= $${paramIndex}::int`;
+                param.push(req.body[key]);
+                break;
             case 'region':
-                paramIndex++
-                additionalFilter += "UPPER(l.adresse) LIKE UPPER ('$"+paramIndex+"')"
-                param.push(`%${req.body[key]}%`)
-                break
+                paramIndex++;
+                additionalFilter += `UPPER(l.adresse) LIKE UPPER ($${paramIndex})`;
+                param.push(`%${req.body[key]}%`);
+                break;
             case 'distanz':
-                doAND = false
-                break
+                doAND = false;
+                break;
             case 'istbesitzer':
-                paramIndex++
-                additionalFilter += "e.ownerid >= $"+paramIndex+"::int"
-                param.push(userid)
-                break
+                paramIndex++;
+                additionalFilter += `e.ownerid = $${paramIndex}::int`;
+                param.push(userid);
+                break;
             case 'dauer':
-                paramIndex+=2
-                additionalFilter += "e.dauer BETWEEN $"+(paramIndex-1)+"::int AND $"+paramIndex+"::int"
-                param.push((req.body[key])[0] == '' ? "0" : (req.body[key])[0],
-                            (req.body[key])[1] == '' ? "1000" : (req.body[key])[1])
-                break
+                paramIndex += 2;
+                additionalFilter += `e.dauer BETWEEN $${paramIndex - 1}::int AND $${paramIndex}::int`;
+                param.push((req.body[key])[0] === '' ? "0" : (req.body[key])[0],
+                            (req.body[key])[1] === '' ? "1000" : (req.body[key])[1]);
+                break;
             case 'hatticket':
-                paramIndex++
-                ticktjoin +=" JOIN tickets t ON e.id = t.eventid" 
-                additionalFilter += "t.userid = $"+paramIndex+"::int"
-                param.push(userid)
-                break
+                paramIndex++;
+                ticktjoin += " JOIN tickets t ON e.id = t.eventid";
+                additionalFilter += `t.userid = $${paramIndex}::int`;
+                param.push(userid);
+                break;
             case 'istfavorit':
-                paramIndex++
-                additionalFilter+="fe.userid = $"+paramIndex+"::int"
-                param.push(userid) 
-                break
+                paramIndex++;
+                additionalFilter += `fe.userid = $${paramIndex}::int`;
+                param.push(userid);
+                break;
             case 'preis':
-                paramIndex+=2
-                additionalFilter += "e.preis BETWEEN $"+(paramIndex-1)+"::text AND $"+paramIndex+"::text"
-                param.push((req.body[key])[0] == '' ? "0" : (req.body[key])[0],
-                        (req.body[key])[1] == '' ? "999999" : (req.body[key])[1])
-                break
+                paramIndex += 2;
+                additionalFilter += `e.preis BETWEEN $${paramIndex - 1}::text AND $${paramIndex}::text`;
+                param.push((req.body[key])[0] === '' ? "0" : (req.body[key])[0],
+                        (req.body[key])[1] === '' ? "999999" : (req.body[key])[1]);
+                break;
             default:
-                // do nothing
-                doAND = false
-                break
+                doAND = false;
+                break;
         }
-        if (doAND) additionalFilter += " AND "
+        if (doAND) additionalFilter += " AND ";
     }
 
-    // filter private events out, unless owner is friend with the user or the user is the owner of the event
-    paramIndex++
-    additionalFilter += 
-        `e.privat = false
+    paramIndex++;
+    additionalFilter += `
+        e.privat = false
         OR e.ownerid = $${paramIndex}::int
         OR (
             e.privat = true
             AND EXISTS (
                 SELECT 1
-                    FROM friend f
-                    WHERE f.user1 = $${paramIndex}::int
-                    AND f.user2 = e.ownerid
+                FROM friend f
+                WHERE f.user1 = $${paramIndex}::int
+                AND f.user2 = e.ownerid
             )
-        )`
-    param.push(userid)
-    paramIndex == 0 ? sqlstring = query + istfavorit : sqlstring = query + istfavorit + ticktjoin + " WHERE " + additionalFilter
+        )`;
+    param.push(userid);
+
+    if (additionalFilter.endsWith(" AND ")) {
+        additionalFilter = additionalFilter.slice(0, -5);
+    }
+
+    let sqlstring = query + istfavorit + ticktjoin + (additionalFilter ? " WHERE " + additionalFilter : "");
 
     try {
-        console.log("QUERY SEARCH", sqlstring)
-        const result = await pool.query(sqlstring,param)
-        for (let i=0;i<result.rowCount;i++)
-        {
-            //checks if the Event is a users Favorit
-            if(Object.hasOwn(result.rows[i],"favorit")) {result.rows[i]["favorit"] == userid ? result.rows[i]["favorit"] = true : result.rows[i]["favorit"] = false}
+        console.log("QUERY SEARCH", sqlstring);
+        const result = await pool.query(sqlstring, param);
+        for (let i = 0; i < result.rowCount; i++) {
+            if (Object.hasOwn(result.rows[i], "favorit")) {
+                result.rows[i]["favorit"] = result.rows[i]["favorit"] == userid;
+            }
         }
-        if(Object.hasOwn(req.body,"distanz"))
-        {
-            const {standort,distanz} = req.body
-            let row = result.rows
-            for (let i=0;i<result.rowCount;i++)
-            {
-                if(row[i]["adresse"] == null)
-                {
-                
-                    result.rows[i]["distanz"] = false 
-                    continue
+        if (Object.hasOwn(req.body, "distanz")) {
+            const { standort, distanz } = req.body;
+            let row = result.rows;
+            for (let i = 0; i < result.rowCount; i++) {
+                if (row[i]["adresse"] == null) {
+                    result.rows[i]["distanz"] = false;
+                    continue;
                 }
-                
-                let isokay = await checkDistance(standort,row[i]["adresse"],distanz)
-                isokay ? result.rows[i]["distanz"] = true : result.rows[i]["distanz"] = false
-            } 
+                let isokay = await checkDistance(standort, row[i]["adresse"], distanz);
+                result.rows[i]["distanz"] = isokay;
+            }
         }
-        res.status(200).send(result)
+        res.status(200).send(result);
     } catch (err) {
-        console.error(err)
-        res.status(500).send(`Error while searching for an Event: ${toString(err)}`)
+        console.error(err);
+        res.status(500).send(`Error while searching for an Event: ${err.toString()}`);
     }
 }
 
@@ -205,122 +203,118 @@ async function searchEvent(req,res){
  * @param {!JSON} req 
  * @param {!JSON} res 
  */
-async function searchLocation(req,res){
-    console.log("REQUEST searchLocaiton",req.body)
-    let userid
+async function searchLocation(req, res) {
+    console.log("REQUEST searchLocation", req.body);
+    let userid;
     try {
-        userid = jwt.verify(req.headers["auth"], SECRET)["id"]
-        if (userid == undefined) throw new Error("INVALID TOKEN")
-    } catch(err) {
-        console.error(err)
-        return res.status(400).send(toString(err))
-    }    
-    let query = 
-        `SELECT 
+        userid = jwt.verify(req.headers["auth"], SECRET)["id"];
+        if (userid === undefined) throw new Error("INVALID TOKEN");
+    } catch (err) {
+        console.error(err);
+        return res.status(400).send(err.toString());
+    }
+
+    let query = `
+        SELECT 
             location.*,
             favorit_location.userid as favorit,
             bild.data AS bild
         FROM location
-        LEFT JOIN bild ON location.bildid = bild.id`
-    let additionalFilter = ""
-    let istfavorit = " LEFT OUTER JOIN favorit_location ON location.id = favorit_location.locationid"
-    let param = []
-    let sqlstring=""
-
-    let paramIndex = 0
-    let doAND
+        LEFT JOIN bild ON location.bildid = bild.id`;
+    
+    let additionalFilter = "";
+    let istfavorit = " LEFT OUTER JOIN favorit_location ON location.id = favorit_location.locationid";
+    let params = [];
+    let sqlstring = "";
+    let paramIndex = 0;
+    let doAND;
     
     for (let key in req.body) {
-        doAND = true
+        doAND = true;
         switch (key) {
             case 'openair':
-                paramIndex++
-                additionalFilter += "openair = $"+paramIndex+"::boolean"
-                param.push(req.body[key])
-                break
+                paramIndex++;
+                additionalFilter += `openair = $${paramIndex}::boolean`;
+                params.push(req.body[key]);
+                break;
             case 'search':
-                paramIndex++
-                additionalFilter += "UPPER(name) LIKE UPPER ('$"+paramIndex+"')"
-                param.push(`%${req.body[key]}%`)
-                break
+                paramIndex++;
+                additionalFilter += `UPPER(name) LIKE UPPER($${paramIndex})`;
+                params.push(`%${req.body[key]}%`);
+                break;
             case 'region':
-                paramIndex++
-                additionalFilter += "UPPER(adresse) LIKE UPPER ('$"+paramIndex+"')"
-                param.push(`%${req.body[key]}%`)
-                break
+                paramIndex++;
+                additionalFilter += `UPPER(adresse) LIKE UPPER($${paramIndex})`;
+                params.push(`%${req.body[key]}%`);
+                break;
             case 'preis':
-                paramIndex++
-                additionalFilter += "preis >= $"+paramIndex+"::text"
-                param.push(req.body[key])
-                break
+                paramIndex++;
+                additionalFilter += `preis >= $${paramIndex}::text`;
+                params.push(req.body[key]);
+                break;
             case 'kapazitaet':
-                paramIndex+=2
-                additionalFilter += "kapazitaet BETWEEN $"+(paramIndex-1)+"::int AND $"+paramIndex+"::int"
-                param.push(req.body[key][0],req.body[key][1])
-                break
+                paramIndex += 2;
+                additionalFilter += `kapazitaet BETWEEN $${paramIndex - 1}::int AND $${paramIndex}::int`;
+                params.push(req.body[key][0], req.body[key][1]);
+                break;
             case 'distanz':
-
-                doAND = false
-                break
+                doAND = false;
+                break;
             case 'istfavorit':
-                paramIndex++
-                additionalFilter+="favorit_location.userid = $"+paramIndex+"::int"
-                param.push(userid) 
-                break
+                paramIndex++;
+                additionalFilter += `favorit_location.userid = $${paramIndex}::int`;
+                params.push(userid);
+                break;
             case 'istbesitzer':
-                paramIndex++
-                additionalFilter += "ownerid = $"+paramIndex+"::int"
-                param.push(userid)   
-                break
+                paramIndex++;
+                additionalFilter += `ownerid = $${paramIndex}::int`;
+                params.push(userid);
+                break;
             case 'bewertung':
-                paramIndex++
-                additionalFilter+="sterne >= $"+paramIndex+"::int"
-                param.push(req.body[key])   
-                break
+                paramIndex++;
+                additionalFilter += `sterne >= $${paramIndex}::int`;
+                params.push(req.body[key]);
+                break;
             default:
-                // do nothing
-                doAND = false
-                break
+                doAND = false;
+                break;
         }
-        if (doAND) additionalFilter += " AND "
+        if (doAND) additionalFilter += " AND ";
     }
 
-    // filter private locations out, unless the user is the owner of the event
-    paramIndex++
-    additionalFilter += 
-        `location.privat = false
-        OR location.ownerid = $${paramIndex}::int`
-    param.push(userid)
-    paramIndex == 0 ? sqlstring = query + istfavorit : sqlstring = query + istfavorit + " WHERE " + additionalFilter
-   
+    paramIndex++;
+    additionalFilter += `location.privat = false OR location.ownerid = $${paramIndex}::int`;
+    params.push(userid);
+
+    if (additionalFilter.endsWith(" AND ")) {
+        additionalFilter = additionalFilter.slice(0, -5);
+    }
+
+    sqlstring = query + istfavorit + (additionalFilter ? " WHERE " + additionalFilter : "");
+
     try {
-        const result = await pool.query(sqlstring,param)
-        for (let i=0;i<result.rowCount;i++)
-        {
-            //checks if the locataion is a user Favorit
-            if(Object.hasOwn(result.rows[i],"favorit")) {result.rows[i]["favorit"] == userid ? result.rows[i]["favorit"] = true : result.rows[i]["favorit"] = false}
-        }
-        if(Object.hasOwn(req.body,"distanz"))
-            {
-                const {standort,distanz} = req.body
-                let row = result.rows
-                for (let i=0;i<result.rowCount;i++)
-                {
-                    if(row[i]["adresse"] == null)
-                    {
-                    
-                        result.rows[i]["distanz"] = false 
-                        continue
-                    }
-                    
-                    let isokay = await checkDistance(standort,row[i]["adresse"],distanz)
-                    isokay ? result.rows[i]["distanz"] = true : result.rows[i]["distanz"] = false
-                } 
+        const result = await pool.query(sqlstring, params);
+        for (let i = 0; i < result.rowCount; i++) {
+            if (Object.hasOwn(result.rows[i], "favorit")) {
+                result.rows[i]["favorit"] = result.rows[i]["favorit"] == userid;
             }
-        res.status(200).send(result)
+        }
+        if (Object.hasOwn(req.body, "distanz")) {
+            const { standort, distanz } = req.body;
+            let row = result.rows;
+            for (let i = 0; i < result.rowCount; i++) {
+                if (row[i]["adresse"] == null) {
+                    result.rows[i]["distanz"] = false;
+                    continue;
+                }
+                let isokay = await checkDistance(standort, row[i]["adresse"], distanz);
+                result.rows[i]["distanz"] = isokay;
+            }
+        }
+        res.status(200).send(result);
     } catch (err) {
-        console.error(err)
-        res.status(500).send(`Error while searching for an location: ${toString(err)}`)
+        console.error(err);
+        res.status(500).send(`Error while searching for a Location: ${err.toString()}`);
     }
 }
 
@@ -329,18 +323,20 @@ async function searchLocation(req,res){
  * @param {!JSON} req 
  * @param {!JSON} res 
  */
-async function searchCaterer(req,res){
-    console.log("REQUEST searchCaterer",req.body)
-    let user
+async function searchCaterer(req, res) {
+    console.log("REQUEST searchCaterer", req.body);
+    let user;
+
     try {
-        user = jwt.verify(req.headers["auth"], SECRET)["id"]
-        if (user == undefined) throw new Error("INVALID TOKEN")
-    } catch(err) {
-        console.error(err)
-        return res.status(400).send(toString(err))
-    }    
-    let query = 
-        `SELECT 
+        user = jwt.verify(req.headers["auth"], SECRET)["id"];
+        if (!user) throw new Error("INVALID TOKEN");
+    } catch (err) {
+        console.error(err);
+        return res.status(400).send(err.toString());
+    }
+
+    let query = `
+        SELECT 
             c.preis,
             c.kategorie,
             c.erfahrung,
@@ -355,91 +351,87 @@ async function searchCaterer(req,res){
             bild.data AS profilbild
         FROM caterer c 
         JOIN app_user a ON c.emailfk = a.email
-        LEFT JOIN bild ON a.bildid = bild.id`
-    let additionalFilter = ""
-    let param = []
-    let istfavorit = " LEFT OUTER JOIN favorit_user fu ON c.id = fu.catereid"
+        LEFT JOIN bild ON a.bildid = bild.id`;
+
+    let additionalFilter = "";
+    let param = [];
+    let istfavorit = " LEFT OUTER JOIN favorit_user fu ON c.id = fu.catereid";
     let paramIndex = 0;
-    let doAND
+    let doAND;
+
     for (let key in req.body) {
-        doAND = true
+        doAND = true;
         switch (key) {
             case 'openair':
-                //probelm
-                additionalFilter += "openair = $"+paramIndex+"::boolean"
-                param.push(req.body[key])
-                break
+                paramIndex++;
+                additionalFilter += `c.openair = $${paramIndex}::boolean`;
+                param.push(req.body[key]);
+                break;
             case 'profilname':
-                paramIndex++
-                additionalFilter += "UPPER(a.profilname) LIKE UPPER ('$"+paramIndex+"')"
-                param.push(`%${req.body[key]}%`)
-                break
+                paramIndex++;
+                additionalFilter += `UPPER(a.profilname) LIKE UPPER($${paramIndex})`;
+                param.push(`%${req.body[key]}%`);
+                break;
             case 'region':
-                paramIndex++
-                additionalFilter += "UPPER(a.region) LIKE UPPER ('$"+paramIndex+"')"
-                param.push(`%${req.body[key]}%`)
-                break
+                paramIndex++;
+                additionalFilter += `UPPER(a.region) LIKE UPPER($${paramIndex})`;
+                param.push(`%${req.body[key]}%`);
+                break;
             case 'preis':
-                paramIndex++
-                additionalFilter += "c.preis BETWEEN $"+(paramIndex-1)+"::text AND $"+paramIndex+"::text"
-                param.push((req.body[key])[0] == '' ? "0" : (req.body[key])[0],
-                        (req.body[key])[1] == '' ? "9999999" : (req.body[key])[1])
-                break
+                paramIndex += 2;
+                additionalFilter += `c.preis BETWEEN $${paramIndex - 1}::text AND $${paramIndex}::text`;
+                param.push((req.body[key])[0] === '' ? "0" : (req.body[key])[0]);
+                param.push((req.body[key])[1] === '' ? "9999999" : (req.body[key])[1]);
+                break;
             case 'erfahrung':
-                paramIndex++
-                additionalFilter += "c.erfahrung >= $"+paramIndex+"::text"
-                param.push(req.body[key])
-                break
+                paramIndex++;
+                additionalFilter += `c.erfahrung >= $${paramIndex}::text`;
+                param.push(req.body[key]);
+                break;
             case 'kategorie':
-                paramIndex++
-                additionalFilter += "UPPER(c.kategorie) LIKE UPPER ('$"+paramIndex+"')"
-                param.push(`%${req.body[key]}%`)
-                break
+                paramIndex++;
+                additionalFilter += `UPPER(c.kategorie) LIKE UPPER($${paramIndex})`;
+                param.push(`%${req.body[key]}%`);
+                break;
             case 'istfavorit':
-                paramIndex++
-                additionalFilter+="fu.userid = $"+paramIndex+"::int"
-                param.push(user) 
-                break
+                paramIndex++;
+                additionalFilter += `fu.userid = $${paramIndex}::int`;
+                param.push(user);
+                break;
             default:
-                // do nothing
-                doAND = false
-                break
+                doAND = false;
+                break;
         }
-        if (doAND) additionalFilter += " AND "
+        if (doAND) additionalFilter += " AND ";
     }
 
-    
-    additionalFilter = additionalFilter.substring(0,additionalFilter.length-5) // remove the last ' AND '
-    paramIndex == 0 ? sqlstring = query + istfavorit : sqlstring = query + istfavorit + " WHERE " + additionalFilter
+    additionalFilter = additionalFilter.slice(0, -5); // remove the last ' AND '
+    let sqlstring = paramIndex === 0 ? query + istfavorit : query + istfavorit + " WHERE " + additionalFilter;
 
     try {
-        const result = await pool.query(sqlstring,param)
-        for (let i=0;i<result.rowCount;i++)
-        {
-            //checks if the Catere is a users Favorit
-            if(Object.hasOwn(result.rows[i],"favorit")) {result.rows[i]["favorit"] == user ? result.rows[i]["favorit"] = true : result.rows[i]["favorit"] = false}
-        }
-        if(Object.hasOwn(req.body,"distanz"))
-            {
-                const {standort,distanz} = req.body
-                let row = result.rows
-                for (let i=0;i<result.rowCount;i++)
-                {
-                    if(row[i]["region"] == null)
-                    {
-                    
-                        result.rows[i]["distanz"] = false 
-                        continue
-                    }
-                    
-                    let isokay = await checkDistance(standort,row[i]["region"],distanz)
-                    isokay ? result.rows[i]["distanz"] = true : result.rows[i]["distanz"] = false
-                } 
+        const result = await pool.query(sqlstring, param);
+
+        for (let i = 0; i < result.rowCount; i++) {
+            if (Object.hasOwn(result.rows[i], "favorit")) {
+                result.rows[i]["favorit"] = result.rows[i]["favorit"] === user;
             }
-        res.status(200).send(result)
+        }
+
+        if (Object.hasOwn(req.body, "distanz")) {
+            const { standort, distanz } = req.body;
+            for (let row of result.rows) {
+                if (!row["region"]) {
+                    row["distanz"] = false;
+                    continue;
+                }
+                row["distanz"] = await checkDistance(standort, row["region"], distanz);
+            }
+        }
+
+        res.status(200).send(result);
     } catch (err) {
-        console.error(err)
-        res.status(500).send(`Error while searching for an Caterer: ${toString(err)}`)
+        console.error(err);
+        res.status(500).send(`Error while searching for a Caterer: ${err.toString()}`);
     }
 }
 
@@ -448,18 +440,20 @@ async function searchCaterer(req,res){
  * @param {!JSON} req 
  * @param {!JSON} res 
  */
-async function searchArtist(req,res){
-    console.log("REQUEST searchArtist",req.body)
-    let user
+async function searchArtist(req, res) {
+    console.log("REQUEST searchArtist", req.body);
+    let user;
+
     try {
-        user = jwt.verify(req.headers["auth"], SECRET)["id"]
-        if (user == undefined) throw new Error("INVALID TOKEN")
-    } catch(err) {
-        console.error(err)
-        return res.status(400).send(toString(err))
-    }    
-    let query = 
-        `SELECT 
+        user = jwt.verify(req.headers["auth"], SECRET)["id"];
+        if (!user) throw new Error("INVALID TOKEN");
+    } catch (err) {
+        console.error(err);
+        return res.status(400).send(err.toString());
+    }
+
+    let query = `
+        SELECT 
             a.preis,
             a.kategorie,
             a.erfahrung,
@@ -474,91 +468,87 @@ async function searchArtist(req,res){
             bild.data AS profilbild
         FROM artist a 
         JOIN app_user ap ON a.emailfk = ap.email
-        LEFT JOIN bild ON ap.bildid = bild.id`
-    let additionalFilter = ""
-    let istfavorit = " LEFT OUTER JOIN favorit_user fu ON a.id = fu.artistid"
-    let param = []
+        LEFT JOIN bild ON ap.bildid = bild.id`;
+
+    let additionalFilter = "";
+    let istfavorit = " LEFT OUTER JOIN favorit_user fu ON a.id = fu.artistid";
+    let param = [];
     let paramIndex = 0;
-    let doAND = true
+    let doAND = true;
 
     for (let key in req.body) {
-        doAND = true
+        doAND = true;
         switch (key) {
             case 'profilname':
-                paramIndex++
-                additionalFilter += "UPPER(ap.profilname) LIKE UPPER ('$"+paramIndex+"')"
-                param.push(`%${req.body[key]}%`)
-                break
+                paramIndex++;
+                additionalFilter += `UPPER(ap.profilname) LIKE UPPER($${paramIndex})`;
+                param.push(`%${req.body[key]}%`);
+                break;
             case 'region':
-                paramIndex++
-                additionalFilter += "UPPER(ap.region) LIKE UPPER ('$"+paramIndex+"')"
-                param.push(`%${req.body[key]}%`)
-                break
+                paramIndex++;
+                additionalFilter += `UPPER(ap.region) LIKE UPPER($${paramIndex})`;
+                param.push(`%${req.body[key]}%`);
+                break;
             case 'preis':
-                paramIndex+=2
-                additionalFilter += "a.preis BETWEEN $"+(paramIndex-1)+"::text AND $"+paramIndex+"::text"
-                param.push((req.body[key])[0] == '' ? "0" : (req.body[key])[0],
-                        (req.body[key])[1] == '' ? "9999999" : (req.body[key])[1])
-                break
+                paramIndex += 2;
+                additionalFilter += `a.preis BETWEEN $${paramIndex - 1}::text AND $${paramIndex}::text`;
+                param.push((req.body[key])[0] === '' ? "0" : (req.body[key])[0]);
+                param.push((req.body[key])[1] === '' ? "9999999" : (req.body[key])[1]);
+                break;
             case 'erfahrung':
-                paramIndex++
-                additionalFilter += "a.erfahrung >= $"+paramIndex+"::text"
-                param.push(req.body[key])
-                break
+                paramIndex++;
+                additionalFilter += `a.erfahrung >= $${paramIndex}::text`;
+                param.push(req.body[key]);
+                break;
             case 'kategorie':
-                paramIndex++
-                additionalFilter += "UPPER(a.kategorie) LIKE UPPER ('$"+paramIndex+"')"
-                param.push(`%${req.body[key]}%`)
-                break
+                paramIndex++;
+                additionalFilter += `UPPER(a.kategorie) LIKE UPPER($${paramIndex})`;
+                param.push(`%${req.body[key]}%`);
+                break;
             case 'bewertung':
-                paramIndex++
-                additionalFilter += "ap.sterne >= $"+paramIndex+"::int"
-                param.push(req.body[key])
-                break
+                paramIndex++;
+                additionalFilter += `ap.sterne >= $${paramIndex}::int`;
+                param.push(req.body[key]);
+                break;
             case 'istfavorit':
-                paramIndex++
-                additionalFilter+="fu.userid = $"+paramIndex+"::int"
-                param.push(user) 
-                break
+                paramIndex++;
+                additionalFilter += `fu.userid = $${paramIndex}::int`;
+                param.push(user);
+                break;
             default:
-                // do nothing
-                doAND = false
-                break
+                doAND = false;
+                break;
         }
-        if (doAND) additionalFilter += " AND "
+        if (doAND) additionalFilter += " AND ";
     }
 
-    additionalFilter = additionalFilter.substring(0,additionalFilter.length-5) // remove the last ' AND '
-    paramIndex == 0 ? sqlstring = query + istfavorit : sqlstring = query + istfavorit + " WHERE " + additionalFilter
+    additionalFilter = additionalFilter.slice(0, -5); // remove the last ' AND '
+    let sqlstring = paramIndex === 0 ? query + istfavorit : query + istfavorit + " WHERE " + additionalFilter;
 
     try {
-        const result = await pool.query(sqlstring,param)
-        for (let i=0;i<result.rowCount;i++)
-        {
-            //checks if the Artist is a users Favorit
-            if(Object.hasOwn(result.rows[i],"favorit")) {result.rows[i]["favorit"] == user ? result.rows[i]["favorit"] = true : result.rows[i]["favorit"] = false}
-        }
-        if(Object.hasOwn(req.body,"distanz"))
-            {
-                const {standort,distanz} = req.body
-                let row = result.rows
-                for (let i=0;i<result.rowCount;i++)
-                {
-                    if(row[i]["region"] == null)
-                    {
-                    
-                        result.rows[i]["distanz"] = false 
-                        continue
-                    }
-                    
-                    let isokay = await checkDistance(standort,row[i]["region"],distanz)
-                    isokay ? result.rows[i]["distanz"] = true : result.rows[i]["distanz"] = false
-                } 
+        const result = await pool.query(sqlstring, param);
+
+        for (let i = 0; i < result.rowCount; i++) {
+            if (Object.hasOwn(result.rows[i], "favorit")) {
+                result.rows[i]["favorit"] = result.rows[i]["favorit"] === user;
             }
-        res.status(200).send(result)
+        }
+
+        if (Object.hasOwn(req.body, "distanz")) {
+            const { standort, distanz } = req.body;
+            for (let row of result.rows) {
+                if (!row["region"]) {
+                    row["distanz"] = false;
+                    continue;
+                }
+                row["distanz"] = await checkDistance(standort, row["region"], distanz);
+            }
+        }
+
+        res.status(200).send(result);
     } catch (err) {
-        console.error(err)
-        res.status(500).send(`Error while searching for an Artist: ${toString(err)}`)
+        console.error(err);
+        res.status(500).send(`Error while searching for an Artist: ${err.toString()}`);
     }
 }
 
@@ -567,18 +557,20 @@ async function searchArtist(req,res){
  * @param {!JSON} req 
  * @param {!JSON} res 
  */
-async function searchEndUser(req,res){
-    console.log("REQUEST searchEndUser",req.body)
-    let user
+async function searchEndUser(req, res) {
+    console.log("REQUEST searchEndUser", req.body);
+    let user;
+
     try {
-        user = jwt.verify(req.headers["auth"], SECRET)["id"]
-        if (user == undefined) throw new Error("INVALID TOKEN")
-    } catch(err) {
-        console.error(err)
-        return res.status(400).send(toString(err))
-    }    
-    let query = 
-        `SELECT 
+        user = jwt.verify(req.headers["auth"], SECRET)["id"];
+        if (!user) throw new Error("INVALID TOKEN");
+    } catch (err) {
+        console.error(err);
+        return res.status(400).send(err.toString());
+    }
+
+    let query = `
+        SELECT 
             e.*,
             ap.id AS app_user_id,
             ap.profilname AS name,
@@ -588,84 +580,80 @@ async function searchEndUser(req,res){
             bild.data AS profilbild
         FROM endnutzer e 
         JOIN app_user ap ON e.emailfk = ap.email
-        LEFT JOIN bild ON ap.bildid = bild.id`
-    let additionalFilter = ""
-    let istfavorit = " LEFT OUTER JOIN favorit_user fu ON e.id = fu.enduserid"
-    let param = []
+        LEFT JOIN bild ON ap.bildid = bild.id`;
+
+    let additionalFilter = "";
+    let istfavorit = " LEFT OUTER JOIN favorit_user fu ON e.id = fu.enduserid";
+    let param = [];
     let paramIndex = 0;
-    let doAND = true
+    let doAND = true;
 
     for (let key in req.body) {
-        doAND = true
+        doAND = true;
         switch (key) {
             case 'search':
-                paramIndex++
-                additionalFilter += "UPPER(ap.profilname) LIKE UPPER ('$"+paramIndex+"')"
-                param.push(`%${req.body[key]}%`)
-                break
+                paramIndex++;
+                additionalFilter += `UPPER(ap.profilname) LIKE UPPER($${paramIndex})`;
+                param.push(`%${req.body[key]}%`);
+                break;
             case 'region':
-                paramIndex++
-                additionalFilter += "UPPER(ap.region) LIKE UPPER ('$"+paramIndex+"')"
-                param.push(`%${req.body[key]}%`)
-                break
-            case 'geschelcht':
-                paramIndex++
-                additionalFilter += "UPPER(e.geschlecht) LIKE UPPER ('$"+paramIndex+"')"
-                param.push(`%${req.body[key]}%`)
-                break
+                paramIndex++;
+                additionalFilter += `UPPER(ap.region) LIKE UPPER($${paramIndex})`;
+                param.push(`%${req.body[key]}%`);
+                break;
+            case 'geschlecht':
+                paramIndex++;
+                additionalFilter += `UPPER(e.geschlecht) LIKE UPPER($${paramIndex})`;
+                param.push(`%${req.body[key]}%`);
+                break;
             case 'alter':
-                paramIndex++
-                additionalFilter += "e.alter >= $"+paramIndex+"::int"
-                param.push(req.body[key])
-                break
+                paramIndex++;
+                additionalFilter += `e.alter >= $${paramIndex}::int`;
+                param.push(req.body[key]);
+                break;
             case 'istfavorit':
-                paramIndex++
-                additionalFilter+="fu.userid = $"+paramIndex+"::int"
-                param.push(user) 
-                break
+                paramIndex++;
+                additionalFilter += `fu.userid = $${paramIndex}::int`;
+                param.push(user);
+                break;
             case 'istfreund':
-               // to be implementet
-               doAND = false
-               break
+                // to be implemented
+                doAND = false;
+                break;
             default:
-                // do nothing
-                doAND = false
-                break
+                doAND = false;
+                break;
         }
-        if (doAND) additionalFilter += " AND "
+        if (doAND) additionalFilter += " AND ";
     }
-    
-    additionalFilter = additionalFilter.substring(0,additionalFilter.length-5) // remove the last ' AND '
-    paramIndex == 0 ? sqlstring = query + istfavorit : sqlstring = query + istfavorit + " WHERE " + additionalFilter
-    
+
+    additionalFilter = additionalFilter.slice(0, -5); // remove the last ' AND '
+    let sqlstring = paramIndex === 0 ? query + istfavorit : query + istfavorit + " WHERE " + additionalFilter;
+
     try {
-        const result = await pool.query(sqlstring,param)
-        for (let i=0;i<result.rowCount;i++)
-        {
-            //checks if the Enduser is a users Favorit
-            if(Object.hasOwn(result.rows[i],"favorit")) {result.rows[i]["favorit"] == user ? result.rows[i]["favorit"] = true : result.rows[i]["favorit"] = false}
-        }
-        if(Object.hasOwn(req.body,"distanz"))
-            {
-                const {standort,distanz} = req.body
-                let row = result.rows
-                for (let i=0;i<result.rowCount;i++)
-                {
-                    if(row[i]["region"] == null)
-                    {
-                    
-                        result.rows[i]["distanz"] = false 
-                        continue
-                    }
-                    
-                    let isokay = await checkDistance(standort,row[i]["region"],distanz)
-                    isokay ? result.rows[i]["distanz"] = true : result.rows[i]["distanz"] = false
-                } 
+        const result = await pool.query(sqlstring, param);
+
+        for (let i = 0; i < result.rowCount; i++) {
+            if (Object.hasOwn(result.rows[i], "favorit")) {
+                result.rows[i]["favorit"] = result.rows[i]["favorit"] === user;
             }
-        res.status(200).send(result)
+        }
+
+        if (Object.hasOwn(req.body, "distanz")) {
+            const { standort, distanz } = req.body;
+            for (let row of result.rows) {
+                if (!row["region"]) {
+                    row["distanz"] = false;
+                    continue;
+                }
+                row["distanz"] = await checkDistance(standort, row["region"], distanz);
+            }
+        }
+
+        res.status(200).send(result);
     } catch (err) {
-        console.error(err)
-        res.status(500).send(`Error while searching for an enduser: ${toString(err)}`)
+        console.error(err);
+        res.status(500).send(`Error while searching for an enduser: ${err.toString()}`);
     }
 }
 
