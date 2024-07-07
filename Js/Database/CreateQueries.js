@@ -70,7 +70,8 @@ async function createAppUser(benutzername, profilname, email, password, profilbi
  * @param {string} arten - the types of 
  * @param {string} lied 
  * @param {string} gericht 
- * @param {string} geschlecht 
+ * @param {string} geschlecht
+ * @param {string[]} partybilder 
  * @returns {!Object} 
  * - success: [true if successful, false otherwise]
  * - error: [the error, if one occured]
