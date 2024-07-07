@@ -183,7 +183,7 @@ app.post("/createTicket",Auth,async (req,res)=>{
     else res.status(500).send("FAILED TO CREATE TICKET " + toString(result.error))
 })
 
-app.post("/createFavouritEvent",Auth,async (req,res)=>{
+app.post("/changeFavouritEvent",Auth,async (req,res)=>{
     let userid
     try {
         userid = getUser(req.headers["auth"])["id"]
@@ -192,13 +192,23 @@ app.post("/createFavouritEvent",Auth,async (req,res)=>{
         console.error(err)
         return res.status(400).send(toString(err))
     }
-    const eventid = req.body["eventid"]
-    result = await CreateQueries.createFavoritEvent(userid,eventid)
-    if (result.success) res.status(200).send("FAVORIT CREATED")
-    else res.status(500).send("FAILED TO CREATE FAVORIT " + toString(result.error))
+    const {eventid,isfav} = req.body
+    if(isfav) 
+    {
+        result = await CreateQueries.createFavoritEvent(userid,eventid)
+        if (result.success) res.status(200).send("FAVORIT CREATED")
+        else res.status(500).send("FAILED TO CREATE FAVORIT " + toString(result.error))
+    }
+    else
+    {
+        result = await DeleteQueries.deleteFavoritEvent(eventid,userid)
+        if (result.success) res.status(200).send("FAVORIT DELETED")
+        else res.status(500).send("FAILED TO DELETE FAVORIT " + toString(result.error))
+    }
+    
 })
 
-app.post("/createFavouritLocation",Auth,async (req,res)=>{
+app.post("/changeFavouritLocation",Auth,async (req,res)=>{
     let userid
     try {
         userid = getUser(req.headers["auth"])["id"]
@@ -207,13 +217,22 @@ app.post("/createFavouritLocation",Auth,async (req,res)=>{
         console.error(err)
         return res.status(400).send(toString(err))
     }
-    const locataionid = req.body["locationid"]
-    result = await CreateQueries.createFavoritLocation(userid,locataionid)
-    if (result.success) res.status(200).send("FAVORIT CREATED")
-    else res.status(500).send("FAILED TO CREATE FAVORIT " + toString(result.error))
+    const {locationid,isfav} = req.body
+    if(isfav) 
+    {
+        result = await CreateQueries.createFavoritLocation(userid,locationid)
+        if (result.success) res.status(200).send("FAVORIT CREATED")
+        else res.status(500).send("FAILED TO CREATE FAVORIT " + toString(result.error))
+    }
+    else
+    {
+        result = await DeleteQueries.deleteFavoritLocation(locationid,userid)
+        if (result.success) res.status(200).send("FAVORIT DELETED")
+        else res.status(500).send("FAILED TO DELETE FAVORIT " + toString(result.error))
+    }
 })
 
-app.post("/createFavouritEndUser",Auth,async (req,res)=>{
+app.post("/changeFavouritEndUser",Auth,async (req,res)=>{
     let userid
     try {
         userid = getUser(req.headers["auth"])["id"]
@@ -222,13 +241,22 @@ app.post("/createFavouritEndUser",Auth,async (req,res)=>{
         console.error(err)
         return res.status(400).send(toString(err))
     }
-    const enduserid = req.body["enduserid"]
-    result = await CreateQueries.createFavoritEndUser(userid,enduserid)
-    if (result.success) res.status(200).send("FAVORIT CREATED")
-    else res.status(500).send("FAILED TO CREATE FAVORIT " + toString(result.error))
+    const {enduserid,isfav} = req.body
+    if(isfav) 
+    {
+        result = await CreateQueries.createFavoritEndUser(userid,enduserid)
+        if (result.success) res.status(200).send("FAVORIT CREATED")
+        else res.status(500).send("FAILED TO CREATE FAVORIT " + toString(result.error))
+    }
+    else
+    {
+        result = await DeleteQueries.deleteFavoritUser(enduserid,"endnutzer",userid)
+        if (result.success) res.status(200).send("FAVORIT DELETED")
+        else res.status(500).send("FAILED TO DELETE FAVORIT " + toString(result.error))
+    }
 })
 
-app.post("/createFavouritArtist",Auth,async (req,res)=>{
+app.post("/changeFavouritArtist",Auth,async (req,res)=>{
     let userid
     try {
         userid = getUser(req.headers["auth"])["id"]
@@ -237,13 +265,22 @@ app.post("/createFavouritArtist",Auth,async (req,res)=>{
         console.error(err)
         return res.status(400).send(toString(err))
     }
-    const artistid = req.body["artistid"]
-    result = await CreateQueries.createFavoritArtist(userid,artistid)
-    if (result.success) res.status(200).send("FAVORIT CREATED")
-    else res.status(500).send("FAILED TO CREATE FAVORIT " + toString(result.error))
+    const {artistid,isfav} = req.body
+    if(isfav) 
+    {
+        result = await CreateQueries.createFavoritArtist(userid,artistid)
+        if (result.success) res.status(200).send("FAVORIT CREATED")
+        else res.status(500).send("FAILED TO CREATE FAVORIT " + toString(result.error))
+    }
+    else
+    {
+        result = await DeleteQueries.deleteFavoritUser(artistid,"artist",userid)
+        if (result.success) res.status(200).send("FAVORIT DELETED")
+        else res.status(500).send("FAILED TO DELETE FAVORIT " + toString(result.error))
+    }
 })
 
-app.post("/createFavouritCaterer",Auth,async (req,res)=>{
+app.post("/changeFavouritCaterer",Auth,async (req,res)=>{
     let userid
     try {
         userid = getUser(req.headers["auth"])["id"]
@@ -252,10 +289,19 @@ app.post("/createFavouritCaterer",Auth,async (req,res)=>{
         console.error(err)
         return res.status(400).send(toString(err))
     }
-    const catererid = req.body["catererid"]
-    result = await CreateQueries.createFavoritCaterer(userid,catererid)
-    if (result.success) res.status(200).send("FAVORIT CREATED")
-    else res.status(500).send("FAILED TO CREATE FAVORIT " + toString(result.error))
+    const {catererid,isfav} = req.body
+    if(isfav) 
+    {
+        result = await CreateQueries.createFavoritCaterer(userid,catererid)
+        if (result.success) res.status(200).send("FAVORIT CREATED")
+        else res.status(500).send("FAILED TO CREATE FAVORIT " + toString(result.error))
+    }
+    else
+    {
+        result = await DeleteQueries.deleteFavoritUser(catererid,"catere",userid)
+        if (result.success) res.status(200).send("FAVORIT DELETED")
+        else res.status(500).send("FAILED TO DELETE FAVORIT " + toString(result.error))
+    }
 })
 
 // -------------------- UPDATES -------------------- // 

@@ -818,6 +818,93 @@ async function deletePartybilderById(id) {
     }
 }
 
+async function deleteFavoritEvent(id,userid) {
+    try {
+        const result = await pool.query(
+            `DELETE FROM favorit_event WHERE eventid = $1::int AND userid = $2::int RETURNING *`,
+            [id,userid]
+        )
+        if (result.rows.length === 0) {
+            return {
+                success: true,
+                data: null,
+                error: null
+            }
+        } else {
+            return {
+                sucess: true,
+                data: result.rows,
+                error: null
+            }
+        }
+    } catch (err) {
+        console.error("AN ERROR OCCURED WHILE TRYING TO DELETE favorit_event", err)
+        return {
+            sucess: false,
+            data: null,
+            error: err
+        }
+    }
+}
+
+async function deleteFavoritLocation(id,userid) {
+    try {
+        const result = await pool.query(
+            `DELETE FROM favorit_location WHERE locationid = $1::int AND userid = $2::int RETURNING *`,
+            [id,userid]
+        )
+        if (result.rows.length === 0) {
+            return {
+                success: true,
+                data: null,
+                error: null
+            }
+        } else {
+            return {
+                sucess: true,
+                data: result.rows,
+                error: null
+            }
+        }
+    } catch (err) {
+        console.error("AN ERROR OCCURED WHILE TRYING TO DELETE favorit_location", err)
+        return {
+            sucess: false,
+            data: null,
+            error: err
+        }
+    }
+}
+
+async function deleteFavoritUser(id,type,userid) {
+    try {
+        const result = await pool.query(
+            `DELETE FROM favorit_usaer WHERE `+type+`id = $1::int AND userid = $2::int RETURNING *`,
+            [id,userid]
+        )
+        if (result.rows.length === 0) {
+            return {
+                success: true,
+                data: null,
+                error: null
+            }
+        } else {
+            return {
+                sucess: true,
+                data: result.rows,
+                error: null
+            }
+        }
+    } catch (err) {
+        console.error("AN ERROR OCCURED WHILE TRYING TO DELETE favorit_user", err)
+        return {
+            sucess: false,
+            data: null,
+            error: err
+        }
+    }
+}
+
 /**
  * Deletes all Favorites from the DB using an id.
  * 
@@ -966,5 +1053,8 @@ module.exports = {
     deleteTicketsById,
     deletePartybilderById,
     deletefriend,
-    deleteBildById
+    deleteBildById,
+    deleteFavoritEvent,
+    deleteFavoritLocation,
+    deleteFavoritUser
 }
