@@ -604,6 +604,7 @@ async function searchEndUser(req, res) {
                 param.push(`%${req.body[key]}%`);
                 break;
             case 'geschlecht':
+                if (geschlecht == null) break
                 paramIndex++;
                 additionalFilter += `(UPPER(e.geschlecht) LIKE UPPER($${paramIndex}))`;
                 param.push(`%${req.body[key]}%`);
@@ -631,6 +632,8 @@ async function searchEndUser(req, res) {
 
     additionalFilter = additionalFilter.slice(0, -5); // remove the last ' AND '
     let sqlstring = paramIndex === 0 ? query + istfavorit : query + istfavorit + " WHERE " + additionalFilter;
+
+    console.log("SQL:\n",sqlstring,"\nWith DATA:", param)
 
     try {
         const result = await pool.query(sqlstring, param);
