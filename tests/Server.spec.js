@@ -11,6 +11,82 @@ afterAll(done =>{
 
 jest.mock("../Js/Database/Database.js")
 
+describe('POST /tempToken', () => {
+    it('should return a temporary JWT token if account does not exist', async () => {
+        const message = {
+            email: 'test@gmx.de',
+            benutzername: 'testUser',
+            password: 'testPassword'
+        }
+
+        // return a non-existing account
+        GetQueries.checkIfAccountIsInUse.mockResolvedValue({
+            success: true,
+            exists: false,
+            error: null
+        })
+
+        const token = jwt.sign(message, SECRET, { expiresIn: '0.5h' })
+
+        const res = await request(app)
+            .post('/tempToken')
+            .send(message)
+
+        expect(res.status).toBe(200);
+
+        const decodedResToken = jwt.verify(res.text, SECRET)
+        const decodedToken = jwt.verify(token, SECRET)
+
+        expect(decodedResToken.email).toEqual(decodedToken.email)
+        expect(decodedResToken.benutzername).toEqual(decodedToken.benutzername)
+        expect(decodedResToken.password).toEqual(decodedToken.password)
+    })
+
+    it('should return "Account already exists!" if the account already exists', async () => {
+        const message = {
+            email: 'test@gmx.de',
+            benutzername: 'existingUser',
+            password: 'testPassword'
+        }
+
+        // return an existing account
+        GetQueries.checkIfAccountIsInUse.mockResolvedValue({
+            success: true,
+            exists: true,
+            error: null
+        })
+
+        const res = await request(app)
+            .post('/tempToken')
+            .send(message)
+
+        expect(res.status).toBe(200)
+        expect(res.text).toEqual("Account already exists!")
+    })
+
+    it('should return an error message if there is an issue checking the account', async () => {
+        const message = {
+            email: 'error@gmx.de',
+            benutzername: 'errorUser',
+            password: 'testPassword'
+        };
+
+        // simulate an error
+        GetQueries.checkIfAccountIsInUse.mockResolvedValue({
+            success: false,
+            exists: null,
+            error: 'Database error'
+        })
+
+        const res = await request(app)
+            .post('/tempToken')
+            .send(message)
+
+        expect(res.status).toBe(500)
+        expect(res.text).toContain("Failed to create a temporary token: ")
+    })
+})
+
 describe('POST /login',()=>{
     it('Should return a jwt token',async () => {
         const message = {
