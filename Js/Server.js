@@ -366,6 +366,7 @@ app.post('/createEndnutzer', Auth, async (req,res) => {
     const benutzername = getUser(req.headers['auth'])['benutzername']
     const email = getUser(req.headers['auth'])['email']
     const password = getUser(req.headers['auth'])['password']
+    console.log(benutzername, email, password)
     const {profilname, profilbild, kurzbeschreibung, beschreibung, region, alter, arten, lied, gericht, geschlecht, partybilder} = req.body
     await CreateQueries.createEndUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, alter, arten, lied, gericht, geschlecht, partybilder).then(result => {
         if(result.success) return res.status(200).send("User created")
