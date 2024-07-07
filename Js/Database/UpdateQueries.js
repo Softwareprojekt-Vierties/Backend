@@ -506,6 +506,7 @@ async function updateMail(userid, id, gelesen, angenommen = null) {
         
     } catch (err) {
         console.error("COULDN'T UPDATE mail", err)
+        console.error("GIVEN:", userid, id, gelesen, angenommen)
         return {
             success: false,
             error: err
