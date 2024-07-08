@@ -680,8 +680,6 @@ async function getMeById(req, res) {
         return res.status(400).send(toString(err))
     } 
 
-    console.log(userEmail)
-
     try {
         const userType = await pool.query(
             `SELECT id, 'artist' AS type
@@ -699,7 +697,7 @@ async function getMeById(req, res) {
             SELECT id, 'endnutzer' AS type
             FROM endnutzer
             WHERE emailfk = $1::text`,
-            [userEmail.rows[0]['email']]
+            [userEmail]
         )
     
         const newReq = {
