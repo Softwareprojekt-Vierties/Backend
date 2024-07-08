@@ -476,7 +476,7 @@ async function searchArtist(req, res) {
         LEFT JOIN bild ON ap.bildid = bild.id`;
 
     let additionalFilter = "";
-    let istfavorit = " LEFT OUTER JOIN favorit_user fu ON a.id = fu.artistid AND fu.user = $1::int";
+    let istfavorit = " LEFT OUTER JOIN favorit_user fu ON a.id = fu.artistid AND fu.userid = $1::int";
     let param = [user];
     let paramIndex = 1;
     let doAND = true;
