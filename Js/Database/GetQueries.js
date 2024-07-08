@@ -671,10 +671,10 @@ async function searchEndUser(req, res) {
  * @param {!JSON} res 
  */
 async function getMeById(req, res) {
-    let userEmail
+    let user
     try {
-        userEmail = jwt.verify(req.headers["auth"], SECRET)["email"]
-        if (userEmail == undefined) throw new Error("INVALID TOKEN")
+        user = jwt.verify(req.headers["auth"], SECRET)
+        if (user == undefined) throw new Error("INVALID TOKEN")
     } catch(err) {
         console.error(err)
         return res.status(400).send(toString(err))
@@ -697,10 +697,10 @@ async function getMeById(req, res) {
             SELECT id, 'endnutzer' AS type
             FROM endnutzer
             WHERE emailfk = $1::text`,
-            [userEmail]
+            [user['email']]
         )
 
-        req.params['id'] = userType.rows[0]['id']
+        req.params['id'] = user['id']
         
         if (userType.rows[0]['type'] == 'artist') {
             getArtistByID(req, res)
@@ -894,11 +894,12 @@ async function getCatererById(req,res){
             [id]
         )
 
+        if (cater.rowCount == 0) return res.status(400).send("No caterer found")
+
         if (Object.hasOwn(cater.rows[0], "favorit")) {
             cater.rows[0]["favorit"] = cater.rows[0]["favorit"] === userid;
         }
-        if (cater.rowCount == 0) return res.status(400).send("No caterer found")
-
+        
         return res.status(200).send({
             isOwner : userid === cater.rows[0]['userid'] ? true : false,
             caterer: cater,
@@ -972,12 +973,11 @@ async function getArtistByID(req,res){
             [id]
         )
 
+        if (art.rowCount == 0) return res.status(400).send("No artist found")
+
         if (Object.hasOwn(art.rows[0], "favorit")) {
             art.rows[0]["favorit"] = art.rows[0]["favorit"] === userid;
         }
-
-
-        if (art.rowCount == 0) return res.status(400).send("No artist found")
 
         return res.status(200).send({
             isOwner : userid === art.rows[0]['userid'] ? true : false,
@@ -1006,11 +1006,11 @@ async function getEndUserById(req,res){
         return res.status(400).send(toString(err))
     }
 
-    console.log(req)
+    //console.log(req)
 
     try {
         const id = req.params["id"]
-        console.log("Id", id, "userid", userid)
+        //console.log("Id", id, "userid", userid)
         const user = await pool.query(
             `SELECT 
                 e.*,
