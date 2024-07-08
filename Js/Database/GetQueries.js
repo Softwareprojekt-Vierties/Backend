@@ -699,6 +699,8 @@ async function getMeById(req, res) {
             WHERE emailfk = $1::text`,
             [userEmail]
         )
+
+        console.log(userType)
     
         const newReq = {
             headers: req.headers,
