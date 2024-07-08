@@ -22,7 +22,7 @@ async function createAppUser(benutzername, profilname, email, password, profilbi
         // first save the password
         const salt = await bcrypt.genSalt(10)
         console.log("BEFORE HASHING:", password, "salt:", salt)
-        const hash = await bcrypt.hash(password, salt)
+        const hash = await bcrypt.hash(String(password), salt)
         passwordID = await pool.query(
             `INSERT INTO password (salt, hash) VALUES ($1, $2) RETURNING id`,
             [salt, hash]

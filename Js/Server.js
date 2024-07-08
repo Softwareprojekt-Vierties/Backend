@@ -120,9 +120,6 @@ app.post('/createCaterer', Auth, async (req,res)=> {
     const benutzername = await getUser(req.headers['auth'])['benutzername']
     const email = await getUser(req.headers['auth'])['email']
     const password = await getUser(req.headers['auth'])['password']
-
-    console.log(benutzername, email, password)
-
     const {profilname, profilbild, kurzbeschreibung, beschreibung, region, adresse, preis, kategorie, erfahrung, gerichte} = req.body
 
     if (
@@ -160,9 +157,6 @@ app.post('/createArtist', Auth, async (req,res)=> {
     const benutzername = await getUser(req.headers['auth'])['benutzername']
     const email = await getUser(req.headers['auth'])['email']
     const password = await getUser(req.headers['auth'])['password']
-
-    console.log(benutzername, email, password)
-
     const {profilname, profilbild, kurzbeschreibung, beschreibung, region, adresse, preis, kategorie, erfahrung, songs} = req.body
     
     if (
@@ -200,9 +194,6 @@ app.post('/createEndnutzer', Auth, async (req,res) => {
     const benutzername = await getUser(req.headers['auth'])['benutzername']
     const email = await getUser(req.headers['auth'])['email']
     const password = await getUser(req.headers['auth'])['password']
-
-    console.log(benutzername, email, password)
-
     const {profilname, profilbild, kurzbeschreibung, beschreibung, region, alter, arten, lied, gericht, geschlecht, partybilder} = req.body
     
     if (
