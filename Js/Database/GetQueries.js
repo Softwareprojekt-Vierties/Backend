@@ -410,7 +410,7 @@ async function searchCaterer(req, res) {
     }
 
     additionalFilter = additionalFilter.slice(0, -5); // remove the last ' AND '
-    let sqlstring = paramIndex === 0 ? query + istfavorit : query + istfavorit + " WHERE " + additionalFilter;
+    let sqlstring = paramIndex === 1 ? query + istfavorit : query + istfavorit + " WHERE " + additionalFilter;
     console.log("caterer SQL:\n",sqlstring,"\nWith DATA:", param)
     try {
         const result = await pool.query(sqlstring, param);
@@ -528,7 +528,7 @@ async function searchArtist(req, res) {
     }
 
     additionalFilter = additionalFilter.slice(0, -5); // remove the last ' AND '
-    let sqlstring = paramIndex === 0 ? query + istfavorit : query + istfavorit + " WHERE " + additionalFilter;
+    let sqlstring = paramIndex === 1 ? query + istfavorit : query + istfavorit + " WHERE " + additionalFilter;
     console.log("Artist SQL:\n",sqlstring,"\nWith DATA:", param)
     try {
         const result = await pool.query(sqlstring, param);
@@ -631,7 +631,7 @@ async function searchEndUser(req, res) {
     }
 
     additionalFilter = additionalFilter.slice(0, -5); // remove the last ' AND '
-    let sqlstring = paramIndex === 0 ? query + istfavorit + isfriend : query + istfavorit + isfriend + "WHERE " + additionalFilter;
+    let sqlstring = paramIndex === 1 ? query + istfavorit + isfriend : query + istfavorit + isfriend + "WHERE " + additionalFilter;
 
     console.log("Enduser SQL:\n",sqlstring,"\nWith DATA:", param)
 
