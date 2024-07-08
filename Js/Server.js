@@ -136,7 +136,7 @@ app.post('/createCaterer', Auth, async (req,res)=> {
         kategorie == undefined ||
         erfahrung == undefined ||
         gerichte == undefined
-    ) return res.send(400).send("INVALID DATA GIVEN!")
+    ) return res.status(400).send("INVALID DATA GIVEN!")
 
     const caterer = await CreateQueries.createCaterer(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, adresse + ", " + region, preis, kategorie, erfahrung)
 
@@ -173,7 +173,7 @@ app.post('/createArtist', Auth, async (req,res)=> {
         kategorie == undefined ||
         erfahrung == undefined ||
         songs == undefined
-    ) return res.send(400).send("INVALID DATA GIVEN!")
+    ) return res.status(400).send("INVALID DATA GIVEN!")
     
     const artist = await CreateQueries.createArtist(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, adresse + ", " + region, preis, kategorie, erfahrung)
     
@@ -211,7 +211,7 @@ app.post('/createEndnutzer', Auth, async (req,res) => {
         gericht == undefined ||
         geschlecht == undefined ||
         partybilder == undefined
-    ) return res.send(400).send("INVALID DATA GIVEN!")
+    ) return res.status(400).send("INVALID DATA GIVEN!")
     
     await CreateQueries.createEndUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, alter, arten, lied, gericht, geschlecht, partybilder).then(result => {
         if(result.success) return res.status(200).send("User created")
