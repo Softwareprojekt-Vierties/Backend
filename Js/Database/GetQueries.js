@@ -700,19 +700,19 @@ async function getMeById(req, res) {
             [userEmail]
         )
     
-        const newReq = {
+        const newReq = new JSON({
             headers: req.headers,
             params: {
                 id: userType.rows[0]['id']
             }
-        }
+        })
         
         if (userType.rows[0]['type'] == 'artist') {
             getArtistByID(newReq, res)
         } else if (userType.rows[0]['type'] == 'caterer') {
-            getCatererByID(newReq, res)
+            getCatererById(newReq, res)
         } else if (userType.rows[0]['type'] == 'endnutzer') {
-            getEndUserByID(newReq, res)
+            getEndUserById(newReq, res)
         }
     } catch (err) {
         console.log(err)
