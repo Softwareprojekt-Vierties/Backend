@@ -700,26 +700,14 @@ async function getMeById(req, res) {
             [userEmail]
         )
 
-        console.log(userType.rows[0]['id'])
-    
-        const newReq = {
-            headers: req.headers,
-            params: {
-                id: `'${userType.rows[0]['id']}'`
-            }
-        }
-
-        console.log(newReq)
-        console.log(req.params['id'])
         req.params['id'] = userType.rows[0]['id']
-        console.log(req.params['id'])
         
         if (userType.rows[0]['type'] == 'artist') {
-            getArtistByID(newReq, res)
+            getArtistByID(req, res)
         } else if (userType.rows[0]['type'] == 'caterer') {
-            getCatererById(newReq, res)
+            getCatererById(req, res)
         } else if (userType.rows[0]['type'] == 'endnutzer') {
-            getEndUserById(newReq, res)
+            getEndUserById(req, res)
         }
     } catch (err) {
         console.log(err)
