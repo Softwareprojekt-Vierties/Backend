@@ -416,7 +416,7 @@ async function searchCaterer(req, res) {
         const result = await pool.query(sqlstring, param);
 
         for (let i = 0; i < result.rowCount; i++) {
-            result.rows[i]["app_user_id"]==userid ? result.rows[i]["isyou"] = true : result.rows[i]["isyou"] = false
+            result.rows[i]["app_user_id"]==user ? result.rows[i]["isyou"] = true : result.rows[i]["isyou"] = false
             if (Object.hasOwn(result.rows[i], "favorit")) {
                 result.rows[i]["favorit"] = result.rows[i]["favorit"] === user;
             }
@@ -534,7 +534,7 @@ async function searchArtist(req, res) {
         const result = await pool.query(sqlstring, param);
 
         for (let i = 0; i < result.rowCount; i++) {
-            result.rows[i]["app_user_id"]==userid ? result.rows[i]["isyou"] = true : result.rows[i]["isyou"] = false
+            result.rows[i]["app_user_id"]== user ? result.rows[i]["isyou"] = true : result.rows[i]["isyou"] = false
             if (Object.hasOwn(result.rows[i], "favorit")) {
                 result.rows[i]["favorit"] = result.rows[i]["favorit"] === user;
             }
@@ -639,7 +639,7 @@ async function searchEndUser(req, res) {
         const result = await pool.query(sqlstring, param);
 
         for (let i = 0; i < result.rowCount; i++) {
-            result.rows[i]["app_user_id"]==userid ? result.rows[i]["isyou"] = true : result.rows[i]["isyou"] = false
+            result.rows[i]["app_user_id"]==user ? result.rows[i]["isyou"] = true : result.rows[i]["isyou"] = false
             if (Object.hasOwn(result.rows[i], "favorit")) {
                 result.rows[i]["favorit"] = result.rows[i]["favorit"] === user;
             }
