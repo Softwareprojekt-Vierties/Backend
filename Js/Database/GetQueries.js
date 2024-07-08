@@ -1012,6 +1012,9 @@ async function getEndUserById(req,res){
         console.error(err)
         return res.status(400).send(toString(err))
     }
+
+    console.log(req)
+
     try {
         const id = req.params["id"]
         const user = await pool.query(
