@@ -808,7 +808,7 @@ async function getCatererById(req,res){
                 a.beschreibung,
                 a.region,
                 a.sterne,
-                fu.userid as favorit
+                fu.userid as favorit,
                 bild.data AS profilbild
             FROM caterer c 
             JOIN app_user a ON c.emailfk = a.email 
@@ -843,10 +843,10 @@ async function getCatererById(req,res){
             WHERE sc.catererid = $1::int`,
             [id]
         )
+
         if (Object.hasOwn(result.rows[0], "favorit")) {
             result.rows[0]["favorit"] = result.rows[0]["favorit"] === userid;
         }
-
         if (cater.rowCount == 0) return res.status(400).send("No caterer found")
 
         return res.status(200).send({
@@ -888,12 +888,12 @@ async function getArtistByID(req,res){
                 a.beschreibung,
                 a.region,
                 a.sterne,
-                fu.userid as favorit
+                fu.userid as favorit,
                 bild.data AS profilbild 
             FROM artist ar 
             JOIN app_user a ON ar.emailfk = a.email
             LEFT JOIN bild ON a.bildid = bild.id
-            LEFT OUTER JOIN favorit_user fu ON c.id = fu.artistid AND fu.userid = $2::int
+            LEFT OUTER JOIN favorit_user fu ON ar.id = fu.artistid AND fu.userid = $2::int
             WHERE ar.id = $1`,
             [id,userid]
         )
@@ -925,6 +925,7 @@ async function getArtistByID(req,res){
         if (Object.hasOwn(result.rows[0], "favorit")) {
             result.rows[0]["favorit"] = result.rows[0]["favorit"] === userid;
         }
+
 
         if (art.rowCount == 0) return res.status(400).send("No artist found")
 
@@ -967,12 +968,12 @@ async function getEndUserById(req,res){
                 a.region,
                 a.sterne,
                 a.id as userid,
-                fu.userid as favorit
+                fu.userid as favorit,
                 bild.data AS profilbild
             FROM endnutzer e
             JOIN app_user a ON a.email = e.emailfk
             LEFT JOIN bild ON a.bildid = bild.id
-            LEFT OUTER JOIN favorit_user fu ON c.id = fu.enduserid AND fu.userid = $2::int
+            LEFT OUTER JOIN favorit_user fu ON e.id = fu.enduserid AND fu.userid = $2::int
             WHERE a.id = $1::int`,
             [id,userid]
         )
@@ -1014,6 +1015,7 @@ async function getEndUserById(req,res){
             WHERE t.userid = $1::int`,
             [id]
         )
+
 
         if (Object.hasOwn(result.rows[0],"favorit")) {
             result.rows[0]["favorit"] = result.rows[0]["favorit"] === userid;
