@@ -25,7 +25,40 @@ app.use((req, res, next) => {
     res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
     res.set('X-Content-Type-Options', 'nosniff');
     next();
-  })
+})
+
+const clientQueue = new Map()
+
+// Middleware to identify the client
+app.use((req, res, next) => {
+    const clientId = req.ip;
+
+    if (!clientQueue.has(clientId)) {
+        clientQueue.set(clientId, []) // init queue for client if none exists
+    }
+
+    req.clientId = clientId
+    next()
+})
+
+app.use((req, res, next) => {
+    const clientID = req.clientId;
+
+    const processRequest = () => {
+        const clientRequest = clientQueue.get(clientID)
+
+        const nextRequest = clientRequest.shift()
+        if (nextRequest) {
+            nextRequest()
+        }
+    }
+
+    const clientRequests = clientQueue.get(clientID)
+    clientRequests.push(() => {
+        res.on('finish', processRequest)
+        next()
+    })
+})
 
 let server
 
