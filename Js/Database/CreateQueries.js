@@ -22,7 +22,7 @@ async function createAppUser(benutzername, profilname, email, password, profilbi
         // first save the password
         const salt = await bcrypt.genSalt(10)
         console.log("BEFORE HASHING:", password, "salt:", salt)
-        const hash = await bcrypt.hash(password, salt)
+        const hash = await bcrypt.hash(String(password), salt)
         passwordID = await pool.query(
             `INSERT INTO password (salt, hash) VALUES ($1, $2) RETURNING id`,
             [salt, hash]
@@ -71,13 +71,12 @@ async function createAppUser(benutzername, profilname, email, password, profilbi
  * @param {string} arten - the types of 
  * @param {string} lied 
  * @param {string} gericht 
- * @param {string} geschlecht
  * @param {string[]} partybilder 
  * @returns {!Object} 
  * - success: [true if successful, false otherwise]
  * - error: [the error, if one occured]
  */
-async function createEndUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, alter, arten, lied, gericht, geschlecht, partybilder){
+async function createEndUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, alter, arten, lied, gericht, partybilder){
     // create app_user first
     const app_user = await createAppUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region)
 
@@ -89,8 +88,8 @@ async function createEndUser(benutzername, profilname, email, password, profilbi
     // create enduser afterwards
     try {
         await pool.query(
-            "INSERT INTO endnutzer (emailfk, alter, arten, lied, gericht, geschlecht) VALUES ($1::text, $2::int, $3::text, $4::text, $5::text, $6::text)",
-            [email, alter, arten, lied, gericht, geschlecht]
+            "INSERT INTO endnutzer (emailfk, alter, arten, lied, gericht) VALUES ($1::text, $2::int, $3::text, $4::text, $5::text)",
+            [email, alter, arten, lied, gericht]
         )
         console.log("enduser CREATED")
 

@@ -121,6 +121,17 @@ app.post('/createCaterer', Auth, async (req,res)=> {
     const email = await getUser(req.headers['auth'])['email']
     const password = await getUser(req.headers['auth'])['password']
     const {profilname, profilbild, kurzbeschreibung, beschreibung, region, adresse, preis, kategorie, erfahrung, gerichte} = req.body
+
+    if (
+        benutzername == undefined ||
+        email == undefined ||
+        password == undefined ||
+        profilname == undefined ||
+        region == undefined ||
+        adresse == undefined ||
+        preis == undefined
+    ) return res.status(400).send("INVALID DATA GIVEN! BODY MUST REQUIRE: profilname, region, adresse, preis")
+
     const caterer = await CreateQueries.createCaterer(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, adresse + ", " + region, preis, kategorie, erfahrung)
 
     if (caterer.success && gerichte != null) {
@@ -141,6 +152,17 @@ app.post('/createArtist', Auth, async (req,res)=> {
     const email = await getUser(req.headers['auth'])['email']
     const password = await getUser(req.headers['auth'])['password']
     const {profilname, profilbild, kurzbeschreibung, beschreibung, region, adresse, preis, kategorie, erfahrung, songs} = req.body
+    
+    if (
+        benutzername == undefined ||
+        email == undefined ||
+        password == undefined ||
+        profilname == undefined ||
+        region == undefined ||
+        adresse == undefined ||
+        preis == undefined
+    ) return res.status(400).send("INVALID DATA GIVEN! BODY MUST REQUIRE: profilname, region, adresse, preis")
+    
     const artist = await CreateQueries.createArtist(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, adresse + ", " + region, preis, kategorie, erfahrung)
     
     if (artist.success && songs != null) {
@@ -160,8 +182,17 @@ app.post('/createEndnutzer', Auth, async (req,res) => {
     const benutzername = await getUser(req.headers['auth'])['benutzername']
     const email = await getUser(req.headers['auth'])['email']
     const password = await getUser(req.headers['auth'])['password']
-    const {profilname, profilbild, kurzbeschreibung, beschreibung, region, alter, arten, lied, gericht, geschlecht, partybilder} = req.body
-    await CreateQueries.createEndUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, alter, arten, lied, gericht, geschlecht, partybilder).then(result => {
+    const {profilname, profilbild, kurzbeschreibung, beschreibung, region, alter, eventarten, lieblingslied, lieblingsgericht, partybilder} = req.body
+    
+    if (
+        benutzername == undefined ||
+        email == undefined ||
+        password == undefined ||
+        profilname == undefined ||
+        alter == undefined
+    ) return res.status(400).send("INVALID DATA GIVEN! BODY MUST REQUIRE: profilname, alter")
+    
+    await CreateQueries.createEndUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, alter, eventarten, lieblingslied, lieblingsgericht, partybilder).then(result => {
         if(result.success) return res.status(200).send("User created")
         else return res.status(500).send("User not created: " + result.error)
     })
@@ -405,9 +436,9 @@ app.post("/updateEndnutzer", Auth, async (req,res)=>{
         return res.status(400).send(toString(err))
     } 
 
-    const {profilname, profilbild, kurzbeschreibung, beschreibung, region, alter, arten, lied, gericht, geschlecht, partybilder} = req.body
+    const {profilname, profilbild, kurzbeschreibung, beschreibung, region, alter, arten, lied, gericht, partybilder} = req.body
     try {
-        const resultEndnutzer = await UpdateQueries.updateEndnutzer(profilname, profilbild, kurzbeschreibung, beschreibung, region, userEmail, alter, arten, lied, gericht, geschlecht, partybilder)
+        const resultEndnutzer = await UpdateQueries.updateEndnutzer(profilname, profilbild, kurzbeschreibung, beschreibung, region, userEmail, alter, arten, lied, gericht, partybilder)
         if (resultEndnutzer.success) res.status(200).send("UPDATED Endnutzer")
         else res.status(400).send("FAILED TO UPDATE Endnutzer! " + resultEndnutzer.error + ",")
     }
