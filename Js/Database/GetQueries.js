@@ -705,13 +705,13 @@ async function getMeById(req, res) {
         const newReq = {
             headers: req.headers,
             params: {
-                id: userType.rows[0]['id']
+                id: `'${userType.rows[0]['id']}'`
             }
         }
 
         console.log(newReq)
         console.log(req.params['id'])
-        req.params.push({id: userType.rows[0]['id']})
+        req.params['id'] = userType.rows[0]['id']
         console.log(req.params['id'])
         
         if (userType.rows[0]['type'] == 'artist') {
