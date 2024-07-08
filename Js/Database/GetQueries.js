@@ -666,6 +666,61 @@ async function searchEndUser(req, res) {
 // -------------------- GETS -------------------- //
 
 /**
+ * Gets all the information of the current loged in user
+ * @param {!JSON} req 
+ * @param {!JSON} res 
+ */
+async function getMeById(req, res) {
+    let userEmail
+    try {
+        userEmail = getUser(req.headers["auth"])["email"]
+        if (userEmail == undefined) throw new Error("INVALID TOKEN")
+    } catch(err) {
+        console.error(err)
+        return res.status(400).send(toString(err))
+    } 
+
+    try {
+        const userType = await pool.query(
+            `SELECT id, 'artist' AS type
+            FROM artist
+            WHERE emailfk = $1::text
+        
+            UNION ALL
+        
+            SELECT id, 'caterer' AS type
+            FROM caterer
+            WHERE emailfk = $1::text
+        
+            UNION ALL
+        
+            SELECT id, 'endnutzer' AS type
+            FROM endnutzer
+            WHERE emailfk = $1::text`,
+            [app_user.rows[0]['email']]
+        )
+    
+        const newReq = {
+            headers: req.headers,
+            params: {
+                id: userType.rows[0]['id']
+            }
+        }
+        
+        if (userType.rows[0]['type'] == 'artist') {
+            getArtistByID(newReq, res)
+        } else if (userType.rows[0]['type'] == 'caterer') {
+            getCatererByID(newReq, res)
+        } else if (userType.rows[0]['type'] == 'endnutzer') {
+            getEndUserByID(newReq, res)
+        }
+    } catch (err) {
+        console.log(err)
+        res.status(500).send(toString(err))
+    }
+}
+
+/**
  * Gets all partybilder from an app_user
  * @param {!JSON} req 
  * @param {!JSON} res 
@@ -1362,6 +1417,7 @@ module.exports = {
     getBookedTicketsDate,
     getPartybilderFromUser,
     getFriendId: getFriends,
+    getMeById,
     // SEARCHES
     searchEvent, 
     searchLocaiton: searchLocation, // to not destroy the code by mistakes in refactoring, just point it to the right function
