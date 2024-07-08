@@ -700,12 +700,12 @@ async function getMeById(req, res) {
             [userEmail]
         )
     
-        const newReq = new JSON({
+        const newReq = {
             headers: req.headers,
             params: {
                 id: userType.rows[0]['id']
             }
-        })
+        }
         
         if (userType.rows[0]['type'] == 'artist') {
             getArtistByID(newReq, res)
