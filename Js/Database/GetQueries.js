@@ -1006,10 +1006,11 @@ async function getEndUserById(req,res){
         return res.status(400).send(toString(err))
     }
 
-    //console.log(req)
+    console.log(req)
 
     try {
         const id = req.params["id"]
+        console.log("Id", id, "userid", userid)
         const user = await pool.query(
             `SELECT 
                 e.*,
@@ -1069,12 +1070,11 @@ async function getEndUserById(req,res){
             [id]
         )
 
+        if (user.rowCount == 0) return res.status(400).send("No user found")
 
         if (Object.hasOwn(user.rows[0],"favorit")) {
             user.rows[0]["favorit"] = user.rows[0]["favorit"] === userid;
         }
-
-        if (user.rowCount == 0) return res.status(400).send("No user found")
 
         return res.status(200).send({
             isMe : userid === user.rows[0]['userid'] ? true : false,
