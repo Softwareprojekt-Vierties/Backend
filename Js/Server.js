@@ -28,6 +28,7 @@ app.use((req, res, next) => {
 })
 
 const clientQueue = new Map()
+const MAX_QUEUE_SIZE = 4
 
 // Middleware to identify the client
 app.use((req, res, next) => {
@@ -41,24 +42,34 @@ app.use((req, res, next) => {
     next()
 })
 
+// Middleware to process client requests one at a time
 app.use((req, res, next) => {
-    const clientID = req.clientId;
+    const clientId = req.clientId;
+    const clientRequests = clientQueue.get(clientId);
 
-    const processRequest = () => {
-        const clientRequest = clientQueue.get(clientID)
-
-        const nextRequest = clientRequest.shift()
+    if (clientRequests.length >= MAX_QUEUE_SIZE) {
+        // If the queue is full, send a 429 Too Many Requests response
+        res.status(429).send('Too Many Requests - Please try again later');
+    } else {
+        const processRequest = () => {
+        const nextRequest = clientRequests.shift();
         if (nextRequest) {
-            nextRequest()
+            nextRequest();
+        }
+        };
+
+        clientRequests.push(() => {
+        res.on('finish', processRequest); // When response is finished, process the next request
+
+        // Proceed to the actual route handler
+        next();
+        });
+
+        if (clientRequests.length === 1) {
+        processRequest(); // Start processing if this is the only request in the queue
         }
     }
-
-    const clientRequests = clientQueue.get(clientID)
-    clientRequests.push(() => {
-        res.on('finish', processRequest)
-        next()
-    })
-})
+});
 
 let server
 
