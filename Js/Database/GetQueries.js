@@ -680,6 +680,8 @@ async function getMeById(req, res) {
         return res.status(400).send(toString(err))
     } 
 
+    console.log(userEmail)
+
     try {
         const userType = await pool.query(
             `SELECT id, 'artist' AS type
