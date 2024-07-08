@@ -673,7 +673,7 @@ async function searchEndUser(req, res) {
 async function getMeById(req, res) {
     let userEmail
     try {
-        userEmail = getUser(req.headers["auth"])["email"]
+        userEmail = jwt.verify(req.headers["auth"])["email"]
         if (userEmail == undefined) throw new Error("INVALID TOKEN")
     } catch(err) {
         console.error(err)
