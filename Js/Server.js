@@ -35,12 +35,12 @@ app.use((req, res, next) => {
     const clientId = req.ip;
 
     if (!clientQueue.has(clientId)) {
-        clientQueue.set(clientId, []) // init queue for client if none exists
+        clientQueue.set(clientId, []); // Initialize a queue for the client if not exist
     }
 
-    req.clientId = clientId
-    next()
-})
+    req.clientId = clientId; // Attach clientId to request
+    next();
+});
 
 // Middleware to process client requests one at a time
 app.use((req, res, next) => {
@@ -52,21 +52,28 @@ app.use((req, res, next) => {
         res.status(429).send('Too Many Requests - Please try again later');
     } else {
         const processRequest = () => {
-        const nextRequest = clientRequests.shift();
-        if (nextRequest) {
-            nextRequest();
-        }
+            const nextRequest = clientRequests.shift();
+            if (nextRequest) {
+                nextRequest();
+            }
         };
 
         clientRequests.push(() => {
-        res.on('finish', processRequest); // When response is finished, process the next request
+            res.on('finish', () => {
+                processRequest(); // When response is finished, process the next request
+                // Remove the current request from the queue
+                const index = clientRequests.indexOf(processRequest);
+                if (index > -1) {
+                    clientRequests.splice(index, 1);
+                }
+            });
 
-        // Proceed to the actual route handler
-        next();
+            // Proceed to the actual route handler
+            next();
         });
 
         if (clientRequests.length === 1) {
-        processRequest(); // Start processing if this is the only request in the queue
+            processRequest(); // Start processing if this is the only request in the queue
         }
     }
 });
