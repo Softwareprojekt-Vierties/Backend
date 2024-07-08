@@ -697,7 +697,7 @@ async function getMeById(req, res) {
             SELECT id, 'endnutzer' AS type
             FROM endnutzer
             WHERE emailfk = $1::text`,
-            [app_user.rows[0]['email']]
+            [userEmail.rows[0]['email']]
         )
     
         const newReq = {
