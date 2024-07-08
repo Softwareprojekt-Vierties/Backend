@@ -972,7 +972,7 @@ async function getEndUserById(req,res){
             FROM endnutzer e
             JOIN app_user a ON a.email = e.emailfk
             LEFT JOIN bild ON a.bildid = bild.id
-            LEFT OUTER JOIN favorit_user fu ON c.id = fu.enduserid AND fu.userid = $2::int
+            LEFT OUTER JOIN favorit_user fu ON a.id = fu.enduserid AND fu.userid = $2::int
             WHERE a.id = $1::int`,
             [id,userid]
         )
