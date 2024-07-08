@@ -127,16 +127,10 @@ app.post('/createCaterer', Auth, async (req,res)=> {
         email == undefined ||
         password == undefined ||
         profilname == undefined ||
-        profilbild == undefined ||
-        kurzbeschreibung == undefined ||
-        beschreibung == undefined ||
         region == undefined ||
         adresse == undefined ||
-        preis == undefined ||
-        kategorie == undefined ||
-        erfahrung == undefined ||
-        gerichte == undefined
-    ) return res.status(400).send("INVALID DATA GIVEN! BODY MUST REQUIRE: profilname, profilbild, kurzbeschreibung, beschreibung, region, adresse, preis, kategorie, erfahrung, gerichte")
+        preis == undefined
+    ) return res.status(400).send("INVALID DATA GIVEN! BODY MUST REQUIRE: profilname, region, adresse, preis")
 
     const caterer = await CreateQueries.createCaterer(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, adresse + ", " + region, preis, kategorie, erfahrung)
 
@@ -164,16 +158,10 @@ app.post('/createArtist', Auth, async (req,res)=> {
         email == undefined ||
         password == undefined ||
         profilname == undefined ||
-        profilbild == undefined ||
-        kurzbeschreibung == undefined ||
-        beschreibung == undefined ||
         region == undefined ||
         adresse == undefined ||
-        preis == undefined ||
-        kategorie == undefined ||
-        erfahrung == undefined ||
-        songs == undefined
-    ) return res.status(400).send("INVALID DATA GIVEN! BODY MUST REQUIRE: profilname, profilbild, kurzbeschreibung, beschreibung, region, adresse, preis, kategorie, erfahrung, songs")
+        preis == undefined
+    ) return res.status(400).send("INVALID DATA GIVEN! BODY MUST REQUIRE: profilname, region, adresse, preis")
     
     const artist = await CreateQueries.createArtist(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, adresse + ", " + region, preis, kategorie, erfahrung)
     
@@ -201,13 +189,8 @@ app.post('/createEndnutzer', Auth, async (req,res) => {
         email == undefined ||
         password == undefined ||
         profilname == undefined ||
-        profilbild == undefined ||
-        kurzbeschreibung == undefined ||
-        beschreibung == undefined ||
-        region == undefined ||
-        alter == undefined ||
-        partybilder == undefined
-    ) return res.status(400).send("INVALID DATA GIVEN! BODY MUST REQUIRE: profilname, profilbild, kurzbeschreibung, beschreibung, region, alter, eventarten, lieblingslied, lieblingsgericht, partybilder")
+        alter == undefined
+    ) return res.status(400).send("INVALID DATA GIVEN! BODY MUST REQUIRE: profilname, alter")
     
     await CreateQueries.createEndUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, alter, eventarten, lieblingslied, lieblingsgericht, partybilder).then(result => {
         if(result.success) return res.status(200).send("User created")
