@@ -808,7 +808,7 @@ async function getCatererById(req,res){
                 a.beschreibung,
                 a.region,
                 a.sterne,
-                fu.userid as favorit
+                fu.userid as favorit,
                 bild.data AS profilbild
             FROM caterer c 
             JOIN app_user a ON c.emailfk = a.email 
@@ -888,7 +888,7 @@ async function getArtistByID(req,res){
                 a.beschreibung,
                 a.region,
                 a.sterne,
-                fu.userid as favorit
+                fu.userid as favorit,
                 bild.data AS profilbild 
             FROM artist ar 
             JOIN app_user a ON ar.emailfk = a.email
@@ -967,7 +967,7 @@ async function getEndUserById(req,res){
                 a.region,
                 a.sterne,
                 a.id as userid,
-                fu.userid as favorit
+                fu.userid as favorit,
                 bild.data AS profilbild
             FROM endnutzer e
             JOIN app_user a ON a.email = e.emailfk
