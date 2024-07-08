@@ -67,7 +67,7 @@ async function searchEvent(req, res) {
         JOIN location l ON e.locationid = l.id
         LEFT JOIN bild ON e.bildid = bild.id`;
     let additionalFilter = "";
-    let param = [];
+    let param = [userid];
     let istfavorit = " LEFT OUTER JOIN favorit_event fe ON e.id = fe.eventid AND fe.userid = $1::int";
     let ticktjoin = "";
     let paramIndex = 1;
