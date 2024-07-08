@@ -172,9 +172,9 @@ async function searchEvent(req, res) {
     }
 
     let sqlstring = query + istfavorit + ticktjoin + (additionalFilter ? " WHERE " + additionalFilter : "");
-    console.log("Event SQL:\n",sqlstring,"\nWith DATA:", param)
+    //console.log("Event SQL:\n",sqlstring,"\nWith DATA:", param)
     try {
-        console.log("QUERY SEARCH", sqlstring);
+        //console.log("QUERY SEARCH", sqlstring);
         const result = await pool.query(sqlstring, param);
         for (let i = 0; i < result.rowCount; i++) {
             result.rows[i]["ownerid"]==userid ? result.rows[i]["isOwner"] = true : result.rows[i]["isOwner"] = false
@@ -294,7 +294,7 @@ async function searchLocation(req, res) {
     }
 
     sqlstring = query + istfavorit + (additionalFilter ? " WHERE " + additionalFilter : "");
-    console.log("Location SQL:\n",sqlstring,"\nWith DATA:", params)
+    //console.log("Location SQL:\n",sqlstring,"\nWith DATA:", params)
     try {
         const result = await pool.query(sqlstring, params);
         for (let i = 0; i < result.rowCount; i++) {
@@ -411,7 +411,7 @@ async function searchCaterer(req, res) {
 
     additionalFilter = additionalFilter.slice(0, -5); // remove the last ' AND '
     let sqlstring = paramIndex === 1 ? query + istfavorit : query + istfavorit + " WHERE " + additionalFilter;
-    console.log("caterer SQL:\n",sqlstring,"\nWith DATA:", param)
+    //console.log("caterer SQL:\n",sqlstring,"\nWith DATA:", param)
     try {
         const result = await pool.query(sqlstring, param);
 
@@ -529,7 +529,7 @@ async function searchArtist(req, res) {
 
     additionalFilter = additionalFilter.slice(0, -5); // remove the last ' AND '
     let sqlstring = paramIndex === 1 ? query + istfavorit : query + istfavorit + " WHERE " + additionalFilter;
-    console.log("Artist SQL:\n",sqlstring,"\nWith DATA:", param)
+    //console.log("Artist SQL:\n",sqlstring,"\nWith DATA:", param)
     try {
         const result = await pool.query(sqlstring, param);
 
@@ -633,7 +633,7 @@ async function searchEndUser(req, res) {
     additionalFilter = additionalFilter.slice(0, -5); // remove the last ' AND '
     let sqlstring = paramIndex === 1 ? query + istfavorit + isfriend : query + istfavorit + isfriend + "WHERE " + additionalFilter;
 
-    console.log("Enduser SQL:\n",sqlstring,"\nWith DATA:", param)
+    //console.log("Enduser SQL:\n",sqlstring,"\nWith DATA:", param)
 
     try {
         const result = await pool.query(sqlstring, param);
