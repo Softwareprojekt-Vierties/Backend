@@ -700,7 +700,7 @@ async function getMeById(req, res) {
             [userEmail]
         )
 
-        console.log(userType)
+        console.log(userType.rows[0]['id'])
     
         const newReq = {
             headers: req.headers,
@@ -708,6 +708,11 @@ async function getMeById(req, res) {
                 id: userType.rows[0]['id']
             }
         }
+
+        console.log(newReq)
+        console.log(req.params['id'])
+        req.params.push({id: userType.rows[0]['id']})
+        console.log(req.params['id'])
         
         if (userType.rows[0]['type'] == 'artist') {
             getArtistByID(newReq, res)
@@ -1013,7 +1018,7 @@ async function getEndUserById(req,res){
         return res.status(400).send(toString(err))
     }
 
-    console.log(req)
+    //console.log(req)
 
     try {
         const id = req.params["id"]
