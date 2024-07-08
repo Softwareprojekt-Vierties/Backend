@@ -86,13 +86,12 @@ async function updatePartyBilder(userid, partybilder) {
  * @param {string} arten 
  * @param {string} lied 
  * @param {string} gericht 
- * @param {string} geschlecht 
  * @param {string[]} partybilder
  * @returns {!Object} 
  * - boolean: success - true if successful, false otherwise
  * - Error: error - the error if one occured
  */
-async function updateEndnutzer(profilname, profilbild, kurzbeschreibung, beschreibung, region, email, alter, arten, lied, gericht, geschlecht, partybilder) {
+async function updateEndnutzer(profilname, profilbild, kurzbeschreibung, beschreibung, region, email, alter, arten, lied, gericht, partybilder) {
     const app_userResult = await updateApp_user(profilname, profilbild, kurzbeschreibung, beschreibung, region, email)
     if (!app_userResult.success) { // if failed
         console.error(`CANNOT UPDATE endnutzer BECAUSE UPDATE app_user FAILED`)
@@ -108,11 +107,10 @@ async function updateEndnutzer(profilname, profilbild, kurzbeschreibung, beschre
             alter = $1::int,
             arten = $2::text,
             lied = $3::text,
-            gericht = $4::text,
-            geschlecht = $5::text
-            WHERE emailfk = $6::text
+            gericht = $4::text
+            WHERE emailfk = $5::text
             RETURNING id`,
-            [alter, arten, lied, gericht, geschlecht, email]
+            [alter, arten, lied, gericht, email]
         )
         console.log(`endnutzer UPDATED`)
 
