@@ -107,6 +107,56 @@ app.get('/tickets', Auth, GetQueries.getAllTicketsFromUser)
 app.get('/getMails', Auth, GetQueries.getMails)
 app.get("/getLocation/:id", Auth, GetQueries.getLocationById)
 
+app.get("/me", Auth, async (req, res) => {
+    let userEmail
+    try {
+        userEmail = getUser(req.headers["auth"])["email"]
+        if (userEmail == undefined) throw new Error("INVALID TOKEN")
+    } catch(err) {
+        console.error(err)
+        return res.status(400).send(toString(err))
+    } 
+
+    try {
+        const userType = await pool.query(
+            `SELECT id, 'artist' AS type
+            FROM artist
+            WHERE emailfk = $1::text
+        
+            UNION ALL
+        
+            SELECT id, 'caterer' AS type
+            FROM caterer
+            WHERE emailfk = $1::text
+        
+            UNION ALL
+        
+            SELECT id, 'endnutzer' AS type
+            FROM endnutzer
+            WHERE emailfk = $1::text`,
+            [app_user.rows[0]['email']]
+        )
+    
+        const newReq = {
+            headers: req.headers,
+            params: {
+                id: userType.rows[0]['id']
+            }
+        }
+        
+        if (userType.rows[0]['type'] == 'artist') {
+            GetQueries.getArtistByID(newReq, res)
+        } else if (userType.rows[0]['type'] == 'caterer') {
+            GetQueries.getCatererByID(newReq, res)
+        } else if (userType.rows[0]['type'] == 'endnutzer') {
+            GetQueries.getEndUserByID(newReq, res)
+        }
+    } catch (err) {
+        console.log(err)
+        res.status(500).send(toString(err))
+    }
+})
+
 app.post('/searchEvent',Auth,GetQueries.searchEvent)  // searchs events with filter param
 app.post('/searchLoacation',Auth,GetQueries.searchLocaiton)  // searchs Locations with filter param
 app.post('/searchCaterer',Auth,GetQueries.searchCaterer)  // searchs Caterer with filter param
