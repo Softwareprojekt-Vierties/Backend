@@ -893,7 +893,7 @@ async function getArtistByID(req,res){
             FROM artist ar 
             JOIN app_user a ON ar.emailfk = a.email
             LEFT JOIN bild ON a.bildid = bild.id
-            LEFT OUTER JOIN favorit_user fu ON c.id = fu.artistid AND fu.userid = $2::int
+            LEFT OUTER JOIN favorit_user fu ON ar.id = fu.artistid AND fu.userid = $2::int
             WHERE ar.id = $1`,
             [id,userid]
         )
