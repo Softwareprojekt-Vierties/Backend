@@ -67,10 +67,10 @@ async function searchEvent(req, res) {
         JOIN location l ON e.locationid = l.id
         LEFT JOIN bild ON e.bildid = bild.id`;
     let additionalFilter = "";
-    let param = [userid];
+    let param = [];
     let istfavorit = " LEFT OUTER JOIN favorit_event fe ON e.id = fe.eventid AND fe.userid = $1::int";
     let ticktjoin = "";
-    let paramIndex = 0;
+    let paramIndex = 1;
     let doAND;
 
     for (let key in req.body) {
@@ -229,7 +229,7 @@ async function searchLocation(req, res) {
     let istfavorit = " LEFT OUTER JOIN favorit_location ON location.id = favorit_location.locationid AND favorit_location.userid = $1::int";
     let params = [userid];
     let sqlstring = "";
-    let paramIndex = 0;
+    let paramIndex = 1;
     let doAND;
     
     for (let key in req.body) {
@@ -360,7 +360,7 @@ async function searchCaterer(req, res) {
     let additionalFilter = "";
     let param = [user];
     let istfavorit = " LEFT OUTER JOIN favorit_user fu ON c.id = fu.catereid AND fu.userid = $1::int";
-    let paramIndex = 0;
+    let paramIndex = 1;
     let doAND;
 
     for (let key in req.body) {
@@ -478,7 +478,7 @@ async function searchArtist(req, res) {
     let additionalFilter = "";
     let istfavorit = " LEFT OUTER JOIN favorit_user fu ON a.id = fu.artistid AND fu.user = $1::int";
     let param = [user];
-    let paramIndex = 0;
+    let paramIndex = 1;
     let doAND = true;
 
     for (let key in req.body) {
@@ -592,7 +592,7 @@ async function searchEndUser(req, res) {
     let istfavorit = " LEFT OUTER JOIN favorit_user fu ON e.id = fu.enduserid AND fu.userid = $1::int";
     let isfriend = " LEFT OUTER JOIN friend fr ON ap.id = fr.user2 "
     let param = [user];
-    let paramIndex = 0;
+    let paramIndex = 1;
     let doAND = true;
 
     for (let key in req.body) {
