@@ -764,8 +764,8 @@ async function getEventById(req,res){
             WHERE e.id = $1::int`,
             [id,userid]
         )
-        if (Object.hasOwn(result.rows[0], "favorit")) {
-            result.rows[0]["favorit"] = result.rows[0]["favorit"] === userid;
+        if (Object.hasOwn(event.rows[0], "favorit")) {
+            event.rows[0]["favorit"] = event.rows[0]["favorit"] === userid;
         }
         const artist = await getArtistByEvent(req.params["id"])
         const caterer = await getCatererByEvent(req.params["id"])
@@ -844,8 +844,8 @@ async function getCatererById(req,res){
             [id]
         )
 
-        if (Object.hasOwn(result.rows[0], "favorit")) {
-            result.rows[0]["favorit"] = result.rows[0]["favorit"] === userid;
+        if (Object.hasOwn(cater.rows[0], "favorit")) {
+            cater.rows[0]["favorit"] = cater.rows[0]["favorit"] === userid;
         }
         if (cater.rowCount == 0) return res.status(400).send("No caterer found")
 
@@ -922,8 +922,8 @@ async function getArtistByID(req,res){
             [id]
         )
 
-        if (Object.hasOwn(result.rows[0], "favorit")) {
-            result.rows[0]["favorit"] = result.rows[0]["favorit"] === userid;
+        if (Object.hasOwn(art.rows[0], "favorit")) {
+            art.rows[0]["favorit"] = art.rows[0]["favorit"] === userid;
         }
 
 
@@ -1017,8 +1017,8 @@ async function getEndUserById(req,res){
         )
 
 
-        if (Object.hasOwn(result.rows[0],"favorit")) {
-            result.rows[0]["favorit"] = result.rows[0]["favorit"] === userid;
+        if (Object.hasOwn(user.rows[0],"favorit")) {
+            user.rows[0]["favorit"] = user.rows[0]["favorit"] === userid;
         }
 
         if (user.rowCount == 0) return res.status(400).send("No user found")
