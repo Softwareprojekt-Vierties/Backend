@@ -234,6 +234,7 @@ async function updateEvent(ownerid,serviceProvider,eventid) {
         {
             if(provider["id"]>0)
             {
+                console.log(provider)
                 if(provider["type"]=="artist")
                 {
                     let response = await CreateQueries.createServiceArtist(eventid,provider["id"])

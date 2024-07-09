@@ -563,6 +563,7 @@ app.post("/updateEvent",Auth,async (req,res)=>{
     try
     { 
         const {serviceProviders,eventid} = req.body
+        console.log("SERVICEPROVIDER : ",serviceProviders)
         const response = await UpdateQueries.updateEvent(userid,serviceProviders,eventid)
         response.success ? res.status(200).send("UPDATED EVENT") : res.status(400).send("CAN'T UPDATE EVENT")
     }
