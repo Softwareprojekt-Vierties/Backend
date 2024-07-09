@@ -1343,6 +1343,16 @@ async function getFriends(req,res){
     }
 }
 
+async function getTicketByData(data)
+{
+    const response = await pool.query(
+        `SELCET true as isvalid FROM tickets
+        WHERE data = $1::TEXT
+        `,
+        [data])
+    return response.rows[0]["isvalid"]
+}
+
 // -------------------- PRIVATE -------------------- //
 
 async function getArtistByEvent(id){
@@ -1420,6 +1430,7 @@ module.exports = {
     getPartybilderFromUser,
     getFriendId: getFriends,
     getMeById,
+    getTicketByData,
     // SEARCHES
     searchEvent, 
     searchLocaiton: searchLocation, // to not destroy the code by mistakes in refactoring, just point it to the right function

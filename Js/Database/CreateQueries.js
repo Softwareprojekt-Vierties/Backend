@@ -550,10 +550,14 @@ async function createGericht(ownerid,name,beschreibung,bild=null){
  * - error: [the error, if one occured]
  */
 async function createTicket(userid,eventid){
+
+    const data = generateRandomString(userid,eventid,15)
+    
+
     try {
         await pool.query(
-            "INSERT INTO tickets (userid,eventid) VALUES ($1::int, $2::int)",
-            [userid, eventid]
+            "INSERT INTO tickets (userid,eventid,data) VALUES ($1::int, $2::int)",
+            [userid, eventid,data]
         )
         console.log("ticked CREATED")
         return {
@@ -914,7 +918,32 @@ async function sendEventMail(eventid,ownerid)
 }
 
 //-----------------private--------------------------
+// Funktion zur Erzeugung einer Pseudo-Zufallszahl mit Seed
+function seededRandom(seed1, seed2) {
+    var seed = seed1 * seed2;
+    var modulus = 2 ** 32;
+    var a = 1664525;
+    var c = 1013904223;
+    seed = (a * seed + c) % modulus;
+    return seed / modulus;
+}
 
+// Funktion zur Erzeugung eines zufälligen Strings
+function generateRandomString(seed1, seed2, length) {
+    var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    var charactersLength = characters.length;
+    var randomString = '';
+
+    for (var i = 0; i < length; i++) {
+        var randomValue = seededRandom(seed1, seed2);
+        var randomIndex = Math.floor(randomValue * charactersLength);
+        randomString += characters.charAt(randomIndex);
+        seed1 = (seed1 + 1) % 10000;  // Update the seed to ensure more randomness
+        seed2 = (seed2 + 1) % 10000;  // Update the seed to ensure more randomness
+    }
+
+    return randomString;
+}
 
 
 module.exports = {
