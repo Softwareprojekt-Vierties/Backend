@@ -555,18 +555,18 @@ async function eventMailResponse(type,accepted,objid,eventid)
 {
     switch(type){
         case "caterer":
-            if(accepted) await pool.query("UPDATE servicecaterer accepted = true WHERE eventid = $1 AND catererid = $2",[eventid,objid])
+            if(accepted) await pool.query("UPDATE SET servicecaterer accepted = true WHERE eventid = $1 AND catererid = $2",[eventid,objid])
             else if(!accepted) await DeleteQueries.deleteOneServiceCatererById(objid,eventid)
             else break
             return "Caterer Updated"
         case "artist":
-            if(accepted) await pool.query("UPDATE serviceartist accepted = true WHERE eventid = $1 AND artistid = $2",[eventid,objid])
+            if(accepted) await pool.query("UPDATE serviceartist SET accepted = true WHERE eventid = $1 AND artistid = $2",[eventid,objid])
             else if (!accepted) await DeleteQueries.deleteOneServiceArtistById(objid,eventid)
             else break
             return "Artist Updated"
         case "location":
-            if(accepted) await pool.query("UPDATE event isvalid = true WHERE eventid = $1 ",[eventid])
-            else if ((!accepted) ) await pool.query("UPDATE event locationid = null WHERE eventid = $1 ",[eventid])
+            if(accepted) await pool.query("UPDATE event SET isvalid = true WHERE eventid = $1 ",[eventid])
+            else if ((!accepted) ) await pool.query("UPDATE event SET locationid = null WHERE eventid = $1 ",[eventid])
             else break
             return "Location Updated"
 
