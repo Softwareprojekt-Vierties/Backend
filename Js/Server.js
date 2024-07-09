@@ -424,12 +424,27 @@ app.post("/updateCaterer", Auth, async (req,res)=>{
     try {
         const resultCaterer = await UpdateQueries.updateCaterer(profilname, profilbild, kurzbeschreibung, beschreibung, region, userEmail, preis, kategorie, erfahrung)
         let message = ""
+        let caterer = null
 
         if (gerichte != null) {
             for(let gericht of gerichte) {
-                const resultGericht = await UpdateQueries.updateGericht(gericht['id'], gericht['dishName'], gericht['info1']+", "+gericht['info2'], gericht['imagePreview'])
-                if (resultGericht.success) message.concat(", UPDATED gericht", gericht['dishName'])
-                else message.concat(", FAILED TO UPDATE gericht", gericht['dishName'])
+                if(Object.hasOwn(gericht, "id"))
+                {
+                    const resultGericht = await UpdateQueries.updateGericht(gericht['id'], gericht['dishName'], gericht['info1']+", "+gericht['info2'], gericht['imagePreview'])
+                    if (resultGericht.success) message.concat(", UPDATED gericht", gericht['dishName'])
+                    else message.concat(", FAILED TO UPDATE gericht", gericht['dishName'])
+                }
+                else
+                {
+                    if(caterer === null) 
+                        {
+                            caterer = await pool.query(
+                                `SELECT id FROM caterer WHERE emailfk = $1`,
+                                [userEmail]
+                            )
+                        }
+                        await CreateQueries.createGericht(caterer.rows[0]["id"],gericht['dishName'], gericht['info1']+", "+gericht['info2'], gericht['imagePreview']) 
+                }
             }
         }
 
