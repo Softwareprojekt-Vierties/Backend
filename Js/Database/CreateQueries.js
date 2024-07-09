@@ -868,7 +868,7 @@ async function sendEventMail(eventid,ownerid)
                 `SELECT a.id FROM app_user a
                 JOIN artist ar ON a.email = ar.emailfk
                 WHERE ar.id = $1::int`,
-                [provider['id']]
+                [provider['artistid']]
             )
             console.log("artist: "+ app_userIdOfArtist.rowCount , app_userIdOfArtist.rows)
             const service = await createMail(ownerid, app_userIdOfArtist.rows[0]['id'], 'service', eventid)
@@ -881,7 +881,7 @@ async function sendEventMail(eventid,ownerid)
                 `SELECT a.id FROM app_user a
                 JOIN caterer ca ON a.email = ca.emailfk
                 WHERE ca.id = $1::int`,
-                [provider['id']]
+                [provider['catererid']]
             )
             console.log("artist: "+ app_userIdOfCaterer)
             const service = await createMail(ownerid, app_userIdOfCaterer.rows[0]['id'], 'service', eventid)
