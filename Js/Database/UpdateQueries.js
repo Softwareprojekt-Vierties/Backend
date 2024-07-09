@@ -477,17 +477,18 @@ async function updateMail(userid, id, gelesen, angenommen = null) {
                     `SELECT email FROM app_user WHERE id = $1::int`,
                     [mail.rows[0]['empfaenger']]
                 )
+                console.log(app_user.rows[0]["emial"])
                 // find out if the user is an artist or caterer
                 const userType = await pool.query(
                     `SELECT id, true AS isArtist
                     FROM artist
-                    WHERE emailfk = $1::text
+                    WHERE emailfk = '$1::text'
 
                     UNION ALL
 
                     SELECT id, false AS isArtist
                     FROM caterer
-                    WHERE emailfk = $1::text`,
+                    WHERE emailfk = '$1::text'`,
                     [app_user.rows[0]['email']]
                 )
                 // add artist or caterer to the event
