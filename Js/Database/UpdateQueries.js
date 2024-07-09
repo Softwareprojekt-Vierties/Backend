@@ -259,11 +259,11 @@ async function updateGericht(id, name, beschreibung, bild) {
 
         if(result.rows[0]["bildid"]===undefined)
         {
-            await updateBild(result.rows[0]["bildid"], bild)
+            await CreateQueries.createBild(bild)
         }
         else
         {
-            await CreateQueries.createBild(bild)
+            await updateBild(result.rows[0]["bildid"], bild)
         }
         return {
             success: true,
