@@ -344,6 +344,16 @@ async function createEvent(name, datum, startuhrzeit,enduhrzeit, eventgroesse, p
         )
         console.log("event CREATED")
 
+        for (let provider of serviceProviders){
+            if (provider['type'] === 'artist'){
+               await createServiceArtist(event,provider["id"])
+            }
+            else if (provider['type'] === 'caterer')
+            {
+                await createServiceCaterer(event,provider["id"])
+            }
+        }
+
         // // Send mail to providers
         // let providerInfos = ""
         // for (let provider of serviceProviders) {
@@ -831,9 +841,7 @@ async function createFavoritCaterer(userid,catereid){
     }
 }
 
-//-----------------private--------------------------
-
-async function sendMail(eventid,ownerid)
+async function sendEventMail(eventid,ownerid)
 {
     try
     {
@@ -898,6 +906,10 @@ async function sendMail(eventid,ownerid)
     }
 }
 
+//-----------------private--------------------------
+
+
+
 module.exports = {
     createEndUser, 
     createArtist, 
@@ -919,5 +931,5 @@ module.exports = {
     createFavoritEndUser,
     createFavoritArtist,
     createFavoritCaterer,
-    sendMail
+    sendEventMail
 }

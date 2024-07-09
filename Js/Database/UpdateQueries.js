@@ -471,7 +471,7 @@ async function updateMail(userid, id, gelesen, angenommen = null) {
             console.log("UPDATED mail")
 
             // add artist/caterer to the service of the event
-            if (mail.rows[0]['anfrage'] === 'service' && angenommen == true) {
+            if (mail.rows[0]['anfrage'] === 'service') {
                 // get email of the empfaenger
                 const app_user = await pool.query(
                     `SELECT email FROM app_user WHERE id = $1::int`,
@@ -491,10 +491,15 @@ async function updateMail(userid, id, gelesen, angenommen = null) {
                     [app_user.rows[0]['email']]
                 )
                 // add artist or caterer to the event
-                userType.rows[0]['isArtist'] ? 
-                    await CreateQueries.createServiceArtist(mail.rows[0]['eventid'], userType.rows[0]['id']) :
-                    await CreateQueries.createServiceCaterer(mail.rows[0]['eventid'], userType.rows[0]['id'])
+                // userType.rows[0]['isArtist'] ? 
+                //     await CreateQueries.createServiceArtist(mail.rows[0]['eventid'], userType.rows[0]['id']) :
+                //     await CreateQueries.createServiceCaterer(mail.rows[0]['eventid'], userType.rows[0]['id'])
+                userType.rows[0]['isArtist'] ?
+                eventMailResponse("artist",angenommen, userType.rows[0]['id'],mail.rows[0]['eventid']):
+                eventMailResponse("caterer",userType.rows[0]['id'],mail.rows[0]['eventid'])
             } 
+
+            if (mail.rows[0]['anfrage'] === 'location') eventMailResponse("location",angenommen,userType.rows[0]['id'],mail.rows[0]['eventid'])
             // add to friends if the user accepted friend request
             else if (mail.rows[0]['anfrage'] === 'freundschaft' && angenommen == true) {
                 CreateQueries.createFriend(mail.rows[0]['sender'], mail.rows[0]['empfaenger'])
@@ -551,15 +556,18 @@ async function eventMailResponse(type,accepted,objid,eventid)
     switch(type){
         case "caterer":
             if(accepted) await pool.query("UPDATE servicecaterer accepted = true WHERE eventid = $1 AND catererid = $2",[eventid,objid])
-            else await DeleteQueries.deleteOneServiceCatererById(objid,eventid)
+            else if(!accepted) await DeleteQueries.deleteOneServiceCatererById(objid,eventid)
+            else break
             return "Caterer Updated"
         case "artist":
             if(accepted) await pool.query("UPDATE serviceartist accepted = true WHERE eventid = $1 AND artistid = $2",[eventid,objid])
-            else await DeleteQueries.deleteOneServiceArtistById(objid,eventid)
+            else if (!accepted) await DeleteQueries.deleteOneServiceArtistById(objid,eventid)
+            else break
             return "Artist Updated"
         case "location":
             if(accepted) await pool.query("UPDATE event isvalid = true WHERE eventid = $1 ",[eventid])
-            else await pool.query("UPDATE event locationid = null WHERE eventid = $1 ",[eventid])
+            else if ((!accepted) ) await pool.query("UPDATE event locationid = null WHERE eventid = $1 ",[eventid])
+            else break
             return "Location Updated"
 
     }
