@@ -391,8 +391,8 @@ app.post("/updateArtist", Auth, async (req,res)=>{
                     if(artist === null) 
                     {
                         artist = await pool.query(
-                            `SELECT id FROM artist WHERE id = $1`,
-                            [user["id"]]
+                            `SELECT id FROM artist WHERE emailfk = $1`,
+                            [user["email"]]
                         )
                     }
                     const lied = await CreateQueries.createLied(artist.rows[0]["id"], lied['songName'], lied['songLength'], lied['songYear']) 
