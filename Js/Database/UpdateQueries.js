@@ -499,7 +499,7 @@ async function updateMail(userid, id, gelesen, angenommen = null) {
                 await eventMailResponse("caterer",angenommen,userType.rows[0]['id'],mail.rows[0]['eventid'])
             } 
 
-            if (mail.rows[0]['anfrage'] === 'location') eventMailResponse("location",angenommen,userType.rows[0]['id'],mail.rows[0]['eventid'])
+            if (mail.rows[0]['anfrage'] === 'location') eventMailResponse("location",angenommen,0,mail.rows[0]['eventid'])
             // add to friends if the user accepted friend request
             else if (mail.rows[0]['anfrage'] === 'freundschaft' && angenommen == true) {
                 CreateQueries.createFriend(mail.rows[0]['sender'], mail.rows[0]['empfaenger'])
