@@ -339,36 +339,36 @@ async function createEvent(name, datum, startuhrzeit,enduhrzeit, eventgroesse, p
         
         const event = await pool.query(
             `INSERT INTO event (name, datum, startuhrzeit, enduhrzeit , eventgroesse, freietickets, preis, altersfreigabe, privat, kurzbeschreibung, beschreibung, bildid, ownerid, locationid)
-            VALUES ($1::text, $2, $3, $4 ,$5::int, $6::int, $7::int, $8::int, $9::bool, $10::text, $11::text, $12::integer, $13::int, $14::int) RETURNING id`,
+            VALUES ($1::text, $2, $3, $4 ,$5::int, $6::int, $7::int, $8::int, $9::boolean, $10::text, $11::text, $12::integer, $13::int, $14::int) RETURNING id`,
             [name,datum,startuhrzeit,enduhrzeit,eventgroesse,eventgroesse,preis,altersfreigabe,privat,kurzbeschreibung,beschreibung,picture.id,ownerid,locationid]
         )
         console.log("event CREATED")
 
-        // Send mail to providers
-        let providerInfos = ""
-        for (let provider of serviceProviders) {
-            if (provider['type'] === 'artist') {
-                const app_userIdOfArtist = await pool.query(
-                    `SELECT a.id FROM app_user a
-                    JOIN artist ar ON a.email = ar.emailfk
-                    WHERE ar.id = $1::int`,
-                    [provider['id']]
-                )
-                const service = await createMail(ownerid, app_userIdOfArtist.rows[0]['id'], 'service', event.rows[0]['id'])
-                service.success ? providerInfos.concat(`Send email to artist ${provider['id']}: true\n`) : providerInfos.concat(`Send email to ${provider['id']}: false ==> ${service.error}\n`)
-            } else if (provider['type'] === 'caterer') {
-                const app_userIdOfCaterer = await pool.query(
-                    `SELECT a.id FROM app_user a
-                    JOIN caterer ca ON a.email = ca.emailfk
-                    WHERE ca.id = $1::int`,
-                    [provider['id']]
-                )
-                const service = await createMail(ownerid, app_userIdOfCaterer.rows[0]['id'], 'service', event.rows[0]['id'])
-                service.success ? providerInfos.concat(`Send email to caterer ${provider['id']}: true\n`) : providerInfos.concat(`Send email to ${provider['id']}: false ==> ${service.error}\n`)
-            } else {
-                providerInfos.concat(`Invalid provider type '${provider['type']}' for id '${provider['id']}'\n`)
-            }
-        }
+        // // Send mail to providers
+        // let providerInfos = ""
+        // for (let provider of serviceProviders) {
+        //     if (provider['type'] === 'artist') {
+        //         const app_userIdOfArtist = await pool.query(
+        //             `SELECT a.id FROM app_user a
+        //             JOIN artist ar ON a.email = ar.emailfk
+        //             WHERE ar.id = $1::int`,
+        //             [provider['id']]
+        //         )
+        //         const service = await createMail(ownerid, app_userIdOfArtist.rows[0]['id'], 'service', event.rows[0]['id'])
+        //         service.success ? providerInfos.concat(`Send email to artist ${provider['id']}: true\n`) : providerInfos.concat(`Send email to ${provider['id']}: false ==> ${service.error}\n`)
+        //     } else if (provider['type'] === 'caterer') {
+        //         const app_userIdOfCaterer = await pool.query(
+        //             `SELECT a.id FROM app_user a
+        //             JOIN caterer ca ON a.email = ca.emailfk
+        //             WHERE ca.id = $1::int`,
+        //             [provider['id']]
+        //         )
+        //         const service = await createMail(ownerid, app_userIdOfCaterer.rows[0]['id'], 'service', event.rows[0]['id'])
+        //         service.success ? providerInfos.concat(`Send email to caterer ${provider['id']}: true\n`) : providerInfos.concat(`Send email to ${provider['id']}: false ==> ${service.error}\n`)
+        //     } else {
+        //         providerInfos.concat(`Invalid provider type '${provider['type']}' for id '${provider['id']}'\n`)
+        //     }
+        // }
 
         const app_userIdOfLocationOwner = await pool.query(
             `SELECT ownerid FROM location WHERE id = $1::int`,
@@ -379,11 +379,11 @@ async function createEvent(name, datum, startuhrzeit,enduhrzeit, eventgroesse, p
             service.success ? providerInfos.concat(`Send email to location owner ${app_userIdOfLocationOwner.rows[0]['ownerid']}: true\n`) : providerInfos.concat(`Send email to ${app_userIdOfLocationOwner.rows[0]['ownerid']}: false ==> ${service.error}\n`)
         } else providerInfos.concat(`Location is not owned by anybody! Considers this as location accepted!\n`)
 
-        // inform friends, that an event has been created
-        const friends = await pool.query(`SELECT user2 AS friendid FROM friend WHERE user1 = $1::int`,[ownerid])
-        for (let friend of friends.rows) {
-            await createMail(ownerid, friend['friendid'], 'info', event.rows[0]['id'])
-        }
+        // // inform friends, that an event has been created
+        // const friends = await pool.query(`SELECT user2 AS friendid FROM friend WHERE user1 = $1::int`,[ownerid])
+        // for (let friend of friends.rows) {
+        //     await createMail(ownerid, friend['friendid'], 'info', event.rows[0]['id'])
+        // }
 
         return {
             success: true,
@@ -830,6 +830,73 @@ async function createFavoritCaterer(userid,catereid){
     }
 }
 
+//-----------------private--------------------------
+
+async function sendMail(eventid,ownerid)
+{
+    try
+    {
+        const serviceartist = await pool.query(
+            `SELECT * FROM serviceartist
+            WHERE eventid = $1
+            `,
+            [eventid]
+        ).rows
+
+        const servicecaterer = await pool.query(
+            `SELECT * FROM servicecaterer
+            WHERE eventid = $1
+            `,
+            [eventid]
+        ).rows
+
+
+        // Send mail to providers
+        let providerInfos = ""
+        for (let provider of serviceartist) {
+            const app_userIdOfArtist = await pool.query(
+                `SELECT a.id FROM app_user a
+                JOIN artist ar ON a.email = ar.emailfk
+                WHERE ar.id = $1::int`,
+                [provider['id']]
+            )
+            const service = await createMail(ownerid, app_userIdOfArtist.rows[0]['id'], 'service', event.rows[0]['id'])
+            service.success ? providerInfos.concat(`Send email to artist ${provider['id']}: true\n`) : providerInfos.concat(`Send email to ${provider['id']}: false ==> ${service.error}\n`)
+            
+        }
+        for (let provider of servicecaterer) {
+        
+            const app_userIdOfCaterer = await pool.query(
+                `SELECT a.id FROM app_user a
+                JOIN caterer ca ON a.email = ca.emailfk
+                WHERE ca.id = $1::int`,
+                [provider['id']]
+            )
+            const service = await createMail(ownerid, app_userIdOfCaterer.rows[0]['id'], 'service', eventid)
+            service.success ? providerInfos.concat(`Send email to caterer ${provider['id']}: true\n`) : providerInfos.concat(`Send email to ${provider['id']}: false ==> ${service.error}\n`)
+            
+        }
+
+        const friends = await pool.query(`SELECT user2 AS friendid FROM friend WHERE user1 = $1::int`,[ownerid])
+        for (let friend of friends.rows) {
+            await createMail(ownerid, friend['friendid'], 'info',eventid)
+        }
+
+        return{
+            success : true,
+            error : null
+        }
+    }
+    catch(err)
+    {
+        console.log(err)
+        return{
+            success : false,
+            error : err
+        }
+    }
+}
+
 module.exports = {
     createEndUser, 
     createArtist, 
@@ -850,5 +917,6 @@ module.exports = {
     createFavoritLocation,
     createFavoritEndUser,
     createFavoritArtist,
-    createFavoritCaterer
+    createFavoritCaterer,
+    sendMail
 }
