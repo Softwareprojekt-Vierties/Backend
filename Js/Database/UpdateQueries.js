@@ -230,9 +230,9 @@ async function updateCaterer(profilname, profilbild, kurzbeschreibung, beschreib
 async function updateEvent(ownerid,serviceProvider,eventid) {
     try
     {
-        for (let provider in serviceProvider)
+        for (let provider of serviceProvider)
         {
-            if(provider["id"]>0)
+            if(provider["userid"]>0)
             {
                 console.log(provider)
                 if(provider["type"]=="artist")
@@ -637,5 +637,4 @@ module.exports = {
     updatePassword,
     updateMail,
     eventMailResponse,
-    updateEvent
 }
