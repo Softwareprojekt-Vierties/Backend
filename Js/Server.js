@@ -359,6 +359,21 @@ app.post("/changeFavorite",Auth,async (req,res)=>{
     
 })
 
+app.post("/createReview",Auth,async(req,res)=>{
+    const {inhalt,sterne,id,intention} = req.body
+    let userid
+    try {
+        userid = getUser(req.headers["auth"])["id"]
+        if (userid == undefined) throw new Error("INVALID TOKEN")
+    } catch(err) {
+        console.error(err)
+        return res.status(400).send(toString(err))
+    } 
+
+    const response = await CreateQueries.createReview(inhalt,sterne,userid,id,intention)
+    response.success ? res.status(200).send("REVIEW CREATED") : res.status(500).send("ERROR: ",response.error)
+})
+
 // -------------------- UPDATES -------------------- // 
 
 
@@ -575,6 +590,7 @@ app.get("/deleteEndUser", Auth, async (req,res) => {
     console.log("Delete Cylce done!")
     res.status(200).send("Account deleted!")
 })
+
 
 app.get("/deleteArtist", Auth, async (req, res) => {
     console.log("REQUEST TO DELETE enduser",req.body)
