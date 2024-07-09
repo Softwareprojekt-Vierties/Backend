@@ -1072,6 +1072,31 @@ async function deletefriend(req,res) {
     }
 }
 
+async function deleteOneServiceCatererById(id,eventid){
+    try
+    {
+        await pool.query(
+            `DELETE FROM servicecaterer WHERE eventid = $1 AND catererid = $2`,[eventid,id]
+        )
+    }
+    catch(err)
+    {
+        console.log("ERROR : ",err)
+    }
+}
+async function deleteOneServiceArtistById(id,eventid){
+    try
+    {
+        await pool.query(
+            `DELETE FROM serviceartist WHERE eventid = $1 AND artistid = $2`,[eventid,id]
+        )
+    }
+    catch(err)
+    {
+        console.log("ERROR : ",err)
+    }
+}
+
 module.exports = {
     deleteMails,
     deleteFriends,
@@ -1094,5 +1119,7 @@ module.exports = {
     deleteBildById,
     deleteFavoritEvent,
     deleteFavoritLocation,
-    deleteFavoritUser
+    deleteFavoritUser,
+    deleteOneServiceArtistById,
+    deleteOneServiceCatererById
 }

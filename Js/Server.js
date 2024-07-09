@@ -361,6 +361,20 @@ app.post("/changeFavorite",Auth,async (req,res)=>{
 
 // -------------------- UPDATES -------------------- // 
 
+app.post("/EventMailRespons",Auth,async(req,res)=>{
+    try
+    {
+        const {type,accepted,id,eventid} = req.body
+        const resposne = UpdateQueries.eventMailResponse(type,accepted,id,eventid)
+        res.status(200).send(resposne)
+    }
+    catch(err)
+    {
+        console.log("ERROR: ",err)
+        res.send(500).send("ERROR: ",err)
+    }
+})
+
 app.post("/updateArtist", Auth, async (req,res)=>{
     console.log("REQUEST TO UPDATE ARTIST",req.body)
     let user

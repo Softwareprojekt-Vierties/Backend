@@ -546,6 +546,25 @@ async function updateBild(id, data) {
     }
 }
 
+async function eventMailResponse(type,accepted,objid,eventid)
+{
+    switch(type){
+        case "caterer":
+            if(accepted) await pool.query("UPDATE servicecaterer accepted = true WHERE eventid = $1 AND catererid = $2",[eventid,objid])
+            else await DeleteQueries.deleteOneServiceCatererById(objid,eventid)
+            return "Caterer Updated"
+        case "artist":
+            if(accepted) await pool.query("UPDATE serviceartist accepted = true WHERE eventid = $1 AND artistid = $2",[eventid,objid])
+            else await DeleteQueries.deleteOneServiceArtistById(objid,eventid)
+            return "Artist Updated"
+        case "location":
+            if(accepted) await pool.query("UPDATE event isvalid = true WHERE eventid = $1 ",[eventid])
+            else await pool.query("UPDATE event locationid = null WHERE eventid = $1 ",[eventid])
+            return "Location Updated"
+
+    }
+}
+
 module.exports = {
     updateArtist, 
     updateCaterer, 
@@ -555,5 +574,6 @@ module.exports = {
     updateLied,
     updateLocation,
     updatePassword,
-    updateMail
+    updateMail,
+    eventMailResponse
 }
