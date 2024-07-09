@@ -363,11 +363,11 @@ app.post("/changeFavorite",Auth,async (req,res)=>{
 
 app.post("/updateArtist", Auth, async (req,res)=>{
     console.log("REQUEST TO UPDATE ARTIST",req.body)
-    let userEmail
+    let user
 
     try {
         user = getUser(req.headers["auth"])
-        if (userEmail == undefined) throw new Error("INVALID TOKEN")
+        if (user == undefined) throw new Error("INVALID TOKEN")
     } catch(err) {
         console.error(err)
         return res.status(400).send(toString(err))
