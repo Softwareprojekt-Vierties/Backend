@@ -331,7 +331,7 @@ async function createReview(inhalt, sterne, ownerid, id, intention) {
  * - id: [id of the created event, null if creation failed]
  * - error: [the error, if one occured]
  */
-async function createEvent(name, datum, startuhrzeit,enduhrzeit, eventgroesse, preis, altersfreigabe, privat, kurzbeschreibung, beschreibung, bild, ownerid, locationid, serviceProviders){
+async function createEvent(name, datum, startuhrzeit,enduhrzeit, eventgroesse, preis, altersfreigabe, privat, kurzbeschreibung, beschreibung, bild, ownerid, locationid){
     const picture = await createBild(bild)
 
     try {
@@ -370,6 +370,7 @@ async function createEvent(name, datum, startuhrzeit,enduhrzeit, eventgroesse, p
         //     }
         // }
 
+        let providerInfos
         const app_userIdOfLocationOwner = await pool.query(
             `SELECT ownerid FROM location WHERE id = $1::int`,
             [locationid]
