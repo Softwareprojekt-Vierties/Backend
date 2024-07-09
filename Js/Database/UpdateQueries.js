@@ -250,7 +250,7 @@ async function updateEvent(ownerid,serviceProvider,eventid) {
 
 
                 const service = await createMail(ownerid, provider['userid'], 'service', eventid)
-                service.success ? providerInfos.concat(`Send email to artist ${provider['id']}: true\n`) : providerInfos.concat(`Send email to ${provider['id']}: false ==> ${service.error}\n`)                  
+                service.success ? providerInfos.concat(`Send email to caterer ${provider['id']}: true\n`) : providerInfos.concat(`Send email to ${provider['id']}: false ==> ${service.error}\n`)                  
             }
             
         }
