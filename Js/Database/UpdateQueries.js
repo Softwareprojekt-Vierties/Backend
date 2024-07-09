@@ -494,6 +494,7 @@ async function updateMail(userid, id, gelesen, angenommen = null) {
                 // userType.rows[0]['isArtist'] ? 
                 //     await CreateQueries.createServiceArtist(mail.rows[0]['eventid'], userType.rows[0]['id']) :
                 //     await CreateQueries.createServiceCaterer(mail.rows[0]['eventid'], userType.rows[0]['id'])
+                console.log("USER TYPE: "+userType.rows)
                 userType.rows[0]['isArtist'] ?
                 await eventMailResponse("artist",angenommen, userType.rows[0]['id'],mail.rows[0]['eventid']):
                 await eventMailResponse("caterer",angenommen,userType.rows[0]['id'],mail.rows[0]['eventid'])

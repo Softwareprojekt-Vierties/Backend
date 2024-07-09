@@ -284,14 +284,19 @@ async function createReview(inhalt, sterne, ownerid, id, intention) {
     try {
         let query
 
-        if (intention.matchAll('event')) {
-            query = "INSERT INTO review (inhalt, sterne, ownerid, eventid) VALUES ($1::text,$2::int,$3::int,$4::int)"
-        } else if (intention.matchAll('location')) {
-            query = "INSERT INTO review (inhalt, sterne, ownerid, locationid) VALUES ($1::text,$2::int,$3::int,$4::int)"
-        } else if (intention.matchAll('user')) {
-            query = "INSERT INTO review (inhalt, sterne, ownerid, userid) VALUES ($1::text,$2::int,$3::int,$4::int)"
-        } else {
-            throw new Error("UNKNOWN intention FOR review")
+        switch (intention)
+        {
+            case 'event':
+                query = "INSERT INTO review (inhalt, sterne, ownerid, eventid) VALUES ($1::text,$2::int,$3::int,$4::int)"
+                break
+            case 'location':
+                query = "INSERT INTO review (inhalt, sterne, ownerid, locationid) VALUES ($1::text,$2::int,$3::int,$4::int)"
+                break
+            case 'user':
+                query = "INSERT INTO review (inhalt, sterne, ownerid, userid) VALUES ($1::text,$2::int,$3::int,$4::int)"
+                break
+            default:
+                throw new Error("UNKNOWN intention FOR review")
         }
 
         await pool.query(
