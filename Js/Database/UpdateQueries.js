@@ -565,8 +565,8 @@ async function eventMailResponse(type,accepted,objid,eventid)
             else break
             return "Artist Updated"
         case "location":
-            if(accepted) await pool.query("UPDATE event SET isvalid = true WHERE eventid = $1 ",[eventid])
-            else if ((!accepted) ) await pool.query("UPDATE event SET locationid = null WHERE eventid = $1 ",[eventid])
+            if(accepted) await pool.query("UPDATE event SET isvalid = true WHERE id = $1 ",[eventid])
+            else if ((!accepted) ) await pool.query("UPDATE event SET locationid = null WHERE id = $1 ",[eventid])
             else break
             return "Location Updated"
 
