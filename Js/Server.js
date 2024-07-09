@@ -548,7 +548,7 @@ app.post("/updateMail", Auth, async (req, res) => {
     }
 })
 
-app.get("/sendMails/:eid/:oid",Auth,async (req,res)=>
+app.get("/sendEventMails/:eid/:oid",Auth,async (req,res)=>
 {
     const result = await CreateQueries.sendMail(req.params["eid"],req.params["oid"])
     if (result.success) res.status(200).send("Mails wurden erfolgreich verschiekt")

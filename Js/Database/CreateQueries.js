@@ -370,7 +370,7 @@ async function createEvent(name, datum, startuhrzeit,enduhrzeit, eventgroesse, p
         //     }
         // }
 
-        let providerInfos
+        let providerInfos = ""
         const app_userIdOfLocationOwner = await pool.query(
             `SELECT ownerid FROM location WHERE id = $1::int`,
             [locationid]
