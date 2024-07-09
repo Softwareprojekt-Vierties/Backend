@@ -331,7 +331,7 @@ async function createReview(inhalt, sterne, ownerid, id, intention) {
  * - id: [id of the created event, null if creation failed]
  * - error: [the error, if one occured]
  */
-async function createEvent(name, datum, startuhrzeit,enduhrzeit, eventgroesse, preis, altersfreigabe, privat, kurzbeschreibung, beschreibung, bild, ownerid, locationid){
+async function createEvent(name, datum, startuhrzeit,enduhrzeit, eventgroesse, preis, altersfreigabe, privat, kurzbeschreibung, beschreibung, bild, ownerid, locationid,serviceProviders){
     const picture = await createBild(bild)
 
     try {
