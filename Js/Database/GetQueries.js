@@ -1343,14 +1343,16 @@ async function getFriends(req,res){
     }
 }
 
-async function getTicketByData(data)
+async function getTicketByData(req,res)
 {
+    const data = req.body["data"]
     const response = await pool.query(
-        `SELCET true as isvalid FROM tickets
+        `SELECT true AS isvalid FROM tickets
         WHERE data = $1::TEXT
         `,
         [data])
-    return response.rows[0]["isvalid"]
+    response.rowCount>0 ? res.status(200).send(true) : res.status(400).send(false)
+    
 }
 
 // -------------------- PRIVATE -------------------- //

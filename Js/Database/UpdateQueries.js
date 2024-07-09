@@ -230,6 +230,9 @@ async function updateCaterer(profilname, profilbild, kurzbeschreibung, beschreib
 async function updateEvent(ownerid,serviceProvider,eventid) {
     try
     {
+
+        
+
         for (let provider in serviceProvider)
         {
             

@@ -551,12 +551,12 @@ async function createGericht(ownerid,name,beschreibung,bild=null){
  */
 async function createTicket(userid,eventid){
 
-    const data = generateRandomString(userid,eventid,15)
+    const data = generateRandomString(userid,eventid,30)
     
 
     try {
         await pool.query(
-            "INSERT INTO tickets (userid,eventid,data) VALUES ($1::int, $2::int)",
+            "INSERT INTO tickets (userid,eventid,data) VALUES ($1::int, $2::int,$3::text)",
             [userid, eventid,data]
         )
         console.log("ticked CREATED")

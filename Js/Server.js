@@ -114,7 +114,7 @@ app.post('/searchLoacation',Auth,GetQueries.searchLocaiton)  // searchs Location
 app.post('/searchCaterer',Auth,GetQueries.searchCaterer)  // searchs Caterer with filter param
 app.post('/searchArtist',Auth,GetQueries.searchArtist)  // searchs Artist with filter param
 app.post('/searchEndnutzer',Auth,GetQueries.searchEndUser)  // searchs Endnutzer with filter param
-
+app.post("/getTicketData",Auth,GetQueries.getTicketByData)
 // -------------------- CREATES -------------------- // 
 
 app.post('/createCaterer', Auth, async (req,res)=> {
