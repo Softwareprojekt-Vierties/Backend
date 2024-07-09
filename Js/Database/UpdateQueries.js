@@ -495,8 +495,8 @@ async function updateMail(userid, id, gelesen, angenommen = null) {
                 //     await CreateQueries.createServiceArtist(mail.rows[0]['eventid'], userType.rows[0]['id']) :
                 //     await CreateQueries.createServiceCaterer(mail.rows[0]['eventid'], userType.rows[0]['id'])
                 userType.rows[0]['isArtist'] ?
-                eventMailResponse("artist",angenommen, userType.rows[0]['id'],mail.rows[0]['eventid']):
-                eventMailResponse("caterer",userType.rows[0]['id'],mail.rows[0]['eventid'])
+                await eventMailResponse("artist",angenommen, userType.rows[0]['id'],mail.rows[0]['eventid']):
+                await eventMailResponse("caterer",angenommen,userType.rows[0]['id'],mail.rows[0]['eventid'])
             } 
 
             if (mail.rows[0]['anfrage'] === 'location') eventMailResponse("location",angenommen,userType.rows[0]['id'],mail.rows[0]['eventid'])
