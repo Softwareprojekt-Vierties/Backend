@@ -506,7 +506,7 @@ async function createGericht(ownerid,name,beschreibung,bild=null){
         if (!picture.success) throw new Error("COULDN'T SAVE PICTURE ON THE DATABASE!")
 
         await pool.query(
-            "INSERT INTO gericht (ownerid,name,beschreibung,bild) VALUES ($1, $2::text, $3::text, $4::integer)",
+            "INSERT INTO gericht (ownerid,name,beschreibung,bildid) VALUES ($1, $2::text, $3::text, $4::integer)",
             [ownerid, name, beschreibung, picture.id]
         )
         console.log("gericht CREATED")
