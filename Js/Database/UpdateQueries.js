@@ -232,29 +232,27 @@ async function updateEvent(ownerid,serviceProvider,eventid) {
     {
         for (let provider in serviceProvider)
         {
-            if(Object.hasOwn(provider,"id"))
+            
+            if(provider["type"]=="artist")
             {
-                if(provider["type"]=="artist")
-                {
-                    let response = await CreateQueries.createServiceArtist(eventid,provider["id"])
-                    if(!response.success) throw Error("ERROR DURING CREATION FROM ARTIST : ", response.error)
+                let response = await CreateQueries.createServiceArtist(eventid,provider["id"])
+                if(!response.success) throw Error("ERROR DURING CREATION FROM ARTIST : ", response.error)
 
 
-                    const service = await createMail(ownerid, provider['userid'], 'service', eventid)
-                    service.success ? providerInfos.concat(`Send email to artist ${provider['id']}: true\n`) : providerInfos.concat(`Send email to ${provider['id']}: false ==> ${service.error}\n`)                  
-                
-                }
-                else if(provider["type"]=="caterer")
-                {
-                    let response = await CreateQueries.createServiceCaterer(eventid,provider["id"])
-                    if(!response.success) throw Error("ERROR DURING CREATION FROM CATERER : ", response.error)
-
-
-                    const service = await createMail(ownerid, provider['userid'], 'service', eventid)
-                    service.success ? providerInfos.concat(`Send email to artist ${provider['id']}: true\n`) : providerInfos.concat(`Send email to ${provider['id']}: false ==> ${service.error}\n`)                  
-                    
-                }
+                const service = await createMail(ownerid, provider['userid'], 'service', eventid)
+                service.success ? providerInfos.concat(`Send email to artist ${provider['id']}: true\n`) : providerInfos.concat(`Send email to ${provider['id']}: false ==> ${service.error}\n`)                  
+            
             }
+            else if(provider["type"]=="caterer")
+            {
+                let response = await CreateQueries.createServiceCaterer(eventid,provider["id"])
+                if(!response.success) throw Error("ERROR DURING CREATION FROM CATERER : ", response.error)
+
+
+                const service = await createMail(ownerid, provider['userid'], 'service', eventid)
+                service.success ? providerInfos.concat(`Send email to artist ${provider['id']}: true\n`) : providerInfos.concat(`Send email to ${provider['id']}: false ==> ${service.error}\n`)                  
+            }
+            
         }
         return {
             success: true,
