@@ -259,7 +259,12 @@ async function updateGericht(id, name, beschreibung, bild) {
 
         if(result.rows[0]["bildid"]===undefined)
         {
-            await CreateQueries.createBild(bild)
+            let bildid = await CreateQueries.createBild(bild)
+            await pool.query(
+                `UPDATE gericht SET
+                bildid = $1
+                WHERE id = $2`,
+                [bildid,id])
         }
         else
         {
