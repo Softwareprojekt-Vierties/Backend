@@ -345,6 +345,7 @@ async function createEvent(name, datum, startuhrzeit,enduhrzeit, eventgroesse, p
         console.log("event CREATED")
 
         for (let provider of serviceProviders){
+            console.log(provider)
             if (provider['type'] === 'artist'){
                await createServiceArtist(event,provider["id"])
             }
