@@ -551,6 +551,28 @@ app.post("/updateMail", Auth, async (req, res) => {
     }
 })
 
+app.post("/updateEvent",Auth,async (req,res)=>{
+    let userid
+    try {
+        userid = getUser(req.headers["auth"])["id"]
+        if (userid == undefined) throw new Error("INVALID TOKEN")
+    } catch(err) {
+        console.error(err)
+        return res.status(400).send(toString(err))
+    }
+    try
+    { 
+        const {serviceProviders,eventid} = req.body
+        const response = await UpdateQueries.updateEvent(userid,serviceProviders,eventid)
+        response.success ? res.status(200).send("UPDATED EVENT") : res.status(400).send("CAN'T UPDATE EVENT")
+    }
+    catch(err)
+    {
+        res.status(500).send("ERROR WHILE UPDATING EVENT: ", err)
+    }
+    
+})
+
 
 
 // -------------------- DELETES -------------------- //

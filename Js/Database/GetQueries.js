@@ -1012,7 +1012,7 @@ async function getEndUserById(req,res){
 
     try {
         const id = req.params["id"]
-        //console.log("Id", id, "userid", userid)
+        console.log("Id", id, "userid", userid)
         const user = await pool.query(
             `SELECT 
                 e.*,

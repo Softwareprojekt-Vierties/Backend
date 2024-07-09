@@ -227,12 +227,48 @@ async function updateCaterer(profilname, profilbild, kurzbeschreibung, beschreib
     }
 }
 
-async function updateEvent() {
-    console.error("UPDATE EVENT NOT YET IMPLEMENTED")
-    return {
-        success: false,
-        error: null
+async function updateEvent(ownerid,serviceProvider,eventid) {
+    try
+    {
+        for (let provider in serviceProvider)
+        {
+            if(Object.hasOwn(provider,"id"))
+            {
+                if(provider["type"]=="artist")
+                {
+                    let response = await CreateQueries.createServiceArtist(eventid,provider["id"])
+                    if(!response.success) throw Error("ERROR DURING CREATION FROM ARTIST : ", response.error)
+
+
+                    const service = await createMail(ownerid, provider['userid'], 'service', eventid)
+                    service.success ? providerInfos.concat(`Send email to artist ${provider['id']}: true\n`) : providerInfos.concat(`Send email to ${provider['id']}: false ==> ${service.error}\n`)                  
+                
+                }
+                else if(provider["type"]=="caterer")
+                {
+                    let response = await CreateQueries.createServiceCaterer(eventid,provider["id"])
+                    if(!response.success) throw Error("ERROR DURING CREATION FROM CATERER : ", response.error)
+
+
+                    const service = await createMail(ownerid, provider['userid'], 'service', eventid)
+                    service.success ? providerInfos.concat(`Send email to artist ${provider['id']}: true\n`) : providerInfos.concat(`Send email to ${provider['id']}: false ==> ${service.error}\n`)                  
+                    
+                }
+            }
+        }
+        return {
+            success: true,
+            error: null
+        } 
     }
+    catch(err)
+    {
+        return {
+            success: false,
+            error: err
+        }
+    }
+    
 }
 
 /**
@@ -599,5 +635,6 @@ module.exports = {
     updateLocation,
     updatePassword,
     updateMail,
-    eventMailResponse
+    eventMailResponse,
+    updateEvent
 }
