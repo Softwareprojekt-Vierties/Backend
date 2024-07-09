@@ -871,6 +871,7 @@ async function sendEventMail(eventid,ownerid)
                 WHERE ar.id = $1::int`,
                 [provider['id']]
             )
+            console.log("artist: "+ app_userIdOfArtist.rows[0]['id'])
             const service = await createMail(ownerid, app_userIdOfArtist.rows[0]['id'], 'service', eventid)
             service.success ? providerInfos.concat(`Send email to artist ${provider['id']}: true\n`) : providerInfos.concat(`Send email to ${provider['id']}: false ==> ${service.error}\n`)
             
@@ -883,6 +884,7 @@ async function sendEventMail(eventid,ownerid)
                 WHERE ca.id = $1::int`,
                 [provider['id']]
             )
+            console.log("artist: "+ app_userIdOfCaterer.rows[0]['id'])
             const service = await createMail(ownerid, app_userIdOfCaterer.rows[0]['id'], 'service', eventid)
             service.success ? providerInfos.concat(`Send email to caterer ${provider['id']}: true\n`) : providerInfos.concat(`Send email to ${provider['id']}: false ==> ${service.error}\n`)
             

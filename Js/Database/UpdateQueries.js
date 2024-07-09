@@ -553,6 +553,7 @@ async function updateBild(id, data) {
 
 async function eventMailResponse(type,accepted,objid,eventid)
 {
+    console.log("EVENT "+eventid+" , "+"OBJ: "+objid)
     try
     {
     switch(type){
