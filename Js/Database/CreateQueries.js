@@ -864,20 +864,20 @@ async function sendEventMail(eventid,ownerid)
         // Send mail to providers
         let providerInfos = ""
         for (let provider of serviceartist.rows) {
-            const app_userIdOfArtist = await pool.query(
+            let app_userIdOfArtist = await pool.query(
                 `SELECT a.id FROM app_user a
                 JOIN artist ar ON a.email = ar.emailfk
                 WHERE ar.id = $1::int`,
                 [provider['id']]
             )
-            console.log("artist: "+ app_userIdOfArtist)
+            console.log("artist: "+ app_userIdOfArtist.rowCount , app_userIdOfArtist.rows)
             const service = await createMail(ownerid, app_userIdOfArtist.rows[0]['id'], 'service', eventid)
             service.success ? providerInfos.concat(`Send email to artist ${provider['id']}: true\n`) : providerInfos.concat(`Send email to ${provider['id']}: false ==> ${service.error}\n`)
             
         }
         for (let provider of servicecaterer.rows) {
         
-            const app_userIdOfCaterer = await pool.query(
+            let app_userIdOfCaterer = await pool.query(
                 `SELECT a.id FROM app_user a
                 JOIN caterer ca ON a.email = ca.emailfk
                 WHERE ca.id = $1::int`,
