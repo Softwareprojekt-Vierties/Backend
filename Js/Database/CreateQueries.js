@@ -371,7 +371,7 @@ async function createEvent(name, datum, startuhrzeit,enduhrzeit, eventgroesse, p
         }
 
         const app_userIdOfLocationOwner = await pool.query(
-            `SELECT ownerid FROM location WHERE id = $1::int RETURNING ownerid`,
+            `SELECT ownerid FROM location WHERE id = $1::int`,
             [locationid]
         )
         if (app_userIdOfLocationOwner.rows[0]['ownerid'] !== null) {
