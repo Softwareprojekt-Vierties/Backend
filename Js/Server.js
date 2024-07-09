@@ -541,6 +541,7 @@ app.post("/updateMail", Auth, async (req, res) => {
 
     try {
         let result
+        console.log(angenommen)
         if (angenommen === undefined) result = await UpdateQueries.updateMail(userid, id, gelesen)
         else result = await UpdateQueries.updateMail(userid, id, true, angenommen)
         if (result.success) res.status(200).send("Updated mail")
