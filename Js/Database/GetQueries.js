@@ -890,7 +890,8 @@ async function getCatererById(req,res){
             JOIN servicecaterer sc ON sc.eventid = e.id 
             JOIN location l ON e.locationid = l.id
             LEFT JOIN bild ON e.bildid = bild.id
-            WHERE sc.catererid = $1::int`,
+            WHERE sc.catererid = $1::int
+            AND sc.accepted = true`,
             [id]
         )
 
@@ -969,7 +970,8 @@ async function getArtistByID(req,res){
             JOIN serviceartist sa ON sa.eventid = e.id 
             JOIN location l ON e.locationid = l.id
             LEFT JOIN bild ON e.bildid = bild.id
-            WHERE sa.artistid = $1::int`,
+            WHERE sa.artistid = $1::int 
+            AND sa.accepted = true`,
             [id]
         )
 
