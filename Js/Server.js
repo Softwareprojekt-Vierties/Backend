@@ -395,7 +395,7 @@ app.post("/updateArtist", Auth, async (req,res)=>{
                             [user["email"]]
                         )
                     }
-                    const lied = await CreateQueries.createLied(artist.rows[0]["id"], lied['songName'], lied['songLength'], lied['songYear']) 
+                    await CreateQueries.createLied(artist.rows[0]["id"], song['songName'], song['songLength'], song['songYear']) 
                 }
             }
         }
