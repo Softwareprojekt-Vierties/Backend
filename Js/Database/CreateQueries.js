@@ -345,13 +345,12 @@ async function createEvent(name, datum, startuhrzeit,enduhrzeit, eventgroesse, p
         console.log("event CREATED")
 
         for (let provider of serviceProviders){
-            console.log(provider)
             if (provider['type'] === 'artist'){
-               await createServiceArtist(event,provider["id"])
+               await createServiceArtist(event.rows[0]["id"],provider["id"])
             }
             else if (provider['type'] === 'caterer')
             {
-                await createServiceCaterer(event,provider["id"])
+                await createServiceCaterer(event.rows[0]["id"],provider["id"])
             }
         }
 
