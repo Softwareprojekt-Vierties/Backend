@@ -850,19 +850,20 @@ async function sendEventMail(eventid,ownerid)
             WHERE eventid = $1
             `,
             [eventid]
-        ).rows
+        )
 
         const servicecaterer = await pool.query(
             `SELECT * FROM servicecaterer
             WHERE eventid = $1
             `,
             [eventid]
-        ).rows
+        )
 
 
         // Send mail to providers
         let providerInfos = ""
-        for (let provider of serviceartist) {
+
+        for (let provider of serviceartist.rows) {
             const app_userIdOfArtist = await pool.query(
                 `SELECT a.id FROM app_user a
                 JOIN artist ar ON a.email = ar.emailfk
@@ -873,7 +874,7 @@ async function sendEventMail(eventid,ownerid)
             service.success ? providerInfos.concat(`Send email to artist ${provider['id']}: true\n`) : providerInfos.concat(`Send email to ${provider['id']}: false ==> ${service.error}\n`)
             
         }
-        for (let provider of servicecaterer) {
+        for (let provider of servicecaterer.rows) {
         
             const app_userIdOfCaterer = await pool.query(
                 `SELECT a.id FROM app_user a
