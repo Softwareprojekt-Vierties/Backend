@@ -574,7 +574,7 @@ async function eventMailResponse(type,accepted,objid,eventid)
                     await pool.query("UPDATE event SET isvalid = true WHERE id = $1 ",[eventid])
                     await CreateQueries.sendEventMail(eventid,objid)
                 }
-                else if ((!accepted) ) await pool.query("UPDATE event SET locationid = null WHERE id = $1 ",[eventid])
+                else if (!accepted)  await pool.query("UPDATE event SET locationid = null WHERE id = $1 ",[eventid])
                 else break
                 return "Location Updated"
         }       
