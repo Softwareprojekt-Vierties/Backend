@@ -425,6 +425,7 @@ async function createEvent(name, datum, startuhrzeit,enduhrzeit, eventgroesse, p
  * - error: [the error, if one occured]
  */
 async function createServiceArtist(eventid, artistid){
+    console.log(eventid,artistid)
     try {
         await pool.query(
             "INSERT INTO serviceartist (eventid, artistid) VALUES ($1::int,$2::int)",
