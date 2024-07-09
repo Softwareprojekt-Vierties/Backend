@@ -468,7 +468,7 @@ async function updateMail(userid, id, gelesen, angenommen = null) {
                 WHERE id = $1::int`,
                 [id, gelesen, angenommen]
             )
-            console.log("UPDATED mail")
+
 
             // add artist/caterer to the service of the event
             if (mail.rows[0]['anfrage'] === 'service') {
@@ -477,26 +477,26 @@ async function updateMail(userid, id, gelesen, angenommen = null) {
                     `SELECT email FROM app_user WHERE id = $1::int`,
                     [mail.rows[0]['empfaenger']]
                 )
-                console.log(app_user.rows[0]["email"])
+
                 // find out if the user is an artist or caterer
                 const userType = await pool.query(
                     `SELECT id, true AS isArtist
                     FROM artist
-                    WHERE emailfk = '$1::text'
+                    WHERE emailfk = $1::text
 
                     UNION ALL
 
                     SELECT id, false AS isArtist
                     FROM caterer
-                    WHERE emailfk = '$1::text'`,
+                    WHERE emailfk = $1::text`,
                     [app_user.rows[0]['email']]
                 )
                 // add artist or caterer to the event
                 // userType.rows[0]['isArtist'] ? 
                 //     await CreateQueries.createServiceArtist(mail.rows[0]['eventid'], userType.rows[0]['id']) :
                 //     await CreateQueries.createServiceCaterer(mail.rows[0]['eventid'], userType.rows[0]['id'])
-                console.log("USER TYPE: "+userType.rows)
-                userType.rows[0]['isArtist'] ?
+
+                userType.rows[0]['isartist'] ?
                 await eventMailResponse("artist",angenommen, userType.rows[0]['id'],mail.rows[0]['eventid']):
                 await eventMailResponse("caterer",angenommen,userType.rows[0]['id'],mail.rows[0]['eventid'])
             } 
