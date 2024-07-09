@@ -477,7 +477,7 @@ async function updateMail(userid, id, gelesen, angenommen = null) {
                     `SELECT email FROM app_user WHERE id = $1::int`,
                     [mail.rows[0]['empfaenger']]
                 )
-                console.log(app_user.rows[0]["emial"])
+                console.log(app_user.rows[0]["email"])
                 // find out if the user is an artist or caterer
                 const userType = await pool.query(
                     `SELECT id, true AS isArtist
