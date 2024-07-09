@@ -871,7 +871,7 @@ async function sendEventMail(eventid,ownerid)
                 WHERE ar.id = $1::int`,
                 [provider['id']]
             )
-            const service = await createMail(ownerid, app_userIdOfArtist.rows[0]['id'], 'service', event.rows[0]['id'])
+            const service = await createMail(ownerid, app_userIdOfArtist.rows[0]['id'], 'service', eventid)
             service.success ? providerInfos.concat(`Send email to artist ${provider['id']}: true\n`) : providerInfos.concat(`Send email to ${provider['id']}: false ==> ${service.error}\n`)
             
         }
