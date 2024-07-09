@@ -8,7 +8,8 @@ const checkDistance = require('./CheckDistance')
 const CreateQueries = require("./Database/CreateQueries.js")
 const DeleteQueries = require("./Database/DeleteQueries.js")
 const UpdateQueries = require("./Database/UpdateQueries.js")
-const GetQueries = require("./Database/GetQueries.js")
+const GetQueries = require("./Database/GetQueries.js");
+const { pool } = require("./Database/Database.js");
 
 const app = express(); // create app used for the Server 
 const port =  process.env.PORT || 5000; // connection port
@@ -363,8 +364,9 @@ app.post("/changeFavorite",Auth,async (req,res)=>{
 app.post("/updateArtist", Auth, async (req,res)=>{
     console.log("REQUEST TO UPDATE ARTIST",req.body)
     let userEmail
+
     try {
-        userEmail = getUser(req.headers["auth"])["email"]
+        user = getUser(req.headers["auth"])
         if (userEmail == undefined) throw new Error("INVALID TOKEN")
     } catch(err) {
         console.error(err)
@@ -373,14 +375,28 @@ app.post("/updateArtist", Auth, async (req,res)=>{
 
     const {profilname, profilbild, kurzbeschreibung, beschreibung, region, preis, kategorie, erfahrung, songs} = req.body
     try {
-        const resultArtist = await UpdateQueries.updateArtist(profilname, profilbild, kurzbeschreibung, beschreibung, region, userEmail, preis, kategorie, erfahrung)
+        const resultArtist = await UpdateQueries.updateArtist(profilname, profilbild, kurzbeschreibung, beschreibung, region, user["email"], preis, kategorie, erfahrung)
         let message = ""
-
+        let artist = null
         if (songs != null) {
             for(let song of songs) {
-                const resultLied = await UpdateQueries.updateLied(song['id'], song['songName'], song['songLength'], song['songYear'])
-                if (resultLied) message.concat(", UPDATED lied", song['songName'])
-                else message.concat(", FAILED TO UPDATE lied", song['songName'])
+                if(song["id"] != null)
+                {
+                    const resultLied = await UpdateQueries.updateLied(song['id'], song['songName'], song['songLength'], song['songYear'])
+                    if (resultLied) message.concat(", UPDATED lied", song['songName'])
+                    else message.concat(", FAILED TO UPDATE lied", song['songName'])
+                }
+                else
+                {
+                    if(artist === null) 
+                    {
+                        artist = await pool.query(
+                            `SELECT id FROM artist WHERE id = $1`,
+                            [user["id"]]
+                        )
+                    }
+                    const lied = await CreateQueries.createLied(artist.rows[0]["id"], lied['songName'], lied['songLength'], lied['songYear']) 
+                }
             }
         }
         

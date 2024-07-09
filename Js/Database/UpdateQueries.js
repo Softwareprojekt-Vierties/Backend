@@ -154,6 +154,8 @@ async function updateArtist(profilname, profilbild, kurzbeschreibung, beschreibu
         }
     }
 
+
+
     try {
         const result = await pool.query(
             `UPDATE artist SET
@@ -288,25 +290,26 @@ async function updateGericht(id, name, beschreibung, bild) {
  */
 async function updateLied(id, name, laenge, erscheinung) {
     try {
-        const result = await pool.query(
-            `UPDATE lied SET
-            name = $1::text,
-            laenge = $2::numeric,
-            erscheinung = $3::date
-            WHERE id = $4::int`,
-            [name, laenge, erscheinung, id]
-        )
-        console.error("lied UPDATED")
-        return {
-            success: true,
-            error: null
-        }
-    } catch (err) {
-        console.error("FAILED TO UPDATE lied", err)
-        return {
-            success: false,
-            error: err
-        }
+            const result = await pool.query(
+                `UPDATE lied SET
+                name = $1::text,
+                laenge = $2::numeric,
+                erscheinung = $3::date
+                WHERE id = $4::int`,
+                [name, laenge, erscheinung, id]
+            )
+            console.error("lied UPDATED")
+            return {
+                success: true,
+                error: null
+            }
+        } catch (err) {
+            console.error("FAILED TO UPDATE lied", err)
+            return {
+                success: false,
+                error: err
+            }
+        
     }
 }
 
