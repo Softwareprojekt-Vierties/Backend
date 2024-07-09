@@ -481,7 +481,7 @@ async function updateMail(userid, id, gelesen, angenommen = null) {
                 const userType = await pool.query(
                     `SELECT id, true AS isArtist
                     FROM artist
-                    WHERE emailfk = $1::text'
+                    WHERE emailfk = $1::text
 
                     UNION ALL
 
