@@ -380,7 +380,7 @@ app.post("/updateArtist", Auth, async (req,res)=>{
         let artist = null
         if (songs != null) {
             for(let song of songs) {
-                if(song["id"] != null)
+                if(Object.hasOwn(song, "id"))
                 {
                     const resultLied = await UpdateQueries.updateLied(song['id'], song['songName'], song['songLength'], song['songYear'])
                     if (resultLied) message.concat(", UPDATED lied", song['songName'])
