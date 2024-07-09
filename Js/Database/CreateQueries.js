@@ -240,12 +240,12 @@ async function createCaterer(benutzername, profilname, email, password, profilbi
  */
 async function createLocation(adresse, name, beschreibung, ownerID, privat, kurzbeschreibung, preis, kapazitaet, openair, flaeche, bild){
     try {  
-        const picture = await createBild(profilbild)
+        const picture = await createBild(bild)
 
         if (!picture.success) throw new Error("COULDN'T SAVE PICTURE ON THE DATABASE!")
         
         const location = await pool.query(
-            `INSERT INTO location (adresse, name, beschreibung, ownerid, privat, kurzbeschreibung, preis, kapazitaet, openair, flaeche, bild)
+            `INSERT INTO location (adresse, name, beschreibung, ownerid, privat, kurzbeschreibung, preis, kapazitaet, openair, flaeche, bildid)
             VALUES ($1::text, $2::text, $3::text, $4::int, $5::bool, $6::text, $7::text, $8::int, $9::bool, $10::text, $11::integer) RETURNING id`,
             [adresse, name, beschreibung, ownerID, privat, kurzbeschreibung, preis, kapazitaet, openair, flaeche, picture.id]
         )
