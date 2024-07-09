@@ -1361,7 +1361,8 @@ async function getArtistByEvent(id){
             JOIN serviceartist sa ON sa.artistid = ar.id 
             JOIN event e ON e.id = sa.eventid
             LEFT JOIN bild ON a.bildid = bild.id
-            WHERE sa.eventid = $1::int`,
+            WHERE sa.eventid = $1::int AND
+            sa.accepted = true`,
             [id]
         )
         return result
@@ -1389,7 +1390,8 @@ async function getCatererByEvent(id){
             JOIN servicecaterer sc ON sc.catererid = c.id 
             JOIN event e ON e.id = sc.eventid
             LEFT JOIN bild ON a.bildid = bild.id
-            WHERE sc.eventid = $1::int`,
+            WHERE sc.eventid = $1::int AND 
+            sc.accepted = true`,
             [id]
         )
         return result
