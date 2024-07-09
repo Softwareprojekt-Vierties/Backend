@@ -501,7 +501,7 @@ async function createLied(ownerid,name,laenge,erscheinung){
  */
 async function createGericht(ownerid,name,beschreibung,bild=null){
     try {
-        const picture = await createBild(profilbild)
+        const picture = await createBild(bild)
 
         if (!picture.success) throw new Error("COULDN'T SAVE PICTURE ON THE DATABASE!")
 
