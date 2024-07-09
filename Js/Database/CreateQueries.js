@@ -380,8 +380,9 @@ async function createEvent(name, datum, startuhrzeit,enduhrzeit, eventgroesse, p
         } else providerInfos.concat(`Location is not owned by anybody! Considers this as location accepted!\n`)
 
         // inform friends, that an event has been created
-        for (let friend of await pool.query(`SELECT user2 AS friendid FROM friend WHERE user1 = $1::int`,[ownerid])) {
-            await createMail(ownerid, friend.rows[0]['friendid'], 'info', event.rows[0]['id'])
+        const friends = await pool.query(`SELECT user2 AS friendid FROM friend WHERE user1 = $1::int`,[ownerid])
+        for (let friend of friends.rows) {
+            await createMail(ownerid, friend['friendid'], 'info', event.rows[0]['id'])
         }
 
         return {
