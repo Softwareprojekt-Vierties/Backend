@@ -821,7 +821,7 @@ async function getEventById(req,res){
         const caterer = await getCatererByEvent(req.params["id"])
 
         const ticket = await pool.query(
-            `SELECT 1 FROM tickets
+            `SELECT COUNT(id) FROM tickets
             WHERE eventid = $1 AND userid = $2`,
             [id,userid]
         )
