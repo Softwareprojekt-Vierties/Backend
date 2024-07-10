@@ -140,9 +140,9 @@ async function searchEvent(req, res) {
                 break;
             case 'preis':
                 paramIndex += 2;
-                additionalFilter += `(e.preis BETWEEN $${paramIndex - 1}::text AND $${paramIndex}::text)`;
-                param.push((req.body[key])[0] === '' ? "0" : (req.body[key])[0],
-                        (req.body[key])[1] === '' ? "999999" : (req.body[key])[1]);
+                additionalFilter += `(e.preis BETWEEN $${paramIndex - 1} AND $${paramIndex})`;
+                param.push((req.body[key])[0] === '' ? 0 : (req.body[key])[0],
+                        (req.body[key])[1] === '' ? 999999 : (req.body[key])[1]);
                 break;
             default:
                 doAND = false;
@@ -253,9 +253,9 @@ async function searchLocation(req, res) {
                 break;
             case 'preis':
                 paramIndex += 2;
-                additionalFilter += `(preis BETWEEN $${paramIndex - 1}::text AND $${paramIndex}::text)`;
-                params.push((req.body[key])[0] === '' ? "0" : (req.body[key])[0]);
-                params.push((req.body[key])[1] === '' ? "9999999" : (req.body[key])[1]);
+                additionalFilter += `(preis BETWEEN $${paramIndex - 1} AND $${paramIndex})`;
+                params.push((req.body[key])[0] === '' ? 0 : (req.body[key])[0]);
+                params.push((req.body[key])[1] === '' ? 9999999 : (req.body[key])[1]);
                 break;
             case 'kapazitaet':
                 paramIndex += 2;
@@ -385,9 +385,9 @@ async function searchCaterer(req, res) {
                 break;
             case 'preis':
                 paramIndex += 2;
-                additionalFilter += `(c.preis BETWEEN $${paramIndex - 1}::text AND $${paramIndex}::text)`;
-                param.push((req.body[key])[0] === '' ? "0" : (req.body[key])[0]);
-                param.push((req.body[key])[1] === '' ? "9999999" : (req.body[key])[1]);
+                additionalFilter += `(c.preis BETWEEN $${paramIndex - 1} AND $${paramIndex})`;
+                param.push((req.body[key])[0] === '' ? 0 : (req.body[key])[0]);
+                param.push((req.body[key])[1] === '' ? 9999999 : (req.body[key])[1]);
                 break;
             case 'erfahrung':
                 paramIndex++;
@@ -503,9 +503,9 @@ async function searchArtist(req, res) {
                 break;
             case 'preis':
                 paramIndex += 2;
-                additionalFilter += `(a.preis BETWEEN $${paramIndex - 1}::text AND $${paramIndex}::text)`;
-                param.push((req.body[key])[0] === '' ? "0" : (req.body[key])[0]);
-                param.push((req.body[key])[1] === '' ? "9999999" : (req.body[key])[1]);
+                additionalFilter += `(a.preis BETWEEN $${paramIndex - 1} AND $${paramIndex})`;
+                param.push((req.body[key])[0] === '' ? 0 : (req.body[key])[0]);
+                param.push((req.body[key])[1] === '' ? 9999999 : (req.body[key])[1]);
                 break;
             case 'erfahrung':
                 paramIndex++;
