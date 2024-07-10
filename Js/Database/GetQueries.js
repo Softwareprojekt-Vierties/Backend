@@ -254,8 +254,8 @@ async function searchLocation(req, res) {
             case 'preis':
                 paramIndex += 2;
                 additionalFilter += `(preis BETWEEN $${paramIndex - 1}::text AND $${paramIndex}::text)`;
-                param.push((req.body[key])[0] === '' ? "0" : (req.body[key])[0]);
-                param.push((req.body[key])[1] === '' ? "9999999" : (req.body[key])[1]);
+                params.push((req.body[key])[0] === '' ? "0" : (req.body[key])[0]);
+                params.push((req.body[key])[1] === '' ? "9999999" : (req.body[key])[1]);
                 break;
             case 'kapazitaet':
                 paramIndex += 2;
