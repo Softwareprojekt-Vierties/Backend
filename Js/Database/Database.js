@@ -26,7 +26,7 @@ const pool = new Pool({
 async function comparePassword(email, password) {
     try {
         const SH = await pool.query(
-            "SELECT p.salt, p.hash FROM app_user a JOIN password p ON a.password = p.id WHERE email = $1::text",
+            "SELECT p.hash FROM app_user a JOIN password p ON a.password = p.id WHERE email = $1::text",
             [email]
         )
 

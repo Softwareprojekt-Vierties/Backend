@@ -461,7 +461,7 @@ async function updatePassword(token, oldPassword, newPassword) {
         const tokenData = JWTAuthenticate.getUser(token)
 
         // create new hashed Password
-        const salt = await bcrypt.genSalt(15)
+        const salt = await bcrypt.genSalt(10)
         const newHash = await bcrypt.hash(newPassword, salt)
 
         // compare given old password to the one stored on DB
@@ -476,10 +476,9 @@ async function updatePassword(token, oldPassword, newPassword) {
         // if check passed, update password
         const result = await pool.query(
             `UPDATE password SET
-            salt = $1::text,
-            hash = $2::text
-            WHERE id = $3::int`,
-            [salt, newHash, tokenData.rows[0]['password']]
+            hash = $1::text
+            WHERE id = $2::int`,
+            [newHash, tokenData.rows[0]['password']]
         )
         console.log(`password UPDATED`)
         return {

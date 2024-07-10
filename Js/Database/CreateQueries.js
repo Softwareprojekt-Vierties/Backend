@@ -24,8 +24,8 @@ async function createAppUser(benutzername, profilname, email, password, profilbi
         console.log("BEFORE HASHING:", password, "salt:", salt)
         const hash = await bcrypt.hash(String(password), salt)
         passwordID = await pool.query(
-            `INSERT INTO password (salt, hash) VALUES ($1, $2) RETURNING id`,
-            [salt, hash]
+            `INSERT INTO password (hash) VALUES ($1) RETURNING id`,
+            [hash]
         ).then(res => {return res.rows[0]})
 
         if (passwordID === undefined) throw new Error("COULDN'T SAVE PASSWORD ON THE DATABASE!")
