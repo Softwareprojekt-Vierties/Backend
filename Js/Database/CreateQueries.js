@@ -551,6 +551,19 @@ async function createGericht(ownerid,name,beschreibung,bild=null){
  */
 async function createTicket(userid,eventid){
 
+    const event = await pool.query(
+        `SELECT freietickets FROM event
+        WHERE id = $1`,[eventid])
+    if(event.rows[0]["freietickets"]<=0)
+    {
+        console.error("NO TICKETS AVAILEBIL")
+        return {
+            success: false,
+            id: null,
+            error: null
+            
+        }
+    }
     const data = generateRandomString(userid,eventid,30)
     
 
