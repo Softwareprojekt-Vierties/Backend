@@ -228,7 +228,7 @@ app.post('/createLocation', Auth, async (req,res)=> {
     }
 
     const {adresse, region, name, beschreibung, kurzbeschreibung, preis, kapazitaet, openair, flaeche, bild} = req.body // frontend is missing field 'privat'
-    const result = await CreateQueries.createLocation(adresse + ", " + region, name, beschreibung, userid, true, kurzbeschreibung, preis, kapazitaet, openair, flaeche, bild)
+    const result = await CreateQueries.createLocation(adresse + ", " + region, name, beschreibung, userid, false, kurzbeschreibung, preis, kapazitaet, openair, flaeche, bild)
     if (result.success) res.status(200).send("LOCATION CREATED")
     else res.status(500).send("FAILED TO CREATE LOCATION " + toString(result.error))
 })    // creates a new Location
