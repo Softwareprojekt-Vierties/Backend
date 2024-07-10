@@ -1050,11 +1050,10 @@ async function deletefriend(req,res) {
                 (user1 = $2::int AND user2 = $1::int)`,
             [userid,friendid]
         )
-        console.log(result)
         if (result.rowCount === 0) {
             res.status(200).send("THERE WAS NO FREIND TOO DELETED")
         } else {
-            res.status(200).send("FRIEND IS DELETED", result.rows)
+            res.status(200).send("FRIEND IS DELETED", )
         }
     } catch (err) {
         console.error("AN ERROR OCCURED WHILE TRYING TO DELETE friend", err)
