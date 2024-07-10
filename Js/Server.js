@@ -128,7 +128,6 @@ app.post('/createCaterer', Auth, async (req,res)=> {
         password == undefined ||
         profilname == undefined ||
         region == undefined ||
-        adresse == undefined ||
         preis == undefined
     ) return res.status(400).send("INVALID DATA GIVEN! BODY MUST REQUIRE: profilname, region, preis")
 
@@ -159,7 +158,6 @@ app.post('/createArtist', Auth, async (req,res)=> {
         password == undefined ||
         profilname == undefined ||
         region == undefined ||
-        adresse == undefined ||
         preis == undefined
     ) return res.status(400).send("INVALID DATA GIVEN! BODY MUST REQUIRE: profilname, region,  preis")
     
