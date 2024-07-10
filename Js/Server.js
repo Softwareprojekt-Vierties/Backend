@@ -120,7 +120,7 @@ app.post('/createCaterer', Auth, async (req,res)=> {
     const benutzername = await getUser(req.headers['auth'])['benutzername']
     const email = await getUser(req.headers['auth'])['email']
     const password = await getUser(req.headers['auth'])['password']
-    const {profilname, profilbild, kurzbeschreibung, beschreibung, region, preis, kategorie, erfahrung, gerichte} = req.body
+    const {profilname, profilbild, kurzbeschreibung, beschreibung, region, adresse, preis, kategorie, erfahrung, gerichte} = req.body
 
     if (
         benutzername == undefined ||
@@ -130,9 +130,9 @@ app.post('/createCaterer', Auth, async (req,res)=> {
         region == undefined ||
         adresse == undefined ||
         preis == undefined
-    ) return res.status(400).send("INVALID DATA GIVEN! BODY MUST REQUIRE: profilname, region, preis")
+    ) return res.status(400).send("INVALID DATA GIVEN! BODY MUST REQUIRE: profilname, region, adresse, preis")
 
-    const caterer = await CreateQueries.createCaterer(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, preis, kategorie, erfahrung)
+    const caterer = await CreateQueries.createCaterer(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, adresse + ", " + region, preis, kategorie, erfahrung)
 
     if (caterer.success && gerichte != null) {
         console.log("RECIEVED GERICHTE", gerichte)
@@ -151,7 +151,7 @@ app.post('/createArtist', Auth, async (req,res)=> {
     const benutzername = await getUser(req.headers['auth'])['benutzername']
     const email = await getUser(req.headers['auth'])['email']
     const password = await getUser(req.headers['auth'])['password']
-    const {profilname, profilbild, kurzbeschreibung, beschreibung, region,  preis, kategorie, erfahrung, songs} = req.body
+    const {profilname, profilbild, kurzbeschreibung, beschreibung, region, adresse, preis, kategorie, erfahrung, songs} = req.body
     
     if (
         benutzername == undefined ||
@@ -161,9 +161,9 @@ app.post('/createArtist', Auth, async (req,res)=> {
         region == undefined ||
         adresse == undefined ||
         preis == undefined
-    ) return res.status(400).send("INVALID DATA GIVEN! BODY MUST REQUIRE: profilname, region,  preis")
+    ) return res.status(400).send("INVALID DATA GIVEN! BODY MUST REQUIRE: profilname, region, adresse, preis")
     
-    const artist = await CreateQueries.createArtist(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, preis, kategorie, erfahrung)
+    const artist = await CreateQueries.createArtist(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, adresse+" , "+region, preis, kategorie, erfahrung)
     
     if (artist.success && songs != null) {
         console.log("RECIEVED LIEDER", songs)
@@ -182,7 +182,7 @@ app.post('/createEndnutzer', Auth, async (req,res) => {
     const benutzername = await getUser(req.headers['auth'])['benutzername']
     const email = await getUser(req.headers['auth'])['email']
     const password = await getUser(req.headers['auth'])['password']
-    const {profilname, profilbild, kurzbeschreibung, beschreibung, region, alter, eventarten, lieblingslied, lieblingsgericht, partybilder} = req.body
+    const {profilname, profilbild, kurzbeschreibung, beschreibung, region,adresse, alter, eventarten, lieblingslied, lieblingsgericht, partybilder} = req.body
     
     if (
         benutzername == undefined ||
@@ -192,7 +192,7 @@ app.post('/createEndnutzer', Auth, async (req,res) => {
         alter == undefined
     ) return res.status(400).send("INVALID DATA GIVEN! BODY MUST REQUIRE: profilname, alter")
     
-    await CreateQueries.createEndUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, alter, eventarten, lieblingslied, lieblingsgericht, partybilder).then(result => {
+    await CreateQueries.createEndUser(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, adresse+" , "+region, alter, eventarten, lieblingslied, lieblingsgericht, partybilder).then(result => {
         if(result.success) return res.status(200).send("User created")
         else return res.status(500).send("User not created: " + result.error)
     })
@@ -248,9 +248,9 @@ app.post("/setFriend",Auth,async (req,res)=>{
     const isfriend = await pool.query(
         `SELECT COUNT(id) FROM friend 
         WHERE user1 = $1 AND user2 = $2`,
-        [userid,freundid]
+        [userid,id]
     )
-    if(isfriend.rows[0]["count"]>0) res.status(400).send("YOU ALLREADY ARE FRIENDS ")
+    if(isfriend.rows[0]["count"]>0) res.status(500).send("YOU ALLREADY ARE FRIENDS ")
     result = await CreateQueries.createMail(userid,freundid,"freundschaft")
     if (result.success) res.status(200).send("FRIEND CREATED")
     else res.status(500).send("FAILED TO CREATE FRIEND " + toString(result.error))
