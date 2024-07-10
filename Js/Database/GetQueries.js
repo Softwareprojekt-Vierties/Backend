@@ -1163,7 +1163,7 @@ async function getBookedTicketsDate(req, res) {
 async function getLocationReviewById(req,res){
     try {
         const result = await pool.query(
-            "SELECT r.inhalt,r.sterne,a.profilname FROM review r JOIN app_user a ON r.ownerid = a.id WHERE r.locationid = $1::int",
+            "SELECT r.inhalt,r.sterne,a.profilname FROM review r JOIN app_user a ON r.ownerid = a.id WHERE r.locationid = $1::int ORDER BY r.id DESC",
             [req.params["id"]]
         )
         return res.status(200).send(result)
@@ -1181,7 +1181,7 @@ async function getLocationReviewById(req,res){
 async function getEventReviewById(req,res){
     try {
         const result = await pool.query(
-            "SELECT r.inhalt,r.sterne,a.profilname FROM review r JOIN app_user a ON r.ownerid = a.id WHERE r.eventid = $1::int",
+            "SELECT r.inhalt,r.sterne,a.profilname FROM review r JOIN app_user a ON r.ownerid = a.id WHERE r.eventid = $1::int ORDER BY r.id DESC",
             [req.params["id"]]
         )
         return res.status(200).send(result)
@@ -1199,7 +1199,7 @@ async function getEventReviewById(req,res){
 async function getPersonReviewById(req,res){
     try {
         const result = await pool.query(
-            "SELECT r.inhalt,r.sterne,a.profilname FROM review r JOIN app_user a ON r.ownerid = a.id WHERE r.userid = $1::int",
+            "SELECT r.inhalt,r.sterne,a.profilname FROM review r JOIN app_user a ON r.ownerid = a.id WHERE r.userid = $1::int ORDER BY r.id DESC",
             [req.params["id"]]
         )
         return res.status(200).send(result)
