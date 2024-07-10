@@ -819,11 +819,19 @@ async function getEventById(req,res){
         }
         const artist = await getArtistByEvent(req.params["id"])
         const caterer = await getCatererByEvent(req.params["id"])
+
+        const ticket = await pool.query(
+            `SELECT 1 FROM tickets
+            WHERE eventid = $1 AND userid = $2`,
+            [id,userid]
+        )
+
         return res.status(200).send({
             event: event,
             artists: artist,
             caterers : caterer,
-            isOwner: userid === event.rows[0]['ownerid'] ? true : false
+            isOwner: userid === event.rows[0]['ownerid'] ? true : false,
+            hasTicke: ticket.rowCount>0 ? true : false
         })
     } catch (err) {
         console.error(err)
@@ -896,6 +904,7 @@ async function getCatererById(req,res){
             AND sc.accepted = true`,
             [id,userid]
         )
+
 
         if (cater.rowCount == 0) return res.status(400).send("No caterer found")
 
