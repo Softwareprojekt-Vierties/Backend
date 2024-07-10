@@ -1298,7 +1298,7 @@ async function getMails(req, res) {
                 CASE 
                     WHEN mail.ticketid IS NOT NULL THEN tickets.data
                     ELSE NULL
-                END AS ticketdata
+                END AS ticketdata,
                 app_user.bildid,
                 bild.data AS senderprofilbild
             FROM mail 
