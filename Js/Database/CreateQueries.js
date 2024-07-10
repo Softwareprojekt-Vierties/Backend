@@ -564,6 +564,23 @@ async function createTicket(userid,eventid){
             
         }
     }
+
+    const hasTicket = await pool.query(
+        `SELECT COUNT(id) FROM tickets
+        WHERE userid = $1
+        AND eventid = $2`,[userid,eventid])
+
+    if(hasTicket.rows[0]["count"]>0)
+    {
+        console.error("YOU ALLREADY PURCHEST A TICKET")
+        return {
+            success: false,
+            id: null,
+            error: null
+            
+        }
+    }
+
     const data = generateRandomString(userid,eventid,30)
     
 
