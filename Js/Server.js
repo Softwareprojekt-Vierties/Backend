@@ -248,7 +248,7 @@ app.post("/setFriend",Auth,async (req,res)=>{
     const isfriend = await pool.query(
         `SELECT COUNT(id) FROM friend 
         WHERE user1 = $1 AND user2 = $2`,
-        [userid,id]
+        [userid,freundid]
     )
     if(isfriend.rows[0]["count"]>0) res.status(400).send("YOU ALLREADY ARE FRIENDS ")
     result = await CreateQueries.createMail(userid,freundid,"freundschaft")
