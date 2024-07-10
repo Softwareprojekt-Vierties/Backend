@@ -1295,11 +1295,16 @@ async function getMails(req, res) {
                     WHEN mail.eventid IS NOT NULL THEN location.kapazitaet
                     ELSE NULL
                 END AS locationkapazitaet,
+                CASE 
+                    WHEN mail.ticketid IS NOT NULL THEN tickets.data
+                    ELSE NULL
+                END AS ticketdata
                 app_user.bildid,
                 bild.data AS senderprofilbild
             FROM mail 
             LEFT JOIN event ON mail.eventid = event.id
             LEFT JOIN location ON event.locationid = location.id
+            LEFT JOIN tickets ON tickets.eventid = event.id AND tickets.userid = app_user.id
             JOIN app_user ON mail.sender = app_user.id
             JOIN app_user AS empfaenger ON mail.empfaenger = empfaenger.id
             LEFT JOIN bild ON app_user.bildid = bild.id

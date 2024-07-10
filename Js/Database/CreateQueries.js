@@ -555,20 +555,22 @@ async function createTicket(userid,eventid){
     
 
     try {
-        await pool.query(
-            "INSERT INTO tickets (userid,eventid,data) VALUES ($1::int, $2::int,$3::text)",
+        ticketid = await pool.query(
+            "INSERT INTO tickets (userid,eventid,data) VALUES ($1::int, $2::int,$3::text) RETURNING id",
             [userid, eventid,data]
         )
         console.log("ticked CREATED")
         return {
             success: true,
-            error: null
+            error: null,
+            id : ticketid.rows[0]["id"]
         }
     } catch(err) {
         console.error("FAILED TO CREATE ticket",err)
         return {
             success: false,
-            error: err
+            error: err,
+            id : null
         }
     }
 }
@@ -583,7 +585,7 @@ async function createTicket(userid,eventid){
  * - success: [true if successful, false otherwise]
  * - error: [the error, if one occured]
  */
-async function createMail(sender, empfaenger, anfrage, eventid = null) {
+async function createMail(sender, empfaenger, anfrage, eventid = null,ticketid=null) {
     try {
         let sqlQuery, params
 
@@ -594,7 +596,10 @@ async function createMail(sender, empfaenger, anfrage, eventid = null) {
         } else if (anfrage === 'freundschaft') {
             sqlQuery = `INSERT INTO mail (sender, empfaenger, anfrage) VALUES ($1::int, $2::int, $3::text)`
             params = [sender, empfaenger, anfrage]
-        } else {
+        } else if (anfrage === 'ticket') {
+            sqlQuery = `INSERT INTO mail (sender, empfaenger, anfrage, eventid, ticketid) VALUES ($1::int, $2::int, $3::text,$4,$5)`
+            params = [sender, empfaenger, anfrage,eventid,ticketid]
+        }else {
             throw new Error(`The given anfrage is not allowed: [location, service, freundschaft], given ${anfrage}`)
         }
 

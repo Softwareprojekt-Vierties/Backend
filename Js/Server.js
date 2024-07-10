@@ -261,10 +261,25 @@ app.post("/createTicket",Auth,async (req,res)=>{
         console.error(err)
         return res.status(400).send(toString(err))
     }
-    const eventid = req.body["eventid"]
-    result = await CreateQueries.createTicket(userid,eventid)
-    if (result.success) res.status(200).send("TICKET CREATED")
-    else res.status(500).send("FAILED TO CREATE TICKET " + toString(result.error))
+    try
+    {
+        const eventid = req.body["eventid"]
+        const result = await CreateQueries.createTicket(userid,eventid)
+        if (result.success)
+        { 
+            const eventOwner = await pool.query(
+                `SELECT ownerid from event
+                WEHER id = $1           
+                `,[eventid])
+            const mail = await CreateQueries.createMail(eventOwner.rows[0]["ownerid"],userid,"ticket",eventid,result.id)
+            mail.success ? res.status(200).send("TICKET CREATED") : res.status(400).send("Cant send email")
+        }
+        else res.status(500).send("FAILED TO CREATE TICKET " + toString(result.error))
+    }
+    catch(err)
+    {
+        res.status(500).send("FAILED TO CREATE TICKET " , err)
+    }
 })
 
 app.post("/changeFavorite",Auth,async (req,res)=>{
