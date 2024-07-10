@@ -386,8 +386,10 @@ app.post("/createReview",Auth,async(req,res)=>{
         return res.status(400).send(toString(err))
     } 
 
+    console.log(req.body, "USERID:",userid)
+
     const response = await CreateQueries.createReview(inhalt,sterne,userid,id,intention)
-    response.success ? res.status(200).send("REVIEW CREATED") : res.status(500).send("ERROR: ", toString(response.error))
+    response.success ? res.status(200).send("REVIEW CREATED") : res.status(500).send("ERROR: " + toString(response.error))
 })
 
 // -------------------- UPDATES -------------------- // 
