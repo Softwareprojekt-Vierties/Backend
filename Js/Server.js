@@ -105,6 +105,7 @@ app.get('/tickets', Auth, GetQueries.getAllTicketsFromUser)
 app.get('/getMails', Auth, GetQueries.getMails)
 app.get("/getLocation/:id", Auth, GetQueries.getLocationById)
 app.get("/me", Auth, GetQueries.getMeById)
+app.get("/mePartyBilder", Auth, GetQueries.MeGetPartybilderFromUser)
 
 app.post('/searchEvent',Auth,GetQueries.searchEvent)  // searchs events with filter param
 app.post('/searchLoacation',Auth,GetQueries.searchLocaiton)  // searchs Locations with filter param

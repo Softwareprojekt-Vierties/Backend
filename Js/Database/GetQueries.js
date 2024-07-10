@@ -739,6 +739,33 @@ async function getPartybilderFromUser(req, res) {
     }
 }
 
+async function MeGetPartybilderFromUser(req, res) {
+    let user
+    try {
+        user = jwt.verify(req.headers["auth"], SECRET)
+        if (user == undefined) throw new Error("INVALID TOKEN")
+    } catch(err) {
+        console.error(err)
+        return res.status(400).send(toString(err))
+    } 
+
+    try {
+        const result = await pool.query(
+            `SELECT 
+                pb.id AS partybilder_id,
+                bild.data AS partybild_data
+            FROM partybilder pb
+            JOIN bild ON pb.bildid = bild.id
+            WHERE pb.userid = $1::int`,
+            [user]
+        )
+        res.status(200).send(result)
+    } catch (err) {
+        console.error(err)
+        res.status(500).send(toString(err))
+    }
+}
+
 /**
  * Gets a specific location via its id
  * @param {!JSON} req 
@@ -1036,7 +1063,7 @@ async function getEndUserById(req,res){
         return res.status(400).send(toString(err))
     }
 
-    //console.log(req)
+    //
 
     try {
         const id = req.params["id"]
@@ -1517,6 +1544,7 @@ module.exports = {
     getFriendId: getFriends,
     getMeById,
     getTicketByData,
+    MeGetPartybilderFromUser,
     // SEARCHES
     searchEvent, 
     searchLocaiton: searchLocation, // to not destroy the code by mistakes in refactoring, just point it to the right function
