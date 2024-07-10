@@ -983,10 +983,10 @@ async function getArtistByID(req,res){
             art.rows[0]["favorit"] = art.rows[0]["favorit"] === userid;
         }
 
-        for(let event of events.rows)
+        for(let oneevent of event.rows)
         {
-            if (Object.hasOwn(event, "favorit")) {
-                event["favorit"] = event["favorit"] === userid;
+            if (Object.hasOwn(oneevent, "favorit")) {
+                oneevent["favorit"] = oneevent["favorit"] === userid;
             }
         }
 
