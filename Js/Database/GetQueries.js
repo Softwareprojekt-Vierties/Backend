@@ -252,9 +252,10 @@ async function searchLocation(req, res) {
                 params.push(`%${req.body[key]}%`);
                 break;
             case 'preis':
-                paramIndex++;
-                additionalFilter += `(preis >= $${paramIndex}::text)`;
-                params.push(req.body[key]);
+                paramIndex += 2;
+                additionalFilter += `(preis BETWEEN $${paramIndex - 1}::text AND $${paramIndex}::text)`;
+                param.push((req.body[key])[0] === '' ? "0" : (req.body[key])[0]);
+                param.push((req.body[key])[1] === '' ? "9999999" : (req.body[key])[1]);
                 break;
             case 'kapazitaet':
                 paramIndex += 2;
@@ -402,6 +403,11 @@ async function searchCaterer(req, res) {
                 paramIndex++;
                 additionalFilter += `(fu.userid = $${paramIndex}::int)`;
                 param.push(user);
+                break;
+            case 'bewertung':
+                paramIndex++;
+                additionalFilter += `(a.sterne >= $${paramIndex}::int)`;
+                param.push(req.body[key]);
                 break;
             default:
                 doAND = false;
