@@ -1105,6 +1105,12 @@ async function getEndUserById(req,res){
             [id,userid]
         )
 
+        const friend = await pool.query(
+            `SELECT COUNT(id) FROM friend 
+            WHERE user1 = $1 AND user2 = $2`,
+            [userid,id]
+        )
+
         if (user.rowCount == 0) return res.status(400).send("No user found")
 
         if (Object.hasOwn(user.rows[0],"favorit")) {
@@ -1135,7 +1141,8 @@ async function getEndUserById(req,res){
             user : user,
             locations : location,
             owenevents : owenevent,
-            tickets :  ticket
+            tickets :  ticket,
+            isfriend: friend.rows[0]["count"]>0 ? true : false
         })
     } catch (err) {
         console.error(err)
