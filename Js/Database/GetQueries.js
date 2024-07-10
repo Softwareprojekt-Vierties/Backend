@@ -1235,7 +1235,7 @@ async function getMails(req, res) {
 
     try {
         const mails = await pool.query(
-            `SELECT 
+            `SELECT DISTINCT 
                 mail.id,
                 mail.anfrage AS anfragetyp,
                 mail.gelesen,
