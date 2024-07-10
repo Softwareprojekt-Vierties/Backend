@@ -757,7 +757,7 @@ async function MeGetPartybilderFromUser(req, res) {
             FROM partybilder pb
             JOIN bild ON pb.bildid = bild.id
             WHERE pb.userid = $1::int`,
-            [user]
+            [user["id"]]
         )
         res.status(200).send(result)
     } catch (err) {
