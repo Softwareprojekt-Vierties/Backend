@@ -1,9 +1,8 @@
 const { pool } = require('./Database.js') 
 const DeleteQueries = require("./DeleteQueries.js")
 const CreateQueries = require("./CreateQueries.js")
-const GetQueries = require("./GetQueries.js")
 const bcrypt = require('bcrypt')
-const cookieJwtAuth = require('../CookieJwtAuth')
+const JWTAuthenticate = require('../JWTAuthenticate.js')
 
 // -------------------- PRIVATE -------------------- //
 
@@ -459,7 +458,7 @@ async function updateLocation(userid, locationid, adresse, name, beschreibung, p
  */
 async function updatePassword(token, oldPassword, newPassword) {
     try {
-        const cookie = cookieJwtAuth.getUser(token)
+        const tokenData = JWTAuthenticate.getUser(token)
 
         // create new hashed Password
         const salt = await bcrypt.genSalt(15)
@@ -468,7 +467,7 @@ async function updatePassword(token, oldPassword, newPassword) {
         // compare given old password to the one stored on DB
         const oldHash = await pool.query(
             `SELECT hash FROM password WHERE id = $1::int`,
-            [cookie.rows[0]['password']]
+            [tokenData.rows[0]['password']]
         )
         const isMatch = await bcrypt.compare(oldPassword, oldHash.rows[0]['hash'])
         // check
@@ -480,7 +479,7 @@ async function updatePassword(token, oldPassword, newPassword) {
             salt = $1::text,
             hash = $2::text
             WHERE id = $3::int`,
-            [salt, newHash, cookie.rows[0]['password']]
+            [salt, newHash, tokenData.rows[0]['password']]
         )
         console.log(`password UPDATED`)
         return {

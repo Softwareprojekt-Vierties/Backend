@@ -1,8 +1,7 @@
 const express = require("express"); // import express for REST API
-const cookieParser = require("cookie-parser"); // import cookie parser for cookies
-const { Auth,getUser,isLogedIn,login,tempToken} = require('./CookieJwtAuth.js'); // import CookieJwtAuth.js file
+//const cookieParser = require("cookie-parser"); // import cookie parser for cookies
+const { Auth,getUser,isLogedIn,login,tempToken} = require('./JWTAuthenticate.js'); // import CookieJwtAuth.js file
 const cors = require('cors')
-const checkDistance = require('./CheckDistance')
 
 // DATABASE RELATED
 const CreateQueries = require("./Database/CreateQueries.js")
@@ -21,7 +20,7 @@ const maxRequestBodySize = '10mb'
 //middleware
 app.use(cors(corsOption))
 app.use(express.json({limit: maxRequestBodySize})); // requiert to parse JSON form requests 
-app.use(cookieParser()); // requiert to parse cookies
+//app.use(cookieParser()); // requiert to parse cookies
 app.use((req, res, next) => {
     res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
     res.set('X-Content-Type-Options', 'nosniff');
