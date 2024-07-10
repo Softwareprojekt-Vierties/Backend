@@ -550,8 +550,10 @@ async function createGericht(ownerid,name,beschreibung,bild=null){
  * - error: [the error, if one occured]
  */
 async function createTicket(userid,eventid){
-
-    const data = generateRandomString(userid,eventid,30)
+    const count = await pool.query(
+        "SELECT COUNT(id) FROM tickets"
+    )
+    const data = generateRandomString(userid,eventid,count,30)
     
 
     try {
@@ -935,8 +937,8 @@ async function sendEventMail(eventid,ownerid)
 
 //-----------------private--------------------------
 // Funktion zur Erzeugung einer Pseudo-Zufallszahl mit Seed
-function seededRandom(seed1, seed2) {
-    var seed = seed1 * seed2;
+function seededRandom(seed1, seed2,count) {
+    var seed = seed1 * seed2 * count+1;
     var modulus = 2 ** 32;
     var a = 1664525;
     var c = 1013904223;
