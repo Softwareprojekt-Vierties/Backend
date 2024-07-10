@@ -1,5 +1,5 @@
 const { pool } = require('./Database.js')
-const {getUser} = require("./JWTAuthenticate.js")
+const {getUser} = require("../JWTAuthenticate.js")
 
 /**
 * Deletes a ticket from the DB using an id.
