@@ -563,7 +563,7 @@ app.post("/updateEvent",Auth,async (req,res)=>{
     }
     const check = await pool.query(
         `SELECT true as isvalid from event
-        WEHER ownerid = $1 
+        WHERE ownerid = $1 
         AND id = $2`,
         [userid,eventid]
     )
