@@ -971,7 +971,7 @@ async function getArtistByID(req,res){
             JOIN serviceartist sa ON sa.eventid = e.id 
             JOIN location l ON e.locationid = l.id
             LEFT JOIN bild ON e.bildid = bild.id
-            LEFT OUTER JOIN favorit_event fe ON e.id = fe.eventid AND fu.userid = $2::int
+            LEFT OUTER JOIN favorit_event fe ON e.id = fe.eventid AND fe.userid = $2::int
             WHERE sa.artistid = $1::int 
             AND sa.accepted = true`,
             [id,userid]
