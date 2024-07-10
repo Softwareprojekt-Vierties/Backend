@@ -553,6 +553,7 @@ app.post("/updateMail", Auth, async (req, res) => {
 
 app.post("/updateEvent",Auth,async (req,res)=>{
     let userid
+    const {serviceProviders,eventid} = req.body
     try {
         userid = getUser(req.headers["auth"])["id"]
         if (userid == undefined) throw new Error("INVALID TOKEN")
@@ -560,12 +561,21 @@ app.post("/updateEvent",Auth,async (req,res)=>{
         console.error(err)
         return res.status(400).send(toString(err))
     }
+    const check = await pool.query(
+        `SELECT ture from event
+        WEHER ownerid = $1 
+        AND eventid = $2`,
+        [userid,eventid]
+    )
     try
     { 
-        const {serviceProviders,eventid} = req.body
-        console.log("SERVICEPROVIDER : ",serviceProviders)
-        const response = await UpdateQueries.updateEvent(userid,serviceProviders,eventid)
-        response.success ? res.status(200).send("UPDATED EVENT") : res.status(400).send("CAN'T UPDATE EVENT")
+        if(check.rowCount > 0)
+        {
+            console.log("SERVICEPROVIDER : ",serviceProviders)
+            const response = await UpdateQueries.updateEvent(userid,serviceProviders,eventid)
+            response.success ? res.status(200).send("UPDATED EVENT") : res.status(400).send("CAN'T UPDATE EVENT")
+        }
+        else throw Error("NOT YOUR EVENT")
     }
     catch(err)
     {
