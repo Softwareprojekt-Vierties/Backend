@@ -1055,7 +1055,7 @@ async function getEndUserById(req,res){
         const location = await pool.query(
             `SELECT 
                 l.*,
-                bild.data AS profilbild
+                bild.data AS profilbild,
                 fl.userid as favorit
             FROM location l
             LEFT JOIN bild ON l.bildid = bild.id
