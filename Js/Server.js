@@ -245,6 +245,12 @@ app.post("/setFriend",Auth,async (req,res)=>{
         return res.status(400).send(toString(err))
     }
     const freundid = req.body["freundid"]
+    const isfriend = await pool.query(
+        `SELECT COUNT(id) FROM friend 
+        WHERE user1 = $1 AND user2 = $2`,
+        [userid,id]
+    )
+    if(isfriend.rows[0]["count"]>0) res.status(400).send("YOU ALLREADY ARE FRIENDS ")
     result = await CreateQueries.createMail(userid,freundid,"freundschaft")
     if (result.success) res.status(200).send("FRIEND CREATED")
     else res.status(500).send("FAILED TO CREATE FRIEND " + toString(result.error))
