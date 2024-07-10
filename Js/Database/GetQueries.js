@@ -1248,6 +1248,10 @@ async function getMails(req, res) {
                     ELSE NULL
                 END AS eventname,
                 CASE 
+                    WHEN mail.eventid IS NOT NULL THEN event.eventgroesse
+                    ELSE NULL
+                END AS eventgoesse,
+                CASE 
                     WHEN mail.eventid IS NOT NULL THEN event.preis
                     ELSE NULL
                 END AS ticketpreis,
