@@ -1046,7 +1046,7 @@ async function deletefriend(req,res) {
             `DELETE FROM friend
             WHERE
                 (user1 = $1::int AND user2 = $2::int)
-                AND
+                OR
                 (user1 = $2::int AND user2 = $1::int)`,
             [userid,friendid]
         )
