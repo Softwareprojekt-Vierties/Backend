@@ -965,20 +965,29 @@ async function getArtistByID(req,res){
             `SELECT 
                 e.*, 
                 l.adresse,
-                bild.data AS bild
+                bild.data AS bild,
+                fe.userid as favorit
             FROM event e 
             JOIN serviceartist sa ON sa.eventid = e.id 
             JOIN location l ON e.locationid = l.id
             LEFT JOIN bild ON e.bildid = bild.id
+            LEFT OUTER JOIN favorit_event fe ON e.id = fe.eventid AND fu.userid = $2::int
             WHERE sa.artistid = $1::int 
             AND sa.accepted = true`,
-            [id]
+            [id,userid]
         )
 
         if (art.rowCount == 0) return res.status(400).send("No artist found")
 
         if (Object.hasOwn(art.rows[0], "favorit")) {
             art.rows[0]["favorit"] = art.rows[0]["favorit"] === userid;
+        }
+
+        for(let event of events.rows)
+        {
+            if (Object.hasOwn(event, "favorit")) {
+                event["favorit"] = event["favorit"] === userid;
+            }
         }
 
         return res.status(200).send({
