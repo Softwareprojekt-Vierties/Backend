@@ -278,7 +278,7 @@ async function searchLocation(req, res) {
             case 'bewertung':
                 paramIndex++;
                 additionalFilter += `(sterne >= $${paramIndex}::int)`;
-                params.push(req.body[key]);
+                params.push(req.body[key]<=1 ? 0 : req.body[key]);
                 break;
             default:
                 doAND = false;
@@ -407,7 +407,7 @@ async function searchCaterer(req, res) {
             case 'bewertung':
                 paramIndex++;
                 additionalFilter += `(a.sterne >= $${paramIndex}::int)`;
-                param.push(req.body[key]);
+                param.push(req.body[key]<=1 ? 0 : req.body[key]);
                 break;
             default:
                 doAND = false;
@@ -520,7 +520,7 @@ async function searchArtist(req, res) {
             case 'bewertung':
                 paramIndex++;
                 additionalFilter += `(ap.sterne >= $${paramIndex}::int)`;
-                param.push(req.body[key]);
+                param.push(req.body[key]<=1 ? 0 : req.body[key]);
                 break;
             case 'istfavorit':
                 paramIndex++;
@@ -629,6 +629,11 @@ async function searchEndUser(req, res) {
                 paramIndex++;
                 additionalFilter += `(fr.user1 = $${paramIndex}::int)`;
                 param.push(user);
+                break;
+            case 'bewertung':
+                paramIndex++;
+                additionalFilter += `(ap.sterne >= $${paramIndex}::int)`;
+                param.push(req.body[key]<=1 ? 0 : req.body[key]);
                 break;
             default:
                 doAND = false;
