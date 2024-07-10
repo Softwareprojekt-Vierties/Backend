@@ -1059,7 +1059,7 @@ async function getEndUserById(req,res){
                 fl.userid as favorit
             FROM location l
             LEFT JOIN bild ON l.bildid = bild.id
-            LEFT OUTER JOIN favorit_location fl ON l.id = fl.locationid AND fle.userid = $2::int
+            LEFT OUTER JOIN favorit_location fl ON l.id = fl.locationid AND fl.userid = $2::int
             WHERE l.ownerid = $1::int`,
             [id,userid]
         )
