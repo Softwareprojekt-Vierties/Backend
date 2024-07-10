@@ -120,7 +120,7 @@ app.post('/createCaterer', Auth, async (req,res)=> {
     const benutzername = await getUser(req.headers['auth'])['benutzername']
     const email = await getUser(req.headers['auth'])['email']
     const password = await getUser(req.headers['auth'])['password']
-    const {profilname, profilbild, kurzbeschreibung, beschreibung, region, adresse, preis, kategorie, erfahrung, gerichte} = req.body
+    const {profilname, profilbild, kurzbeschreibung, beschreibung, region, preis, kategorie, erfahrung, gerichte} = req.body
 
     if (
         benutzername == undefined ||
@@ -130,9 +130,9 @@ app.post('/createCaterer', Auth, async (req,res)=> {
         region == undefined ||
         adresse == undefined ||
         preis == undefined
-    ) return res.status(400).send("INVALID DATA GIVEN! BODY MUST REQUIRE: profilname, region, adresse, preis")
+    ) return res.status(400).send("INVALID DATA GIVEN! BODY MUST REQUIRE: profilname, region, preis")
 
-    const caterer = await CreateQueries.createCaterer(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, adresse + ", " + region, preis, kategorie, erfahrung)
+    const caterer = await CreateQueries.createCaterer(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, preis, kategorie, erfahrung)
 
     if (caterer.success && gerichte != null) {
         console.log("RECIEVED GERICHTE", gerichte)
@@ -151,7 +151,7 @@ app.post('/createArtist', Auth, async (req,res)=> {
     const benutzername = await getUser(req.headers['auth'])['benutzername']
     const email = await getUser(req.headers['auth'])['email']
     const password = await getUser(req.headers['auth'])['password']
-    const {profilname, profilbild, kurzbeschreibung, beschreibung, region, adresse, preis, kategorie, erfahrung, songs} = req.body
+    const {profilname, profilbild, kurzbeschreibung, beschreibung, region,  preis, kategorie, erfahrung, songs} = req.body
     
     if (
         benutzername == undefined ||
@@ -161,9 +161,9 @@ app.post('/createArtist', Auth, async (req,res)=> {
         region == undefined ||
         adresse == undefined ||
         preis == undefined
-    ) return res.status(400).send("INVALID DATA GIVEN! BODY MUST REQUIRE: profilname, region, adresse, preis")
+    ) return res.status(400).send("INVALID DATA GIVEN! BODY MUST REQUIRE: profilname, region,  preis")
     
-    const artist = await CreateQueries.createArtist(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, adresse + ", " + region, preis, kategorie, erfahrung)
+    const artist = await CreateQueries.createArtist(benutzername, profilname, email, password, profilbild, kurzbeschreibung, beschreibung, region, preis, kategorie, erfahrung)
     
     if (artist.success && songs != null) {
         console.log("RECIEVED LIEDER", songs)

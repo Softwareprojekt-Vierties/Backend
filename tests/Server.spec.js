@@ -188,7 +188,7 @@ describe('POST /tempToken', () => {
             .post('/tempToken')
             .send(message)
 
-        expect(res.status).toBe(200)
+        expect(res.status).toBe(400)
         expect(res.text).toEqual("Account already exists!")
     }, 2500)
 
