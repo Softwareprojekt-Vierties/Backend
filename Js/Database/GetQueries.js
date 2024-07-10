@@ -1304,9 +1304,9 @@ async function getMails(req, res) {
             FROM mail 
             LEFT JOIN event ON mail.eventid = event.id
             LEFT JOIN location ON event.locationid = location.id
-            LEFT JOIN tickets ON tickets.eventid = event.id AND tickets.userid = app_user.id
             JOIN app_user ON mail.sender = app_user.id
             JOIN app_user AS empfaenger ON mail.empfaenger = empfaenger.id
+            LEFT JOIN tickets ON tickets.eventid = event.id AND tickets.userid = app_user.id
             LEFT JOIN bild ON app_user.bildid = bild.id
             WHERE mail.empfaenger = $1::int`,
             [userid]

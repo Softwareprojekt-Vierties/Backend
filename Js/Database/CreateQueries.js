@@ -555,22 +555,24 @@ async function createTicket(userid,eventid){
     
 
     try {
-        ticketid = await pool.query(
+        const ticketid = await pool.query(
             "INSERT INTO tickets (userid,eventid,data) VALUES ($1::int, $2::int,$3::text) RETURNING id",
-            [userid, eventid,data]
+            [userid, eventid, data]
         )
         console.log("ticked CREATED")
+        console.log(ticketid.rows[0]["id"])        
         return {
             success: true,
-            error: null,
-            id : ticketid.rows[0]["id"]
+            id: ticketid.rows[0]["id"],
+            error: null
         }
     } catch(err) {
         console.error("FAILED TO CREATE ticket",err)
         return {
             success: false,
-            error: err,
-            id : null
+            id: null,
+            error: err
+            
         }
     }
 }

@@ -269,8 +269,9 @@ app.post("/createTicket",Auth,async (req,res)=>{
         { 
             const eventOwner = await pool.query(
                 `SELECT ownerid from event
-                WEHER id = $1           
+                WHERE id = $1           
                 `,[eventid])
+            
             const mail = await CreateQueries.createMail(eventOwner.rows[0]["ownerid"],userid,"ticket",eventid,result.id)
             mail.success ? res.status(200).send("TICKET CREATED") : res.status(400).send("Cant send email")
         }
@@ -278,7 +279,7 @@ app.post("/createTicket",Auth,async (req,res)=>{
     }
     catch(err)
     {
-        res.status(500).send("FAILED TO CREATE TICKET " , err)
+        res.status(500).send("FAILED TO CREATE TICKET " + err)
     }
 })
 
