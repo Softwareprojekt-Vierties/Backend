@@ -245,7 +245,7 @@ app.post("/setFriend",Auth,async (req,res)=>{
         return res.status(400).send(toString(err))
     }
     const freundid = req.body["freundid"]
-    result = await CreateQueries.createFriend(userid,freundid)
+    result = await CreateQueries.createMail(userid,freundid,"freundschaft")
     if (result.success) res.status(200).send("FRIEND CREATED")
     else res.status(500).send("FAILED TO CREATE FRIEND " + toString(result.error))
 })
