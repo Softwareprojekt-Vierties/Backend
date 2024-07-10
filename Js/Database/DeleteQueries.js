@@ -1,4 +1,5 @@
 const { pool } = require('./Database.js')
+const {getUser} = require("./JWTAuthenticate,js")
 
 /**
 * Deletes a ticket from the DB using an id.
@@ -1034,7 +1035,7 @@ async function deletefriend(req,res) {
     const friendid = req.params["id"]
     let userid
     try {
-        userid = jwt.verify(req.headers["auth"], SECRET)["id"]
+        userid = getUser(req.headers["auth"])["id"]
         if (userid == undefined) throw new Error("INVALID TOKEN")
     } catch(err) {
         console.error(err)
