@@ -885,14 +885,16 @@ async function getCatererById(req,res){
             `SELECT 
                 e.*, 
                 l.adresse,
-                bild.data AS bild
+                bild.data AS bild,
+                fe.userid as favorit
             FROM event e 
             JOIN servicecaterer sc ON sc.eventid = e.id 
             JOIN location l ON e.locationid = l.id
             LEFT JOIN bild ON e.bildid = bild.id
+            LEFT OUTER JOIN favorit_event fe ON e.id = fe.eventid AND fe.userid = $2::int
             WHERE sc.catererid = $1::int
             AND sc.accepted = true`,
-            [id]
+            [id,userid]
         )
 
         if (cater.rowCount == 0) return res.status(400).send("No caterer found")
@@ -901,6 +903,13 @@ async function getCatererById(req,res){
             cater.rows[0]["favorit"] = cater.rows[0]["favorit"] === userid;
         }
         
+        for(let oneevent of event.rows)
+            {
+                if (Object.hasOwn(oneevent, "favorit")) {
+                    oneevent["favorit"] = oneevent["favorit"] === userid;
+                }
+            }
+
         return res.status(200).send({
             isOwner : userid === cater.rows[0]['userid'] ? true : false,
             caterer: cater,
@@ -1047,10 +1056,12 @@ async function getEndUserById(req,res){
             `SELECT 
                 l.*,
                 bild.data AS profilbild
+                fl.userid as favorit
             FROM location l
             LEFT JOIN bild ON l.bildid = bild.id
+            LEFT OUTER JOIN favorit_location fl ON l.id = fl.locationid AND fle.userid = $2::int
             WHERE l.ownerid = $1::int`,
-            [id]
+            [id,userid]
         )
         
 
@@ -1059,12 +1070,14 @@ async function getEndUserById(req,res){
                 e.*,
                 l.adresse,
                 l.name as locationname,
-                bild.data AS profilbild
+                bild.data AS profilbild,
+                fe.userid as favorit
             FROM event e
             LEFT JOIN bild ON e.bildid = bild.id
             JOIN location l ON e.locationid = l.id
+            LEFT OUTER JOIN favorit_event fe ON e.id = fe.eventid AND fe.userid = $2::int
             WHERE e.ownerid = $1::int`,
-            [id]
+            [id,userid]
         )
 
         const ticket = await pool.query(
@@ -1072,19 +1085,40 @@ async function getEndUserById(req,res){
                 e.*,
                 l.adresse,
                 l.name as locationname,
-                bild.data AS profilbild
+                bild.data AS profilbild,
+                fe.userid as favorit
             FROM event e
             LEFT JOIN bild ON e.bildid = bild.id
             LEFT JOIN tickets t ON e.id = t.eventid
             JOIN location l ON e.locationid = l.id
+            LEFT OUTER JOIN favorit_event fe ON e.id = fe.eventid AND fe.userid = $2::int
             WHERE t.userid = $1::int`,
-            [id]
+            [id,userid]
         )
 
         if (user.rowCount == 0) return res.status(400).send("No user found")
 
         if (Object.hasOwn(user.rows[0],"favorit")) {
             user.rows[0]["favorit"] = user.rows[0]["favorit"] === userid;
+        }
+
+        for(let oneevent of ticket.rows)
+            {
+                if (Object.hasOwn(oneevent, "favorit")) {
+                    oneevent["favorit"] = oneevent["favorit"] === userid;
+                }
+            }
+        for(let oneevent of owenevent.rows)
+        {
+            if (Object.hasOwn(oneevent, "favorit")) {
+                oneevent["favorit"] = oneevent["favorit"] === userid;
+            }
+        }
+        for(let onelocation of location.rows)
+        {
+            if (Object.hasOwn(onelocation, "favorit")) {
+                onelocation["favorit"] = onelocation["favorit"] === userid;
+            }
         }
 
         return res.status(200).send({
