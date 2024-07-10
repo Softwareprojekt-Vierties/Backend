@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const { comparePassword } = require('./Database/Database.js')
 const { checkIfAccountIsInUse } = require("./Database/GetQueries.js")
-SECRET = "BruhnsmanIsTheBest"
+SECRET = "WIRSINDEVENTURE"
 
 /**
  * checks if an JWT token is valid

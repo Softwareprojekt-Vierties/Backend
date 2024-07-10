@@ -12,6 +12,7 @@ const apiKey = "5b3ce3597851110001cf6248a0e410bd9aef4d01b7088f2b257b0bb8"
 module.exports = async(location1,location2,maxdistance) =>{
     try
     {
+        if(maxdistance>=100) true
         const location1Coords = await geocodeAddress(location1,apiKey)
         const location2Coords = await geocodeAddress(location2,apiKey)
 

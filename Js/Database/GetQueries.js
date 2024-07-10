@@ -1,7 +1,7 @@
 const { pool } = require('./Database.js')
 const jwt = require('jsonwebtoken')
 const checkDistance = require('../CheckDistance.js')
-SECRET = "BruhnsmanIsTheBest"
+SECRET = "WIRSINDEVENTURE"
 
 /**
  * Checks the DB if an account with the given email or benutzername already exists
@@ -12,6 +12,7 @@ SECRET = "BruhnsmanIsTheBest"
  * - exists: boolean - true if account already exists, false otherwise
  * - error: error - null if none occoured
  */
+
 async function checkIfAccountIsInUse(email, benutzername){
     try {
         const result = await pool.query(
