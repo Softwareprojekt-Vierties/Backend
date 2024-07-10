@@ -831,7 +831,7 @@ async function getEventById(req,res){
             artists: artist,
             caterers : caterer,
             isOwner: userid === event.rows[0]['ownerid'] ? true : false,
-            hasTicket: ticket.rowCount>0 ? true : false
+            hasTicket: ticket.rowCount>0 || event.rows[0]["freietickets"]<=0 ? true : false
         })
     } catch (err) {
         console.error(err)
