@@ -1050,7 +1050,8 @@ async function deletefriend(req,res) {
                 (user1 = $2::int AND user2 = $1::int)`,
             [userid,friendid]
         )
-        if (result.rows.length === 0) {
+        print(result)
+        if (result.rowCount === 0) {
             res.status(200).send("THERE WAS NO FREIND TOO DELETED")
         } else {
             res.status(200).send("FRIEND IS DELETED", result.rows)
