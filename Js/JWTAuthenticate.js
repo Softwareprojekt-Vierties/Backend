@@ -64,7 +64,8 @@ async function tempToken(req, res) {
             const token = jwt.sign(req.body, SECRET, {expiresIn: '0.5h'})
             return res.status(200).send(token)
         } else if (exists.success && exists.exists) {
-            return res.status(400).send("Account already exists!")
+            exists.err = "Account already exists!"
+            return res.status(400).send(exists.error)
         } else {
             throw new Error(exists.error)
         }
