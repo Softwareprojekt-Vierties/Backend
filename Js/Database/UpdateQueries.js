@@ -58,6 +58,12 @@ async function updateApp_user(profilname, profilbild, kurzbeschreibung, beschrei
     }
 }
 
+/**
+ * Updates the Partybilder.
+ * @param {number} userid
+ * @param {string} partybilder 
+ */
+
 async function updatePartyBilder(userid, partybilder) {
     DeleteQueries.deletePartybilderById(userid)
 
@@ -226,6 +232,16 @@ async function updateCaterer(profilname, profilbild, kurzbeschreibung, beschreib
         }
     }
 }
+
+/**
+ * Updates Event.
+ * @param {Number} ownerid - id of the event owner
+ * @param {JSON} serviceProvider - the serviceartist and caterer
+ * @param {Number} eventid - the event
+ * @returns {!Object} 
+ * - boolean: success - true if successful, false otherwise
+ * - Error: error - an error, if one occured
+ */
 
 async function updateEvent(ownerid,serviceProvider,eventid) {
     try
@@ -590,9 +606,16 @@ async function updateBild(id, data) {
     }
 }
 
+/**
+ * Updates a mail in the db if the accept bool is set to ture or false.
+ * @param {String} type - the type of the Email
+ * @param {boolean} accepted - represens if the Email is accepted or not 
+ * @param {Number} objid - the id of the type of user or the Location id
+ * @param {Number}  - the Event id
+ * @returns {string} Updates message
+ */
 async function eventMailResponse(type,accepted,objid,eventid)
 {
-    console.log("EVENT "+eventid+" , "+"OBJ: ", "type: "+ type)
     try
     {
     switch(type){

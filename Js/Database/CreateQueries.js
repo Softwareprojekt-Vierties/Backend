@@ -858,6 +858,15 @@ async function createFavoritCaterer(userid,catereid){
     }
 }
 
+/**
+ * Inserts new Mails for the ServiceCaterer and ServiceArtist.
+ * @param {!Number} eventid the ID of the Event
+ * @param {!Number} ownerid the ID of the Event owner
+ * @returns {!Object} 
+ * - success: [true if successful, false otherwise]
+ * - error: [the error, if one occured]
+ */
+
 async function sendEventMail(eventid,ownerid)
 {
     try

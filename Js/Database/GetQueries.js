@@ -1361,6 +1361,12 @@ async function getFriends(req,res){
     }
 }
 
+/**
+ * Compard Data wiht data form the Ticket tabel
+ * @param {*} req 
+ * @param {*} res 
+ */
+
 async function getTicketByData(req,res)
 {
     const data = req.body["data"]
