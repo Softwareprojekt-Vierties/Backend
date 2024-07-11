@@ -163,7 +163,7 @@ async function updateArtist(profilname, profilbild, kurzbeschreibung, beschreibu
     try {
         const result = await pool.query(
             `UPDATE artist SET
-            preis = $1::text,
+            preis = $1,
             kategorie = $2::text,
             erfahrung = $3::text
             WHERE emailfk = $4::text`,
@@ -211,7 +211,7 @@ async function updateCaterer(profilname, profilbild, kurzbeschreibung, beschreib
     try {
         const result = await pool.query(
             `UPDATE caterer SET
-            preis = $1::text,
+            preis = $1,
             kategorie = $2::text,
             erfahrung = $3::text
             WHERE emailfk = $4::text`,
@@ -401,7 +401,7 @@ async function updateLocation(userid, locationid, adresse, name, beschreibung, p
                 beschreibung = $3::text,
                 privat = $4::boolean,
                 kurzbeschreibung = $5::text,
-                preis = $6::text,
+                preis = $6,
                 openair = $7::boolean,
                 flaeche = $8::text,
                 kapazitaet = $9::int
