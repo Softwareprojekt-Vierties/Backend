@@ -244,11 +244,12 @@ async function updateCaterer(profilname, profilbild, kurzbeschreibung, beschreib
 async function updateEvent(ownerid,serviceProvider,eventid) {
     try
     {
+        let providerInfos = ""
         for (let provider of serviceProvider)
         {
             if(provider["userid"]>0)
             {
-                console.log(provider)
+                
                 if(provider["type"]=="artist")
                 {
                     let response = await CreateQueries.createServiceArtist(eventid,provider["id"])
