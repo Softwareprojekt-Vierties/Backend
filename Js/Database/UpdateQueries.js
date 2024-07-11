@@ -96,7 +96,7 @@ async function updatePartyBilder(userid, partybilder) {
  * - boolean: success - true if successful, false otherwise
  * - Error: error - the error if one occured
  */
-async function updateEndnutzer(profilname, profilbild, kurzbeschreibung, beschreibung, region, email, alter, arten, lied, gericht, partybilder) {
+async function updateEndnutzer(profilname, profilbild, kurzbeschreibung, beschreibung, region, email, alter, arten, lied, gericht, partybilder,id) {
     const app_userResult = await updateApp_user(profilname, profilbild, kurzbeschreibung, beschreibung, region, email)
     if (!app_userResult.success) { // if failed
         console.error(`CANNOT UPDATE endnutzer BECAUSE UPDATE app_user FAILED`)
@@ -113,13 +113,12 @@ async function updateEndnutzer(profilname, profilbild, kurzbeschreibung, beschre
             arten = $2::text,
             lied = $3::text,
             gericht = $4::text
-            WHERE emailfk = $5::text
-            RETURNING id`,
+            WHERE emailfk = $5::text`,
             [alter, arten, lied, gericht, email]
         )
         console.log(`endnutzer UPDATED`)
 
-        if (partybilder != undefined) updatePartyBilder(result.rows[0]['id'], partybilder)
+        if (partybilder != undefined) updatePartyBilder(id, partybilder)
 
         return {
             success: true,

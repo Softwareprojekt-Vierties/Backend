@@ -495,10 +495,10 @@ app.post("/updateCaterer", Auth, async (req,res)=>{
 
 app.post("/updateEndnutzer", Auth, async (req,res)=>{
     console.log("REQUEST TO UPDATE Endnutzer",req.body)
-    let userEmail
+    let user
     try {
-        userEmail = getUser(req.headers["auth"])["email"]
-        if (userEmail == undefined) throw new Error("INVALID TOKEN")
+        user = getUser(req.headers["auth"])
+        if (user == undefined) throw new Error("INVALID TOKEN")
     } catch(err) {
         console.error(err)
         return res.status(400).send(toString(err))
@@ -506,7 +506,7 @@ app.post("/updateEndnutzer", Auth, async (req,res)=>{
 
     const {profilname, profilbild, kurzbeschreibung, beschreibung, region, alter, arten, lied, gericht, partybilder} = req.body
     try {
-        const resultEndnutzer = await UpdateQueries.updateEndnutzer(profilname, profilbild, kurzbeschreibung, beschreibung, region, userEmail, alter, arten, lied, gericht, partybilder)
+        const resultEndnutzer = await UpdateQueries.updateEndnutzer(profilname, profilbild, kurzbeschreibung, beschreibung, region, user["email"], alter, arten, lied, gericht, partybilder,user["id"])
         if (resultEndnutzer.success) res.status(200).send("UPDATED Endnutzer")
         else res.status(400).send("FAILED TO UPDATE Endnutzer! " + resultEndnutzer.error + ",")
     }
