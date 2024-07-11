@@ -97,7 +97,7 @@ async function createEndUser(benutzername, profilname, email, password, profilbi
             for(let partybild of partybilder) {
                 const bildid = await createBild(partybild)
                 if (bildid.success) {
-                    await CreateQueries.createPartybild(app_user.id, bildid.id)
+                    await createPartybild(app_user.id, bildid.id)
                 } else {
                     console.warn("FAILED TO SAFE ONE bild!")
                 }
