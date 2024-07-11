@@ -793,8 +793,8 @@ async function deletePartybilderById(id) {
             `DELETE FROM partybilder WHERE userid = $1::int RETURNING *`,
             [id]
         )
-        for (let partybild of result['bildid']) {
-            await deleteBildById(partybild)
+        for (let partybild of result.rows) {
+            await deleteBildById(partybild['bildid'])
         }
         if (result.rows.length === 0) {
             return {

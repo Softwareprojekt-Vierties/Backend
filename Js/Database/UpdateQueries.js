@@ -70,7 +70,7 @@ async function updatePartyBilder(userid, partybilder) {
         const bildid = await CreateQueries.createBild(bild)
 
         if (bildid.success) {
-            CreateQueries.createPartybild(userid, bildid.id)
+            await CreateQueries.createPartybild(userid, bildid.id)
         } else {
             console.warn("FAILED TO SAFE ONE bild!")
         }
