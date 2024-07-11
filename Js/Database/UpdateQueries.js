@@ -252,6 +252,7 @@ async function updateEvent(ownerid,serviceProvider,eventid) {
                 if(provider["type"]=="artist")
                 {
                     let response = await CreateQueries.createServiceArtist(eventid,provider["id"])
+                    console.log(response.success)
                     if(!response.success) throw Error("ERROR DURING CREATION FROM ARTIST : ", response.error)
 
 

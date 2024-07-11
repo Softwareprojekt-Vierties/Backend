@@ -593,7 +593,7 @@ app.post("/updateEvent",Auth,async (req,res)=>{
         {
             console.log("SERVICEPROVIDER : ",serviceProviders)
             const response = await UpdateQueries.updateEvent(userid,serviceProviders,eventid)
-            response.success ? res.status(200).send("UPDATED EVENT") : res.status(400).send("CAN'T UPDATE EVENT")
+            response.success ? res.status(200).send("UPDATED EVENT") : res.status(400).send("CAN'T UPDATE EVENT"+ response.err)
         }
         else res.status(400).send("NOT YOUR EVENT")
     }
