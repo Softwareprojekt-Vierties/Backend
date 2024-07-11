@@ -504,9 +504,9 @@ app.post("/updateEndnutzer", Auth, async (req,res)=>{
         return res.status(400).send(toString(err))
     } 
 
-    const {profilname, profilbild, kurzbeschreibung, beschreibung, region, alter, arten, lied, gericht, partybilder} = req.body
+    const {profilname, profilbild, kurzbeschreibung, beschreibung, region, alter, eventarten, lieblingslied, lieblingsgericht, partybilder} = req.body
     try {
-        const resultEndnutzer = await UpdateQueries.updateEndnutzer(profilname, profilbild, kurzbeschreibung, beschreibung, region, user["email"], alter, arten, lied, gericht, partybilder,user["id"])
+        const resultEndnutzer = await UpdateQueries.updateEndnutzer(profilname, profilbild, kurzbeschreibung, beschreibung, region, user["email"], alter, eventarten, lieblingslied, lieblingsgericht, partybilder,user["id"])
         if (resultEndnutzer.success) res.status(200).send("UPDATED Endnutzer")
         else res.status(400).send("FAILED TO UPDATE Endnutzer! " + resultEndnutzer.error + ",")
     }
