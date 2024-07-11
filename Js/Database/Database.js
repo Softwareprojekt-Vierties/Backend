@@ -2,11 +2,11 @@ const {Pool} = require('pg');
 const bcrypt = require('bcrypt');
 
 const pool = new Pool({
-    host: 'dpg-cp2a9l6n7f5s73fe0sv0-a.frankfurt-postgres.render.com',
-    user: 'eventuredb_user',
+    host: 'dpg-cq7i0ubv2p9s73c4ug4g-a.frankfurt-postgres.render.com',
+    user: 'test_s02o_user',
     port: 5432,
-    password: 'mkzjH3FLbXfVtZwtEwJxcxyvAkt8wUuk',
-    database: 'eventuredb',
+    password: 'l006nMtPSYnk2Yg73hK3lmnCbypjkl9o',
+    database: 'test_s02o',
     max: 20,
     ssl: true,
     connectionTimeoutMillis: 20000,
