@@ -255,7 +255,7 @@ async function updateEvent(ownerid,serviceProvider,eventid) {
                     if(!response.success) throw Error("ERROR DURING CREATION FROM ARTIST : ", response.error)
 
 
-                    const service = await createMail(ownerid, provider['userid'], 'service', eventid)
+                    let service = await createMail(ownerid, provider['userid'], 'service', eventid)
                     service.success ? providerInfos.concat(`Send email to artist ${provider['id']}: true\n`) : providerInfos.concat(`Send email to ${provider['id']}: false ==> ${service.error}\n`)                  
                 
                 }
@@ -265,7 +265,7 @@ async function updateEvent(ownerid,serviceProvider,eventid) {
                     if(!response.success) throw Error("ERROR DURING CREATION FROM CATERER : ", response.error)
 
 
-                    const service = await createMail(ownerid, provider['userid'], 'service', eventid)
+                    let service = await createMail(ownerid, provider['userid'], 'service', eventid)
                     service.success ? providerInfos.concat(`Send email to caterer ${provider['id']}: true\n`) : providerInfos.concat(`Send email to ${provider['id']}: false ==> ${service.error}\n`)                  
                 }
             }
